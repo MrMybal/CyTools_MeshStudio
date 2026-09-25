@@ -27,12 +27,16 @@ DATA_FOLDERS = (INPUTS, MODELS, JOBS, SETTINGS, LOGS, REPORTS, WORKFLOWS, PRESET
 
 
 def base_python():
-    """Interpreter of the light application environment (runtime/python)."""
+    """Interpreter of the light application environment (runtime/python).
+
+    A developer's clone holds a virtual environment there (``Scripts/python.exe``); the binary
+    release holds the embeddable distribution (``python.exe`` at the root of the folder).
+    """
     if sys.platform == 'win32':
-        candidate = RUNTIME / 'python' / 'Scripts' / 'python.exe'
+        candidates = (RUNTIME / 'python' / 'Scripts' / 'python.exe', RUNTIME / 'python' / 'python.exe')
     else:
-        candidate = RUNTIME / 'python' / 'bin' / 'python'
-    return candidate if candidate.exists() else Path(sys.executable)
+        candidates = (RUNTIME / 'python' / 'bin' / 'python',)
+    return next((item for item in candidates if item.exists()), Path(sys.executable))
 
 
 def engine_python(name):

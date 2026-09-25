@@ -54,6 +54,20 @@ acceptance is shown by the Installation tab for the model concerned.
 | zero123plus-pipeline | https://huggingface.co/sudo-ai/zero123plus-pipeline | Apache-2.0 | no |
 | zero123plus-v1.2 | https://huggingface.co/sudo-ai/zero123plus-v1.2 | CC-BY-NC-4.0 (weights); reference code Apache-2.0 | no |
 
+## Runtime of the Windows binary release
+
+Downloaded from their release pages by `app/scripts/build_release.py`, pinned by URL
+and SHA-256, and shipped in the `-windows-x64.zip` archive so that it starts on a
+machine with nothing installed. Not in the repository.
+
+| Part | Origin | Licence |
+|---|---|---|
+| CPython 3.12.10, embeddable distribution (Windows x64) | https://www.python.org | PSF-2.0 |
+| uv 0.12.19 (Windows x64) | https://github.com/astral-sh/uv | MIT OR Apache-2.0 |
+| AutoRemesher 1.2.0 (Windows x64) | https://github.com/huxingyi/autoremesher | MIT |
+| QuadWild Bi-MDF v0.0.2 (Windows binaries) | https://github.com/cgg-bern/quadwild-bimdf | GPL-3.0 |
+| pip 26.2.1 | https://pip.pypa.io | MIT |
+
 ## SDK and Python packages
 
 The Tool is built on the CyToolsCore SDK 0.9.0 (GPL-3.0-only,

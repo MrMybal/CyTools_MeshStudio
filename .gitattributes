@@ -11,3 +11,7 @@
 *.mp4 binary
 *.exe binary
 *.zip binary
+
+# Git's own files are not part of a release archive.
+.gitignore export-ignore
+.gitattributes export-ignore

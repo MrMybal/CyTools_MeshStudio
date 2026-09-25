@@ -8,6 +8,7 @@ that it cannot drift from what the Tool actually installs.
 """
 import json
 from pathlib import Path
+import sys
 
 APP = Path(__file__).resolve().parents[1]
 OUT = APP / 'Docs' / 'ThirdPartyNotices.md'
@@ -64,6 +65,18 @@ def main():
         sdk_version = ''
     records.insert(0, {'kind': 'SDK', 'name': f'CyToolsCore {sdk_version}'.strip(), 'license': 'GPL-3.0-only',
                        'url': 'https://github.com/MrMybal/CyToolsCore'})
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from build_release import PARTS, PIP_VERSION  # noqa: E402 - the pins live in one place
+    lines += ['', '## Runtime of the Windows binary release', '',
+              'Downloaded from their release pages by `app/scripts/build_release.py`, pinned by URL',
+              'and SHA-256, and shipped in the `-windows-x64.zip` archive so that it starts on a',
+              'machine with nothing installed. Not in the repository.', '',
+              '| Part | Origin | Licence |', '|---|---|---|']
+    for part in PARTS:
+        lines.append(f'| {_cell(part["label"])} | {_cell(part["homepage"])} | {_cell(part["license"])} |')
+        records.append({'kind': 'Runtime', 'name': part['label'], 'license': part['license'],
+                        'url': part['homepage']})
+    lines.append(f'| pip {PIP_VERSION} | https://pip.pypa.io | MIT |')
     lines += ['', '## SDK and Python packages', '',
               f'The Tool is built on the CyToolsCore SDK {sdk_version} (GPL-3.0-only,',
               'https://github.com/MrMybal/CyToolsCore), installed by `app/requirements.txt` from its',

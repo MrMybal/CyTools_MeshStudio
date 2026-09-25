@@ -82,5 +82,29 @@
     "name": "dinov2 (hi3dgen)",
     "license": "Apache-2.0 (code and weights)",
     "url": "https://github.com/facebookresearch/dinov2.git"
+  },
+  {
+    "kind": "Runtime",
+    "name": "CPython 3.12.10, embeddable distribution (Windows x64)",
+    "license": "PSF-2.0",
+    "url": "https://www.python.org"
+  },
+  {
+    "kind": "Runtime",
+    "name": "uv 0.12.19 (Windows x64)",
+    "license": "MIT OR Apache-2.0",
+    "url": "https://github.com/astral-sh/uv"
+  },
+  {
+    "kind": "Runtime",
+    "name": "AutoRemesher 1.2.0 (Windows x64)",
+    "license": "MIT",
+    "url": "https://github.com/huxingyi/autoremesher"
+  },
+  {
+    "kind": "Runtime",
+    "name": "QuadWild Bi-MDF v0.0.2 (Windows binaries)",
+    "license": "GPL-3.0",
+    "url": "https://github.com/cgg-bern/quadwild-bimdf"
   }
 ]

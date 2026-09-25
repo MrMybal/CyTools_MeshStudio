@@ -34,6 +34,20 @@ It does **not** carry:
 - **the Windows launcher** `CyTools_MeshStudio.exe`: compiled from `app/launcher.cpp` and
   attached to each release.
 
+## Binary release (Windows x64)
+
+Each GitHub release carries `CyTools_MeshStudio-<version>-windows-x64.zip`: unzip it anywhere
+and double-click `CyTools_MeshStudio.exe`. It holds the application, an embeddable CPython 3.12
+with the application's packages, `uv`, and the two native programs of the geometry engine, so
+nothing has to be installed first (Windows 10 or later, x64). The engines and the weights are
+not in it: the Installation tab builds each engine environment and downloads the weights, tens
+of gigabytes in all, from PyPI, GitHub and Hugging Face. What the archive is made of — each
+part with its URL and SHA-256 — is in `runtime/RELEASE.json` inside it; the archives are built
+by `app/scripts/build_release.py` from the tagged commit.
+
+The lighter `CyTools_MeshStudio-<version>-app.zip` is the committed tree alone: what an
+installed Tool downloads from its Updates tab.
+
 ## From a clone
 
 Windows, PowerShell, from the folder of the clone. Step 1 was executed on the development

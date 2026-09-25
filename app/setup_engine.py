@@ -12,6 +12,7 @@ checkouts at pinned revisions. The last step is an import check inside the new
 environment; nothing is reported installed before that check passes.
 """
 import argparse
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -49,7 +50,9 @@ def interpreter_for(name):
     if not wanted:
         return base_interpreter()
     current = '.'.join(str(part) for part in sys.version_info[:2])
-    if current == wanted:
+    # The embeddable distribution of the binary release has no venv module: it can run the
+    # application but not create an engine environment, so it is never offered here.
+    if current == wanted and importlib.util.find_spec('venv') is not None:
         return base_interpreter()
 
     suffix = 'python.exe' if sys.platform == 'win32' else 'bin/python3'
@@ -58,7 +61,10 @@ def interpreter_for(name):
         if executable.is_file():
             return str(executable)
 
-    if sys.platform == 'win32':
+    # The uv shipped by the binary release comes first: it gives the same interpreter on every
+    # machine. Then whatever Python the machine has, then a uv installed by the user.
+    shipped_uv = RUNTIME / 'uv' / ('uv.exe' if sys.platform == 'win32' else 'uv')
+    if sys.platform == 'win32' and not shipped_uv.is_file():
         probe = subprocess.run(['py', f'-{wanted}', '-c', 'import sys; print(sys.executable)'],
                                capture_output=True, text=True)
         if probe.returncode == 0 and probe.stdout.strip():
@@ -66,7 +72,8 @@ def interpreter_for(name):
 
     log(f'Python {wanted} is not available locally; asking uv to install it')
     interpreters_root().mkdir(parents=True, exist_ok=True)
-    probe = subprocess.run(['uv', 'python', 'install', wanted, '--install-dir', str(interpreters_root())],
+    uv = str(shipped_uv) if shipped_uv.is_file() else 'uv'
+    probe = subprocess.run([uv, 'python', 'install', wanted, '--install-dir', str(interpreters_root())],
                            capture_output=True, text=True)
     if probe.returncode != 0:
         raise SystemExit(f'Python {wanted} is required by engine "{name}" and could not be installed.\n'
