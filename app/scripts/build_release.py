@@ -111,9 +111,12 @@ def build_launcher():
         raise SystemExit('No Visual Studio with the C++ tools was found (vcvars64.bat); pass '
                          '--skip-launcher to reuse the launcher already at the Tool root.')
     script = APP / 'build_launcher.ps1'
-    command = (f'call "{found[-1]}" >nul && powershell -NoProfile -ExecutionPolicy Bypass '
-               f'-File "{script}"')
-    run(['cmd.exe', '/c', command], cwd=ROOT)
+    # cmd.exe must receive one raw command line: passed as a list, Python would quote the whole
+    # "call ... && powershell ..." as a single argument and cmd would not find the batch file.
+    line = (f'cmd.exe /c call "{found[-1]}" >nul && powershell -NoProfile -ExecutionPolicy Bypass '
+            f'-File "{script}"')
+    log('  $ ' + line)
+    subprocess.run(line, check=True, cwd=str(ROOT))
     launcher = ROOT / f'{NAME}.exe'
     if not launcher.is_file():
         raise SystemExit('The launcher was not produced.')
