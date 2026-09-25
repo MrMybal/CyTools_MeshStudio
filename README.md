@@ -36,8 +36,9 @@ It does **not** carry:
 
 ## Binary release (Windows x64)
 
-Each GitHub release carries `CyTools_MeshStudio-<version>-windows-x64.zip`: unzip it anywhere
-and double-click `CyTools_MeshStudio.exe`. It holds the application, an embeddable CPython 3.12
+Each GitHub release carries `CyTools_MeshStudio-<version>-windows-x64.zip`: unzip it into a
+folder with a short path (QuadWild fails in paths longer than about 240 characters, and the
+Tool says so instead of running it) and double-click `CyTools_MeshStudio.exe`. It holds the application, an embeddable CPython 3.12
 with the application's packages, `uv`, and the two native programs of the geometry engine, so
 nothing has to be installed first (Windows 10 or later, x64). The engines and the weights are
 not in it: the Installation tab builds each engine environment and downloads the weights, tens

@@ -14,8 +14,9 @@ sans terminal et sans JSON à éditer. Elle démarre en anglais ; choisir
 **Options → Langue → Français** pour la passer en français — toute l'interface est traduite,
 infobulles des paramètres comprises.
 
-Depuis la release GitHub : décompresser `CyTools_MeshStudio-<version>-windows-x64.zip` où
-l'on veut, puis double-cliquer sur l'exécutable. Rien n'est à installer : l'archive contient
+Depuis la release GitHub : décompresser `CyTools_MeshStudio-<version>-windows-x64.zip` dans
+un dossier au chemin court (QuadWild échoue au-delà d'environ 240 caractères de chemin, et
+l'outil le dit au lieu de le lancer), puis double-cliquer sur l'exécutable. Rien n'est à installer : l'archive contient
 l'application, un Python 3.12 embarqué avec ses paquets, `uv` et les deux programmes natifs
 du moteur géométrie. Les moteurs et les poids, eux, se construisent et se téléchargent depuis
 l'onglet **Installation** (plusieurs dizaines de Go au total).

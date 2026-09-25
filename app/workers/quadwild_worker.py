@@ -21,6 +21,10 @@ import meshio  # noqa: E402
 # Official quad_from_patches.exe of the v0.0.2 release, the build the quirk was observed on.
 KNOWN_BINARY = '5c43c16e4838bf0d4498eef32628dc28ac769f0448805e3da793b2311b7cba34'
 KNOWN_CODE = 2147483651  # 0x80000003, raised after the export on Windows
+#: QuadWild keeps its paths in fixed buffers: in a working folder whose path reached 267
+#: characters it died at the preparation step with 0xC0000409 (a stack buffer overrun),
+#: while the same mesh went through at 64. The longest file it writes there is refused first.
+PATH_LIMIT = 240
 
 
 def _executable(directory, name):
@@ -64,6 +68,13 @@ def remesh(request, reporter):
     reporter.log(f'Input: {len(vertices)} vertices, {len(faces)} triangles')
 
     work_dir = work.parent
+    longest = len(str((work_dir / 'mesh_rem_p0.obj').resolve()))
+    if longest > PATH_LIMIT:
+        raise WorkerError('InvalidInput',
+                          f'The working folder of this job has a path of {longest} characters; '
+                          f'QuadWild cannot handle more than about {PATH_LIMIT} and stops with '
+                          'an error code. Install the Tool in a folder with a shorter path.',
+                          recoverable=True)
     if not (work_dir / 'config').exists():
         shutil.copytree(config_dir, work_dir / 'config')
 
