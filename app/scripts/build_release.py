@@ -105,9 +105,8 @@ def version_of(ref):
 
 def build_launcher():
     """Compile app/launcher.cpp with MSVC, through the x64 developer environment."""
-    candidates = sorted(Path(base).glob('Microsoft Visual Studio/*/*/VC/Auxiliary/Build/vcvars64.bat')
-                        for base in ('C:/Program Files', 'C:/Program Files (x86)'))
-    found = [path for group in candidates for path in group]
+    found = sorted(path for base in ('C:/Program Files', 'C:/Program Files (x86)')
+                   for path in Path(base).glob('Microsoft Visual Studio/*/*/VC/Auxiliary/Build/vcvars64.bat'))
     if not found:
         raise SystemExit('No Visual Studio with the C++ tools was found (vcvars64.bat); pass '
                          '--skip-launcher to reuse the launcher already at the Tool root.')
