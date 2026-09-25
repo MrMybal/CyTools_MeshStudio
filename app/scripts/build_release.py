@@ -177,7 +177,8 @@ def main():
         log('WARNING: the working tree has uncommitted changes; the archive is built from HEAD, '
             'not from them.')
     version = version_of(args.ref)
-    commit = subprocess.run(['git', 'rev-parse', '--short', args.ref], cwd=ROOT,
+    # ``ref^{commit}``: an annotated tag names a tag object, and the record must name the commit.
+    commit = subprocess.run(['git', 'rev-parse', '--short', args.ref + '^{commit}'], cwd=ROOT,
                             capture_output=True, text=True, check=True).stdout.strip()
     log(f'{NAME} {version} from {args.ref} ({commit})')
 
