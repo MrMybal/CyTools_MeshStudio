@@ -1,0 +1,148 @@
+{
+  "format": "cytools-meshstudio-workflow",
+  "schemaVersion": 1,
+  "name": "Image to rigged character (LocalMesh, UniRig)",
+  "description": "A character ready to animate. Same chain as the game asset — LocalMesh High, 20 000 faces, about 6 000 quads, 2K texture and normal map — then UniRig predicts a skeleton and the skinning weights. For humans, animals and creatures seen whole, in a neutral pose; a pose with the arms against the body gives a poorer skin. Outputs: rigged.glb, and the skeleton in FBX and JSON.",
+  "input_mode": "each",
+  "createdAt": "2026-09-24T14:02:46.632988+00:00",
+  "updatedAt": "2026-09-24T14:02:46.632988+00:00",
+  "steps": [
+    {
+      "id": "subject",
+      "operation": "prepare_subject",
+      "backend": "birefnet",
+      "parameters": {
+        "common_framing": true,
+        "measure_camera": false,
+        "contact_sheet": true
+      },
+      "input_from": "",
+      "input_field": "",
+      "input_to": "",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "shape",
+      "operation": "photos_to_mesh",
+      "backend": "trellis",
+      "parameters": {
+        "mode": "single",
+        "tier": "high",
+        "seed": -1,
+        "gpu": 0,
+        "sampler": "recipe",
+        "transparency": "auto",
+        "up_axis": "y",
+        "texture_size": 0,
+        "target_faces": 0,
+        "real_size_mm": 0,
+        "fidelity": 0,
+        "tex_guidance": 0,
+        "steps_structure": 0,
+        "steps_shape": 0,
+        "steps_texture": 0,
+        "bake_normal_map": true,
+        "origin_at_base": true,
+        "remove_floaters": true,
+        "fill_holes": true
+      },
+      "input_from": "subject",
+      "input_field": "subject_set",
+      "input_to": "subject_set",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "light",
+      "operation": "mesh_edit",
+      "backend": "meshedit",
+      "parameters": {
+        "steps": [
+          {
+            "action": "decimate",
+            "targetFaces": 20000
+          }
+        ],
+        "output_format": "obj",
+        "keep_materials": false
+      },
+      "input_from": "shape",
+      "input_field": "file",
+      "input_to": "",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "quads",
+      "operation": "remesh_auto",
+      "backend": "",
+      "parameters": {
+        "target_quads": 6000,
+        "edge_scaling": 1,
+        "sharp_edge": 90,
+        "smooth_normal": 0,
+        "adaptivity": 1,
+        "anisotropy": 1
+      },
+      "input_from": "light",
+      "input_field": "mesh_file",
+      "input_to": "",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "texture",
+      "operation": "texture_mesh",
+      "backend": "trellis",
+      "parameters": {
+        "texture_source": "generate",
+        "texture_size": 2048,
+        "multiview_texture": false,
+        "resolution": 1024,
+        "steps": 16,
+        "guidance": 5.0,
+        "seed": -1,
+        "up_axis": "y",
+        "uv_padding": 4,
+        "gpu": 0
+      },
+      "input_from": "quads",
+      "input_field": "file",
+      "input_to": "mesh_file",
+      "extra_inputs": [
+        {
+          "from": "shape",
+          "field": "file",
+          "to": "detail_mesh"
+        },
+        {
+          "from": "subject",
+          "field": "subject_set",
+          "to": "subject_set"
+        }
+      ],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "rig",
+      "operation": "mesh_to_rig",
+      "backend": "unirig",
+      "parameters": {
+        "seed": 12345,
+        "faces_target": 50000
+      },
+      "input_from": "texture",
+      "input_field": "file",
+      "input_to": "",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    }
+  ]
+}

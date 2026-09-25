@@ -1,0 +1,79 @@
+{
+  "format": "cytools-meshstudio-workflow",
+  "schemaVersion": 1,
+  "name": "Retopologise a textured mesh (QuadWild, texture kept)",
+  "description": "Give an existing textured model — a scan, a LocalMesh or Hi3DGen result, a download — a clean quad topology without losing its look. It is lightened to 60 000 faces, QuadWild rebuilds it as field-aligned quads, and its own texture is re-projected onto the new mesh (no model involved), with a normal map baked from the original. The input must carry one UV texture; the OBJ keeps the quads.",
+  "input_mode": "each",
+  "createdAt": "2026-09-24T14:02:46.632988+00:00",
+  "updatedAt": "2026-09-24T14:02:46.632988+00:00",
+  "steps": [
+    {
+      "id": "light",
+      "operation": "mesh_edit",
+      "backend": "meshedit",
+      "parameters": {
+        "steps": [
+          {
+            "action": "decimate",
+            "targetFaces": 60000
+          }
+        ],
+        "output_format": "obj",
+        "keep_materials": false
+      },
+      "input_from": "",
+      "input_field": "",
+      "input_to": "",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "quads",
+      "operation": "remesh_field",
+      "backend": "quadwild",
+      "parameters": {
+        "preRemesh": true,
+        "featureAngle": 35,
+        "scale": 1,
+        "align": true,
+        "solverSeconds": 300
+      },
+      "input_from": "light",
+      "input_field": "mesh_file",
+      "input_to": "",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "texture",
+      "operation": "texture_mesh",
+      "backend": "trellis",
+      "parameters": {
+        "texture_source": "transfer",
+        "texture_size": 4096,
+        "multiview_texture": false,
+        "resolution": 1024,
+        "steps": 16,
+        "guidance": 5.0,
+        "seed": -1,
+        "up_axis": "y",
+        "uv_padding": 4,
+        "gpu": 0
+      },
+      "input_from": "quads",
+      "input_field": "file",
+      "input_to": "mesh_file",
+      "extra_inputs": [
+        {
+          "from": "@input",
+          "field": "file",
+          "to": "detail_mesh"
+        }
+      ],
+      "enabled": true,
+      "continue_on_error": false
+    }
+  ]
+}

@@ -1,0 +1,695 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": "1.0",
+  "id": "cy.tools.localmesh",
+  "name": "CyTools_LocalMesh",
+  "version": "0.1.1",
+  "description": "LocalMesh Engine: one or four photographs to a textured GLB, local CUDA inference.",
+  "vendor": "Cyberalien",
+  "author": "Cyberalien",
+  "executable": "runtime/python/Scripts/python.exe app/tool.py",
+  "categories": [
+    "3d",
+    "image-to-mesh"
+  ],
+  "tags": [],
+  "capabilities": [
+    "jobs",
+    "cancellation"
+  ],
+  "backends": [
+    {
+      "id": "localmesh-cuda",
+      "name": "LocalMesh Engine / NVIDIA CUDA",
+      "threadSafe": false,
+      "shareableModelInstance": false,
+      "concurrentInference": false,
+      "maxConcurrentInference": 1,
+      "models": [
+        {
+          "id": "localmesh",
+          "version": "1.0.0; revisions pinned on installation",
+          "name": "TRELLIS.2 FP8 + DINOv3 + BiRefNet; optional Pixal3D multiview",
+          "source": "https://huggingface.co/Qtn-Cls/LocalMeshEngine",
+          "license": "MIT / Apache-2.0 / Meta DINOv3 License",
+          "location": "Local",
+          "installed": false,
+          "computeBackends": [
+            "CUDA"
+          ]
+        }
+      ]
+    }
+  ],
+  "platforms": [
+    {
+      "os": "Windows",
+      "architecture": "x64",
+      "status": "Experimental",
+      "computeBackends": [
+        "CPU",
+        "CUDA"
+      ]
+    },
+    {
+      "os": "Linux",
+      "architecture": "x64",
+      "status": "Experimental",
+      "computeBackends": [
+        "CPU",
+        "CUDA"
+      ]
+    }
+  ],
+  "interfaces": [
+    "Native",
+    "CLI",
+    "JSONL",
+    "HTTP",
+    "MCP",
+    "ImGui"
+  ],
+  "runtimeRequirements": [],
+  "concurrency": {
+    "policy": "Sequential",
+    "maxWorkers": 1
+  },
+  "operations": [
+    {
+      "id": "generate",
+      "name": "Photos to textured GLB",
+      "description": "Photos to textured GLB",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "title": "Input mode",
+            "enum": [
+              "single",
+              "four"
+            ],
+            "default": "single"
+          },
+          "front": {
+            "type": "string",
+            "title": "Front image",
+            "default": "",
+            "maxLength": 1024,
+            "x-cy-kind": "File",
+            "minLength": 1,
+            "description": "Image path: absolute local path or relative to data/inputs. Automatically copied into the private job workspace; no manual import required. PNG/JPEG/WebP, at most 32 MiB and 40 megapixels."
+          },
+          "right": {
+            "type": "string",
+            "title": "Right image",
+            "default": "",
+            "maxLength": 1024,
+            "x-cy-kind": "File",
+            "description": "Image path: absolute local path or relative to data/inputs. Automatically copied into the private job workspace; no manual import required. PNG/JPEG/WebP, at most 32 MiB and 40 megapixels."
+          },
+          "left": {
+            "type": "string",
+            "title": "Left image",
+            "default": "",
+            "maxLength": 1024,
+            "x-cy-kind": "File",
+            "description": "Image path: absolute local path or relative to data/inputs. Automatically copied into the private job workspace; no manual import required. PNG/JPEG/WebP, at most 32 MiB and 40 megapixels."
+          },
+          "back": {
+            "type": "string",
+            "title": "Back image",
+            "default": "",
+            "maxLength": 1024,
+            "x-cy-kind": "File",
+            "description": "Image path: absolute local path or relative to data/inputs. Automatically copied into the private job workspace; no manual import required. PNG/JPEG/WebP, at most 32 MiB and 40 megapixels."
+          },
+          "tier": {
+            "type": "string",
+            "title": "Quality",
+            "enum": [
+              "draft",
+              "standard",
+              "high"
+            ],
+            "default": "standard"
+          },
+          "seed": {
+            "type": "integer",
+            "title": "Seed (-1 = random)",
+            "default": -1,
+            "minimum": -1,
+            "maximum": 2147483647
+          },
+          "gpu": {
+            "type": "integer",
+            "title": "GPU index",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 15
+          },
+          "sampler": {
+            "type": "string",
+            "title": "Sampler",
+            "enum": [
+              "recipe",
+              "euler",
+              "heun",
+              "rk4",
+              "rk5"
+            ],
+            "default": "recipe"
+          },
+          "transparency": {
+            "type": "string",
+            "title": "Transparency",
+            "enum": [
+              "auto",
+              "opaque",
+              "mask",
+              "blend"
+            ],
+            "default": "auto"
+          },
+          "up_axis": {
+            "type": "string",
+            "title": "Up axis",
+            "enum": [
+              "y",
+              "z"
+            ],
+            "default": "y"
+          },
+          "texture_size": {
+            "type": "integer",
+            "title": "Texture size (0 = recipe)",
+            "enum": [
+              0,
+              1024,
+              2048,
+              4096
+            ],
+            "default": 0
+          },
+          "target_faces": {
+            "type": "integer",
+            "title": "Target faces (0 = recipe)",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 400000
+          },
+          "real_size_mm": {
+            "type": "number",
+            "title": "Real size in mm (0 = native)",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "fidelity": {
+            "type": "number",
+            "title": "Shape guidance (0 = recipe)",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 20
+          },
+          "tex_guidance": {
+            "type": "number",
+            "title": "Texture guidance (0 = recipe)",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 20
+          },
+          "steps_structure": {
+            "type": "integer",
+            "title": "Steps Structure (0 = recipe)",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 100
+          },
+          "steps_shape": {
+            "type": "integer",
+            "title": "Steps Shape (0 = recipe)",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 100
+          },
+          "steps_texture": {
+            "type": "integer",
+            "title": "Steps Texture (0 = recipe)",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 100
+          },
+          "bake_normal_map": {
+            "type": "boolean",
+            "title": "Bake normal map",
+            "default": true
+          },
+          "origin_at_base": {
+            "type": "boolean",
+            "title": "Origin at base",
+            "default": true
+          },
+          "remove_floaters": {
+            "type": "boolean",
+            "title": "Remove floaters",
+            "default": true
+          },
+          "fill_holes": {
+            "type": "boolean",
+            "title": "Fill holes",
+            "default": true
+          },
+          "model_profile": {
+            "type": "string",
+            "default": "",
+            "description": "ID from the local model library; empty uses the selected built-in model."
+          },
+          "keep_input_copies": {
+            "type": "boolean",
+            "title": "Keep input copies after processing",
+            "default": false,
+            "description": "By default private input copies are deleted after the worker stops, including failure/cancellation. Enable only to retain them for debugging. Original files and generated outputs are never deleted."
+          }
+        },
+        "required": [
+          "front"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "mode": {
+                  "const": "four"
+                }
+              },
+              "required": [
+                "mode"
+              ]
+            },
+            "then": {
+              "required": [
+                "right",
+                "left",
+                "back"
+              ],
+              "properties": {
+                "right": {
+                  "minLength": 1
+                },
+                "left": {
+                  "minLength": 1
+                },
+                "back": {
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "report": {
+            "type": "string"
+          },
+          "thumbnail": {
+            "type": "string"
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "faces": {
+            "type": "integer"
+          },
+          "vertices": {
+            "type": "integer"
+          },
+          "seconds": {
+            "type": "number"
+          },
+          "peak_vram_gb": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "file",
+          "mimeType",
+          "report",
+          "thumbnail",
+          "seed",
+          "faces",
+          "vertices",
+          "seconds",
+          "peak_vram_gb",
+          "notes"
+        ],
+        "additionalProperties": false
+      },
+      "resourceRequirements": {
+        "ramBytes": 536870912
+      },
+      "supportedBackends": [
+        "localmesh-cuda"
+      ],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true
+    },
+    {
+      "id": "diagnose_backend",
+      "name": "Diagnose backend",
+      "description": "Diagnose backend",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": [
+          "python",
+          "torch",
+          "cuda",
+          "gpu",
+          "extensions",
+          "models",
+          "revision",
+          "offline"
+        ],
+        "properties": {
+          "python": {
+            "type": "string"
+          },
+          "torch": {
+            "type": "string"
+          },
+          "cuda": {
+            "type": "string"
+          },
+          "gpu": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string"
+          }
+        }
+      },
+      "resourceRequirements": {
+        "ramBytes": 536870912
+      },
+      "supportedBackends": [],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": false
+    },
+    {
+      "id": "model_library_list",
+      "name": "model_library_list",
+      "description": "List compatible model formats, device capabilities and registered local model/LoRA references.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "capabilities": {
+            "type": "object"
+          },
+          "library": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "urn:cytools:v1:model-library",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "schemaVersion",
+              "models"
+            ],
+            "properties": {
+              "schemaVersion": {
+                "const": 1
+              },
+              "models": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "name",
+                    "path",
+                    "format",
+                    "kind",
+                    "base",
+                    "license",
+                    "source",
+                    "validation"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "path": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "format": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "kind": {
+                      "enum": [
+                        "model",
+                        "lora"
+                      ]
+                    },
+                    "base": {
+                      "type": "string"
+                    },
+                    "license": {
+                      "type": "string"
+                    },
+                    "source": {
+                      "type": "string"
+                    },
+                    "validation": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "capabilities",
+          "library"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": [
+        {
+          "id": "capabilities",
+          "type": "Object",
+          "description": "capabilities"
+        },
+        {
+          "id": "library",
+          "type": "Object",
+          "description": "library"
+        }
+      ],
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CPU",
+            "CUDA"
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CPU",
+            "CUDA"
+          ]
+        }
+      ],
+      "canRunAsync": true,
+      "canCancel": false,
+      "supportsProgress": false,
+      "supportedBackends": [],
+      "permissions": [],
+      "resourceRequirements": {
+        "ramBytes": 67108864,
+        "cpuThreads": 1
+      }
+    },
+    {
+      "id": "model_library_register",
+      "name": "model_library_register",
+      "description": "Register an existing compatible local model or LoRA by reference; does not download or copy weights. Registration is shared by clients of this local Tool.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name"
+          },
+          "path": {
+            "type": "string",
+            "description": "Absolute local path visible on the Tool host"
+          },
+          "format": {
+            "type": "string",
+            "description": "Format ID from model_library_list"
+          },
+          "base": {
+            "type": "string",
+            "description": "Compatible base variant ID"
+          },
+          "license": {
+            "type": "string",
+            "description": "License identifier or terms"
+          },
+          "source": {
+            "type": "string",
+            "description": "Original source URL or repository"
+          }
+        },
+        "required": [
+          "name",
+          "path",
+          "format"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "path",
+              "format",
+              "kind",
+              "base",
+              "license",
+              "source",
+              "validation"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "format": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "enum": [
+                  "model",
+                  "lora"
+                ]
+              },
+              "base": {
+                "type": "string"
+              },
+              "license": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "validation": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "model"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": [
+        {
+          "id": "model",
+          "type": "Object",
+          "description": "model"
+        }
+      ],
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CPU",
+            "CUDA"
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CPU",
+            "CUDA"
+          ]
+        }
+      ],
+      "canRunAsync": true,
+      "canCancel": false,
+      "supportsProgress": false,
+      "supportedBackends": [],
+      "permissions": [],
+      "resourceRequirements": {
+        "ramBytes": 67108864,
+        "cpuThreads": 1
+      }
+    }
+  ],
+  "standaloneExecutable": "CyTools_LocalMesh.exe",
+  "distributionStatus": "Experimental: consult data/reports/VALIDATION.md for executed checks",
+  "license": "Not declared by Tool owner"
+}

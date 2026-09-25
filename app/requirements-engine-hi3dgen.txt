@@ -1,0 +1,23 @@
+# Hi3DGen engine: the requirements of Stable-X/Hi3DGen (requirements.txt at the pinned
+# revision) and of StableNormal's YOSO pipeline, on torch 2.4.0+cu121. gradio is left out: the
+# Tool has its own interface.
+numpy==1.26.4
+transformers==4.46.3
+diffusers==0.28.0
+huggingface_hub==0.25.2
+accelerate==1.1.1
+kornia==0.8.0
+timm==0.6.7
+einops==0.8.0
+easydict==1.13
+scipy==1.14.1
+scikit-image==0.24.0
+opencv-python-headless==4.10.0.84
+trimesh==4.5.3
+Pillow==10.4.0
+tqdm==4.67.1
+safetensors==0.4.5
+truststore==0.10.0
+# diffusers 0.28.0 is the version StableNormal's YOSO pipeline was written against (it needs the
+# Marigold image processor, added in 0.28); that diffusers still imports huggingface_hub's
+# cached_download, removed in 0.26, hence huggingface_hub 0.25.2.

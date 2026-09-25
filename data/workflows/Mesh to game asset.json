@@ -1,0 +1,80 @@
+{
+  "format": "cytools-meshstudio-workflow",
+  "schemaVersion": 1,
+  "name": "Mesh to game asset",
+  "description": "An existing textured model to a light game asset. It is exported as an OBJ of 20 000 faces, AutoRemesher turns it into about 4 000 quads, and its own texture is re-projected onto them (no model involved) in a 2K atlas, with a normal map baked from the original. An input without a UV texture gives the quad mesh alone, and the report says why.",
+  "input_mode": "each",
+  "createdAt": "2026-09-22T17:48:30.683321+00:00",
+  "updatedAt": "2026-09-24T14:02:46.634994+00:00",
+  "steps": [
+    {
+      "id": "light",
+      "operation": "mesh_edit",
+      "backend": "meshedit",
+      "parameters": {
+        "steps": [
+          {
+            "action": "decimate",
+            "targetFaces": 20000
+          }
+        ],
+        "output_format": "obj",
+        "keep_materials": false
+      },
+      "input_from": "",
+      "input_field": "",
+      "input_to": "",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "quads",
+      "operation": "remesh_auto",
+      "backend": "",
+      "parameters": {
+        "target_quads": 4000,
+        "edge_scaling": 1,
+        "sharp_edge": 90,
+        "smooth_normal": 0,
+        "adaptivity": 1,
+        "anisotropy": 1
+      },
+      "input_from": "light",
+      "input_field": "mesh_file",
+      "input_to": "",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "texture",
+      "operation": "texture_mesh",
+      "backend": "trellis",
+      "parameters": {
+        "texture_source": "transfer",
+        "texture_size": 2048,
+        "multiview_texture": false,
+        "resolution": 1024,
+        "steps": 16,
+        "guidance": 5.0,
+        "seed": -1,
+        "up_axis": "y",
+        "uv_padding": 4,
+        "gpu": 0
+      },
+      "input_from": "quads",
+      "input_field": "file",
+      "input_to": "mesh_file",
+      "extra_inputs": [
+        {
+          "from": "@input",
+          "field": "file",
+          "to": "detail_mesh"
+        }
+      ],
+      "enabled": true,
+      "continue_on_error": true
+    }
+  ]
+}

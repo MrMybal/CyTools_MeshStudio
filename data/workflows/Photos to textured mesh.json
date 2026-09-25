@@ -1,0 +1,59 @@
+{
+  "format": "cytools-meshstudio-workflow",
+  "schemaVersion": 1,
+  "name": "Photos to textured mesh",
+  "description": "Four photographs of one subject to a textured mesh. Put the photographs of ONE subject in a folder, named after their side: front, right, left, back (or face, droite, gauche, dos), for example statue-front.jpg. The folder is taken as one subject (input mode \"together\"); a photograph without a side becomes the front if there is none. They are cut out at one common scale, their angles measured, and LocalMesh fuses them at the High tier: 1024 grid, 250 000 faces, 4K texture, baked normal map.",
+  "input_mode": "together",
+  "createdAt": "2026-09-22T18:54:02.031251+00:00",
+  "updatedAt": "2026-09-24T14:02:46.634994+00:00",
+  "steps": [
+    {
+      "id": "subject",
+      "operation": "prepare_subject",
+      "backend": "birefnet",
+      "parameters": {
+        "common_framing": true,
+        "measure_camera": true,
+        "contact_sheet": true
+      },
+      "input_from": "",
+      "input_field": "",
+      "input_to": "images",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "mesh",
+      "operation": "photos_to_mesh",
+      "backend": "trellis",
+      "parameters": {
+        "mode": "four",
+        "tier": "high",
+        "seed": -1,
+        "gpu": 0,
+        "sampler": "recipe",
+        "transparency": "auto",
+        "up_axis": "y",
+        "texture_size": 0,
+        "target_faces": 0,
+        "real_size_mm": 0,
+        "fidelity": 0,
+        "tex_guidance": 0,
+        "steps_structure": 0,
+        "steps_shape": 0,
+        "steps_texture": 0,
+        "bake_normal_map": true,
+        "origin_at_base": true,
+        "remove_floaters": true,
+        "fill_holes": true
+      },
+      "input_from": "subject",
+      "input_field": "subject_set",
+      "input_to": "subject_set",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    }
+  ]
+}

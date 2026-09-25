@@ -1,0 +1,56 @@
+{
+  "format": "cytools-meshstudio-workflow",
+  "schemaVersion": 1,
+  "name": "Image to high-quality mesh (LocalMesh)",
+  "description": "One image, cut out once at a common scale, then LocalMesh at the High tier: 1024 grid, 16 passes, 250 000 faces, PBR texture generated for the final mesh in a 4K atlas, baked normal map. Switch the tier to max for the 1536 grid (24 GB card).",
+  "createdAt": "2026-09-23T11:37:51.068982+00:00",
+  "updatedAt": "2026-09-23T11:37:51.068982+00:00",
+  "steps": [
+    {
+      "id": "subject",
+      "operation": "prepare_subject",
+      "backend": "birefnet",
+      "parameters": {
+        "common_framing": true,
+        "measure_camera": false,
+        "contact_sheet": true
+      },
+      "input_from": "",
+      "input_field": "",
+      "input_to": "",
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "mesh",
+      "operation": "photos_to_mesh",
+      "backend": "trellis",
+      "parameters": {
+        "mode": "single",
+        "tier": "high",
+        "seed": -1,
+        "gpu": 0,
+        "sampler": "recipe",
+        "transparency": "auto",
+        "up_axis": "y",
+        "texture_size": 0,
+        "target_faces": 0,
+        "real_size_mm": 0,
+        "fidelity": 0,
+        "tex_guidance": 0,
+        "steps_structure": 0,
+        "steps_shape": 0,
+        "steps_texture": 0,
+        "bake_normal_map": true,
+        "origin_at_base": true,
+        "remove_floaters": true,
+        "fill_holes": true
+      },
+      "input_from": "subject",
+      "input_field": "subject_set",
+      "input_to": "subject_set",
+      "enabled": true,
+      "continue_on_error": false
+    }
+  ]
+}

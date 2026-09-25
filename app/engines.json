@@ -1,0 +1,469 @@
+{
+  "schemaVersion": 1,
+  "comment": "Engine environments of CyTools_MeshStudio. Each engine is one private virtual environment under runtime/engines, shared by every backend whose dependency stack is identical. Grouping was derived from the environments of the absorbed Tools (see app/Docs/Architecture.md); a backend is only declared tested once it has really been executed here.",
+  "engines": {
+    "geometry": {
+      "label": "Geometry engine (CPU: remesh, UV, PBR bake, mesh edit)",
+      "directory": "runtime/engines/geometry",
+      "python": "3.11",
+      "requirements": "requirements-engine-geometry.txt",
+      "verify": [
+        "numpy",
+        "trimesh",
+        "xatlas",
+        "PIL",
+        "scipy",
+        "networkx"
+      ],
+      "backends": [
+        "autoremesher",
+        "quadwild",
+        "xatlas",
+        "pbrbake",
+        "meshedit",
+        "proxyfit"
+      ],
+      "natives": {
+        "autoremesher": {
+          "label": "AutoRemesher 1.2.0 (huxingyi)",
+          "directory": "runtime/natives/autoremesher-1.2.0",
+          "requiredFile": "autoremesher.exe",
+          "license": "MIT",
+          "url": "https://github.com/huxingyi/autoremesher"
+        },
+        "quadwild": {
+          "label": "QuadWild Bi-MDF v0.0.2",
+          "directory": "runtime/natives/quadwild-bimdf-v0.0.2",
+          "requiredFile": "quadwild.exe",
+          "license": "GPL-3.0 (binaries redistributed by the upstream release)",
+          "url": "https://github.com/cgg-bern/quadwild-bimdf"
+        }
+      },
+      "estimatedBytes": 900000000
+    },
+    "torch-cu124": {
+      "label": "PyTorch 2.5.1 CUDA 12.4 engine (TripoSR, SPAR3D, UniRig)",
+      "directory": "runtime/engines/torch-cu124",
+      "python": "3.11",
+      "torch": {
+        "packages": [
+          "torch==2.5.1+cu124",
+          "torchvision==0.20.1+cu124"
+        ],
+        "index": "https://download.pytorch.org/whl/cu124",
+        "cpu": {
+          "packages": [
+            "torch==2.5.1",
+            "torchvision==0.20.1"
+          ],
+          "index": "https://download.pytorch.org/whl/cpu"
+        }
+      },
+      "requirements": "requirements-engine-cu124.txt",
+      "sources": {
+        "TripoSR": {
+          "repository": "https://github.com/VAST-AI-Research/TripoSR.git",
+          "revision": "107cefdc244c39106fa830359024f6a2f1c78871",
+          "license": "MIT (code); weights under the Stability AI Community License",
+          "requiredFile": "tsr/system.py"
+        },
+        "SPAR3D": {
+          "repository": "https://github.com/Stability-AI/stable-point-aware-3d.git",
+          "revision": "fdc311b16809e6a8adc2f5a3407ebb3db1a95bd1",
+          "license": "Stability AI Community License (code and weights)",
+          "requiredFile": "spar3d/system.py"
+        },
+        "UniRig": {
+          "repository": "https://github.com/VAST-AI-Research/UniRig.git",
+          "revision": "6793c6640ff01c8fb389f3993434124bb43d2933",
+          "license": "MIT (code); Articulation-XL weights under their own terms",
+          "requiredFile": "src/inference/download.py"
+        }
+      },
+      "verify": [
+        "torch",
+        "torchvision",
+        "transformers",
+        "trimesh",
+        "torchmcubes",
+        "texture_baker",
+        "uv_unwrapper",
+        "spconv",
+        "bpy",
+        "open3d",
+        "alpha_clip"
+      ],
+      "backends": [
+        "triposr",
+        "spar3d",
+        "unirig"
+      ],
+      "estimatedBytes": 12000000000,
+      "verificationNote": "TripoSR and SPAR3D were installed upstream with transformers 4.42.3 / trimesh 4.4.1, UniRig with transformers 4.51.3 / trimesh 5.1.0. The merged engine pins the newer pair; each of the three backends must be executed here before it is declared supported.",
+      "wheelIndexes": [
+        {
+          "label": "PyTorch Geometric wheels for torch 2.5.1+cu124 (torch-scatter, torch-cluster)",
+          "url": "https://data.pyg.org/whl/torch-2.5.1+cu124.html",
+          "packages": [
+            "torch-scatter==2.1.2",
+            "torch-cluster==1.6.3"
+          ]
+        }
+      ],
+      "nativeBuild": {
+        "note": "Three extensions have no wheel for this ABI and must be compiled: torchmcubes for TripoSR, texture_baker and uv_unwrapper for SPAR3D. The official CUDA 12.4 redistributables are downloaded into runtime/cuda-12.4 and the MSVC toolchain is loaded into the installer process only: no driver, no machine PATH and no system CUDA installation is touched.",
+        "cuda": {
+          "version": "12.4",
+          "manifest": "redistrib_12.4.1.json",
+          "baseUrl": "https://developer.download.nvidia.com/compute/cuda/redist/",
+          "directory": "runtime/cuda-12.4",
+          "components": [
+            "cuda_nvcc",
+            "cuda_cudart",
+            "cuda_cccl",
+            "cuda_nvtx",
+            "libcublas",
+            "libcusparse",
+            "libcusolver",
+            "libcurand"
+          ],
+          "architectures": "75-real;80-real;86-real;89-real;90-virtual"
+        },
+        "msvc": "14.38",
+        "packages": [
+          {
+            "label": "torchmcubes (TripoSR marching cubes)",
+            "spec": "git+https://github.com/tatsy/torchmcubes.git@879926d0ef58e6ce0ac2630fdecb5e53af7ed3ff"
+          },
+          {
+            "label": "texture_baker (SPAR3D)",
+            "source": "SPAR3D",
+            "path": "texture_baker"
+          },
+          {
+            "label": "uv_unwrapper (SPAR3D)",
+            "source": "SPAR3D",
+            "path": "uv_unwrapper"
+          }
+        ]
+      },
+      "verifyStatements": [
+        {
+          "label": "torchmcubes CUDA kernels",
+          "code": "import torchmcubes; assert hasattr(torchmcubes, \"HAS_CUDA\")"
+        },
+        {
+          "label": "CUDA device",
+          "code": "import torch; assert torch.cuda.is_available()"
+        },
+        {
+          "label": "torch-scatter and torch-cluster",
+          "code": "import torch_scatter, torch_cluster"
+        }
+      ],
+      "pipExtra": [
+        {
+          "label": "setuptools for legacy setup.py builds",
+          "spec": "setuptools<81"
+        },
+        {
+          "label": "CLIP (SPAR3D conditioning)",
+          "spec": "git+https://github.com/openai/CLIP.git",
+          "noBuildIsolation": true
+        },
+        {
+          "label": "AlphaCLIP (SPAR3D region conditioning)",
+          "spec": "git+https://github.com/SunzeY/AlphaCLIP.git",
+          "noBuildIsolation": true
+        }
+      ]
+    },
+    "trellis": {
+      "label": "TRELLIS.2 engine (photos to textured mesh, from LocalMesh)",
+      "directory": "runtime/engines/trellis",
+      "python": "3.12",
+      "torch": {
+        "packages": [
+          "torch==2.8.0+cu128",
+          "torchvision==0.23.0+cu128"
+        ],
+        "index": "https://download.pytorch.org/whl/cu128"
+      },
+      "requirements": "requirements-engine-trellis.txt",
+      "sources": {
+        "localmesh-engine": {
+          "repository": "https://github.com/Quentincls/localmesh-engine",
+          "revision": "c30fb47f8a57f1c68650697a7b99bc2c2399be23",
+          "license": "See the engine repository LICENSE and NOTICE",
+          "requiredFile": "localmesh_engine/pipeline.py"
+        }
+      },
+      "verify": [
+        "torch",
+        "transformers",
+        "natten",
+        "cumesh",
+        "flex_gemm",
+        "trimesh",
+        "cv2",
+        "localmesh_engine",
+        "xatlas"
+      ],
+      "backends": [
+        "trellis"
+      ],
+      "estimatedBytes": 11000000000,
+      "verificationNote": "Kept separate from the diffusion engine on purpose: this stack is transformers 5.x with huggingface_hub 1.x, which diffusers 0.35.2 does not support.",
+      "wheels": {
+        "platform": "win32",
+        "baseUrl": "https://github.com/Quentincls/localmesh-engine/releases/download/wheels-cp312-cu128/",
+        "note": "Three CUDA extensions (cumesh, flex_gemm, o_voxel) plus natten, compiled against torch 2.8.0+cu128 for CPython 3.12 on Windows. They are not on PyPI and pip install cumesh would fetch a different project of the same name, so they are pinned by SHA-256 and installed with --no-deps. Linux needs a source build: not done, not claimed.",
+        "files": {
+          "cumesh-1.0-cp312-cp312-win_amd64.whl": "125077f7cdbb3f274ed599abc17634af1aa2bdaac4f0354f91671acdf28c91b3",
+          "flex_gemm-0.0.1-cp312-cp312-win_amd64.whl": "410efe0dddc64ce7379fdb157f1336b338e7bf9821c097de3d9b32839158869b",
+          "natten-0.21.6-cp312-cp312-win_amd64.whl": "9a494a9e1642775e08e187934938c661d1279ab43e6ed29af7a5bbde25d875fb",
+          "o_voxel-0.0.1-cp312-cp312-win_amd64.whl": "4126de7c3578d966a0d079d7a0eefcfbaf80dc1f28482649ba390cfed121bda3"
+        }
+      },
+      "installSources": [
+        "localmesh-engine"
+      ],
+      "modelLayout": {
+        "note": "The engine expects the folder names its upstream catalogue uses, while the Tool stores one canonical copy per model under data/models with catalogue ids. This layout is a directory of junctions (Windows) or symlinks (POSIX) pointing at those canonical folders: no weight is copied or renamed, and several engines can expect different names for the same weights.",
+        "root": "runtime/engines/trellis/model-root",
+        "links": {
+          "models/TRELLIS.2-4B": "data/models/trellis2-4b",
+          "models/microsoft/TRELLIS-image-large": "data/models/trellis-image-large",
+          "models/microsoft/TRELLIS.2-4B": "data/models/trellis2-4b-reconviagen",
+          "models/multivue": "data/models/localmesh-multivue",
+          "models/facebook/dinov3-vitl16-pretrain-lvd1689m": "data/models/dinov3-vitl16",
+          "models/BiRefNet_HR": "data/models/birefnet-hr",
+          "models/hf": "data/models/localmesh-hf-modules"
+        },
+        "env": {
+          "LOCALMESH_ROOT": "{root}",
+          "HF_HOME": "{root}/models/hf"
+        }
+      },
+      "verifyStatements": [
+        {
+          "label": "natten CUDA kernels",
+          "code": "import natten; assert natten.HAS_LIBNATTEN, \"natten has no CUDA library\""
+        },
+        {
+          "label": "o_voxel through the nvdiffrast stand-in",
+          "code": "from localmesh_engine import leurre_nvdiffrast; leurre_nvdiffrast.installer(); import o_voxel; assert o_voxel is not None",
+          "note": "o_voxel imports nvdiffrast at module level, and nvdiffrast is non-commercial, so the engine installs a stand-in first. Importing o_voxel on its own therefore fails by design: it must be checked through that stand-in."
+        },
+        {
+          "label": "CUDA device",
+          "code": "import torch; assert torch.cuda.is_available(), \"no CUDA device\""
+        }
+      ]
+    },
+    "diffusion": {
+      "label": "Diffusion and understanding engine (views, segmentation, depth, proxy fitting)",
+      "directory": "runtime/engines/diffusion",
+      "python": "3.12",
+      "torch": {
+        "packages": [
+          "torch==2.8.0+cu128",
+          "torchvision==0.23.0+cu128"
+        ],
+        "index": "https://download.pytorch.org/whl/cu128"
+      },
+      "requirements": "requirements-engine-diffusion.txt",
+      "sources": {
+        "PerspectiveFields": {
+          "repository": "https://github.com/jinlinyi/PerspectiveFields.git",
+          "revision": "d54be737d6eacfb9d39a2b7079a494924b45bb6c",
+          "license": "CC-BY-NC-4.0",
+          "requiredFile": "perspective2d/__init__.py"
+        }
+      },
+      "verify": [
+        "torch",
+        "diffusers",
+        "transformers",
+        "cv2",
+        "trimesh",
+        "xatlas"
+      ],
+      "backends": [
+        "zero123plus",
+        "sam2",
+        "depthanything",
+        "perspectivefields",
+        "mirror"
+      ],
+      "estimatedBytes": 9000000000
+    },
+    "wham": {
+      "label": "WHAM engine (video to 3D human motion)",
+      "directory": "runtime/engines/wham",
+      "python": "3.9",
+      "torch": {
+        "packages": [
+          "torch==1.11.0+cu113",
+          "torchvision==0.12.0+cu113"
+        ],
+        "index": "https://download.pytorch.org/whl/cu113"
+      },
+      "requirements": "requirements-engine-wham.txt",
+      "sources": {
+        "WHAM": {
+          "repository": "https://github.com/yohanshin/WHAM.git",
+          "revision": "2b54f7797391c94876848b905ed875b154c4a295",
+          "license": "CC-BY-NC-4.0 (code); SMPL body model under its own licence",
+          "requiredFile": "lib/models/wham.py"
+        }
+      },
+      "verify": [
+        "torch",
+        "smplx",
+        "yacs"
+      ],
+      "backends": [
+        "wham"
+      ],
+      "estimatedBytes": 5000000000,
+      "verificationNote": "Python 3.9 with torch 1.11+cu113 is the stack the upstream engine needs; it cannot share an environment with any other backend of this Tool."
+    },
+    "wonder3d": {
+      "label": "Wonder3D engine (multi-view with normal maps)",
+      "directory": "runtime/engines/wonder3d",
+      "python": "3.10",
+      "torch": {
+        "packages": [
+          "torch==2.1.2+cu121",
+          "torchvision==0.16.2+cu121"
+        ],
+        "index": "https://download.pytorch.org/whl/cu121"
+      },
+      "requirements": "requirements-engine-wonder3d.txt",
+      "pipExtra": [
+        {
+          "label": "xformers for the attention path Wonder3D was measured with",
+          "spec": "xformers==0.0.23.post1",
+          "index": "https://download.pytorch.org/whl/cu121"
+        }
+      ],
+      "sources": {
+        "Wonder3D": {
+          "repository": "https://github.com/xxlong0/Wonder3D.git",
+          "revision": "d894f827aa8c2917761a0dad3ab40df74c7a5b24",
+          "license": "AGPL-3.0 (code); weights CC-BY-NC",
+          "requiredFile": "mvdiffusion/pipelines/pipeline_mvdiffusion_image.py"
+        }
+      },
+      "verify": [
+        "torch",
+        "diffusers",
+        "transformers",
+        "cv2"
+      ],
+      "backends": [
+        "wonder3d"
+      ],
+      "estimatedBytes": 6000000000,
+      "verificationNote": "Kept apart from SyncDreamer although both run torch 2.1.2+cu121: this one needs diffusers 0.19.3 with transformers 4.35.2, the other pytorch-lightning 1.9 with transformers 4.37.2."
+    },
+    "syncdreamer": {
+      "label": "SyncDreamer engine (16 consistent views)",
+      "directory": "runtime/engines/syncdreamer",
+      "python": "3.10",
+      "torch": {
+        "packages": [
+          "torch==2.1.2+cu121",
+          "torchvision==0.16.2+cu121"
+        ],
+        "index": "https://download.pytorch.org/whl/cu121"
+      },
+      "requirements": "requirements-engine-syncdreamer.txt",
+      "pipExtra": [
+        {
+          "label": "CLIP (image encoder of the SyncDreamer checkpoint)",
+          "spec": "clip @ git+https://github.com/openai/CLIP.git@d05afc436d78f1c48dc0dbf8e5980a9d471f35f6",
+          "noBuildIsolation": true
+        }
+      ],
+      "sources": {
+        "SyncDreamer": {
+          "repository": "https://github.com/liuyuan-pal/SyncDreamer.git",
+          "revision": "cc373c8ed0ef134149c5019e2384d2264649d0a6",
+          "license": "MIT (code); weights under the upstream research terms",
+          "requiredFile": "generate.py"
+        }
+      },
+      "verify": [
+        "torch",
+        "pytorch_lightning",
+        "transformers",
+        "cv2",
+        "clip"
+      ],
+      "backends": [
+        "syncdreamer"
+      ],
+      "estimatedBytes": 6000000000
+    },
+    "hi3dgen": {
+      "label": "Hi3DGen engine (image to normal map to geometry, TRELLIS v1 retrained on normals)",
+      "directory": "runtime/engines/hi3dgen",
+      "python": "3.10",
+      "torch": {
+        "packages": [
+          "torch==2.4.0+cu121",
+          "torchvision==0.19.0+cu121"
+        ],
+        "index": "https://download.pytorch.org/whl/cu121"
+      },
+      "requirements": "requirements-engine-hi3dgen.txt",
+      "pipExtra": [
+        {
+          "label": "xformers built for torch 2.4.0, the attention path Hi3DGen ships with",
+          "spec": "xformers==0.0.27.post2",
+          "index": "https://download.pytorch.org/whl/cu121"
+        },
+        {
+          "label": "spconv for the sparse convolutions of the TRELLIS v1 decoders",
+          "spec": "spconv-cu121==2.3.8"
+        }
+      ],
+      "sources": {
+        "Hi3DGen": {
+          "repository": "https://github.com/Stable-X/Hi3DGen.git",
+          "revision": "c29f668ecec44b197275e9bf77f823c0c8a21076",
+          "license": "MIT (code adapted from TRELLIS; weights MIT)",
+          "requiredFile": "hi3dgen/pipelines/hi3dgen.py"
+        },
+        "StableNormal": {
+          "repository": "https://github.com/hugoycj/StableNormal.git",
+          "revision": "1b7203c988384cb62286a25865d7354be8fdbbf7",
+          "license": "Apache-2.0 (code; YOSO weights Apache-2.0)",
+          "requiredFile": "hubconf.py"
+        },
+        "dinov2": {
+          "repository": "https://github.com/facebookresearch/dinov2.git",
+          "revision": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+          "license": "Apache-2.0 (code and weights)",
+          "requiredFile": "hubconf.py"
+        }
+      },
+      "verify": [
+        "torch",
+        "spconv",
+        "xformers",
+        "diffusers",
+        "transformers",
+        "cv2",
+        "trimesh"
+      ],
+      "backends": [
+        "hi3dgen"
+      ],
+      "estimatedBytes": 8000000000,
+      "verificationNote": "Its own environment: Hi3DGen pins transformers 4.46.3, numpy 1.26.4 and timm 0.6.7 on torch 2.4, which none of the other engines can carry. The torch.hub calls of upstream (DINOv2, StableNormal) are served from the pinned checkouts and local weights: nothing is fetched while a job runs."
+    }
+  }
+}

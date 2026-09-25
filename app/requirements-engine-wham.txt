@@ -1,0 +1,22 @@
+# WHAM engine: Python 3.9 with torch 1.11+cu113, the stack the upstream engine needs.
+# Nothing else in this Tool can share it.
+numpy==1.23.5
+scipy==1.10.1
+opencv-python==4.8.1.78
+chumpy==0.70
+yacs==0.1.8
+joblib==1.4.2
+scikit-image==0.21.0
+imageio[ffmpeg]==2.34.2
+matplotlib==3.7.5
+smplx==0.1.28
+progress==1.6
+einops==0.7.0
+timm==0.4.9
+munkres==1.1.4
+xtcocotools==1.14.3
+loguru==0.7.2
+tqdm==4.66.5
+ultralytics==8.0.196
+json_tricks==3.17.3
+filterpy==1.4.5

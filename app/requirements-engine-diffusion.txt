@@ -1,0 +1,39 @@
+# Diffusion and understanding engine: Zero123++, SAM 2.1, Depth Anything V2, PerspectiveFields.
+#
+# This is the merge of the environment CyTools_ViewGenerator used for view generation and the
+# one CyTools_MeshConstruct used for understanding. They already agreed on the two versions
+# that matter — diffusers 0.35.2 and transformers 4.57.6 — which is why they share an engine;
+# the TRELLIS.2 engine cannot join them because it needs transformers 5.x.
+diffusers==0.35.2
+transformers==4.57.6
+huggingface_hub==0.36.2
+accelerate==1.15.0
+safetensors==0.8.0
+numpy==2.5.2
+Pillow==12.3.0
+scipy==1.18.1
+einops==0.8.1
+omegaconf==2.3.1
+timm==1.0.29
+
+# ViewGenerator: segmentation refinement and the matting of the generated views.
+# It used opencv-contrib 4.12, which pins numpy<2.3, while MeshConstruct used opencv 5.0 with
+# numpy 2.5.2 — the two could not be installed together. The contrib build exists in 5.0.0.93,
+# which carries the extra modules ViewGenerator needs and accepts numpy 2.5, so the engine
+# takes that one. cv2 is imported by both workers and must be verified in each.
+opencv-contrib-python-headless==5.0.0.93
+pymatting==1.1.15
+
+# MeshConstruct: the camera model (PerspectiveFields) and what it reads
+yacs==0.1.8
+pyequilib==0.3.0
+scikit-learn==1.9.1
+matplotlib==3.11.2
+imageio==2.37.4
+
+# shared
+trimesh==5.1.0
+xatlas==0.0.11
+psutil>=6
+truststore==0.10.4
+filelock>=3.16

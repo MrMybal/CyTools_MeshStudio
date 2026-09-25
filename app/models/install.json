@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "comment": "What an absent model needs to become installable from the interface. A 'manual' item is a file whose licence is accepted in person on its own page: the application never asks for those credentials, it imports the file the user downloaded.",
+  "models": {
+    "wham": {
+      "directory": "data/models/wham",
+      "label": "WHAM checkpoints and the SMPL body model",
+      "page": "https://github.com/yohanshin/WHAM#installation",
+      "license": "CC-BY-NC-4.0 for the WHAM checkpoints; the SMPL body model has its own licence",
+      "items": [
+        {
+          "kind": "gdrive",
+          "target": "checkpoints/wham_vit_bedlam_w_3dpw.pth.tar",
+          "id": "19qkI-a6xuwob9_RFNSPWf1yWErwVVlks",
+          "label": "WHAM ViT (BEDLAM + 3DPW)"
+        },
+        {
+          "kind": "gdrive",
+          "target": "checkpoints/hmr2a.ckpt",
+          "id": "1J6l8teyZrL0zFzHhzkC7efRhU0ZJ5G9Y",
+          "label": "HMR2.0a image encoder"
+        },
+        {
+          "kind": "gdrive",
+          "target": "checkpoints/vitpose-h-multi-coco.pth",
+          "id": "1xyF7F3I7lWtdq82xmEPVQ5zl4HaasBso",
+          "label": "ViTPose-H (2D keypoints)"
+        },
+        {
+          "kind": "gdrive",
+          "target": "checkpoints/yolov8x.pt",
+          "id": "1zJ0KP23tXD42D47cw1Gs7zE2BA_V_ERo",
+          "label": "YOLOv8x (person detection)"
+        },
+        {
+          "kind": "gdrive",
+          "target": "checkpoints/dpvo.pth",
+          "id": "1kXTV4EYb-BI3H7J-bkR3Bc4gT9zfnHGT",
+          "label": "DPVO (global motion)",
+          "optional": true,
+          "note": "Only needed for world coordinates."
+        },
+        {
+          "kind": "gdrive-tar",
+          "target": "dataset/body_models",
+          "prefix": "body_models",
+          "id": "1pbmzRbWGgae6noDIyQOnohzaVnX_csUZ",
+          "label": "SMPL auxiliary data (J regressors)",
+          "provides": [
+            "coco_aug_dict.pth",
+            "smpl_mean_params.npz",
+            "J_regressor_wham.npy",
+            "J_regressor_h36m.npy",
+            "J_regressor_feet.npy",
+            "J_regressor_coco.npy",
+            "smplx2smpl.pkl"
+          ]
+        },
+        {
+          "kind": "manual",
+          "target": "dataset/body_models/smpl/SMPL_NEUTRAL.pkl",
+          "label": "SMPL neutral body model",
+          "page": "https://smplify.is.tue.mpg.de",
+          "accepts": [
+            ".pkl",
+            ".zip"
+          ],
+          "note": "Register on smplify.is.tue.mpg.de, download mpips_smplify_public_v2.zip (or the neutral .pkl on its own), then import the file here. The application never asks for that account's password.",
+          "archiveNames": [
+            "SMPL_NEUTRAL.pkl",
+            "basicModel_neutral_lbs_10_207_0_v1.0.0.pkl"
+          ],
+          "maxBytes": 268435456
+        }
+      ]
+    },
+    "hi3dgen-trellis-normal": {
+      "directory": "data/models/hi3dgen-trellis-normal",
+      "label": "Hi3DGen normal-to-geometry model (TRELLIS v1 retrained on normals)",
+      "page": "https://huggingface.co/Stable-X/trellis-normal-v0-1",
+      "license": "MIT",
+      "items": [
+        {
+          "kind": "huggingface",
+          "repo": "Stable-X/trellis-normal-v0-1",
+          "revision": "fdfac1d0e0cb3f86adcac69239c1abdd82228e17",
+          "target": ".",
+          "label": "trellis-normal-v0-1 (2.65 GB)",
+          "files": [
+            {
+              "path": "pipeline.json",
+              "size": 1847
+            },
+            {
+              "path": "ckpts/slat_dec_mesh_swin8_B_64l8m256c_fp16.json",
+              "size": 372
+            },
+            {
+              "path": "ckpts/slat_dec_mesh_swin8_B_64l8m256c_fp16.safetensors",
+              "size": 181903412,
+              "sha256": "3e87aba94b5786407eb06d0502c1ed0885a0027a3f2b8537bfe15b0a92c01859"
+            },
+            {
+              "path": "ckpts/slat_flow_normal_dit_L_64l8p2_fp16.json",
+              "size": 442
+            },
+            {
+              "path": "ckpts/slat_flow_normal_dit_L_64l8p2_fp16.safetensors",
+              "size": 1200919136,
+              "sha256": "f9a5896bba3b876e0560fc4a19c335d171b97502e7358b026260b76e0c4557dc"
+            },
+            {
+              "path": "ckpts/ss_dec_conv3d_16l8_fp16.json",
+              "size": 245
+            },
+            {
+              "path": "ckpts/ss_dec_conv3d_16l8_fp16.safetensors",
+              "size": 147591972,
+              "sha256": "1c76d4a40519aa2d711cc263a8404105231ac26db31d946bed48b84fee79009a"
+            },
+            {
+              "path": "ckpts/ss_flow_normal_dit_L_16l8_fp16.json",
+              "size": 385
+            },
+            {
+              "path": "ckpts/ss_flow_normal_dit_L_16l8_fp16.safetensors",
+              "size": 1119525912,
+              "sha256": "b5f9f3aafead23fe5ee49ca01e57fcc0c3e0345635c05a0d83b39a7e5ccaf281"
+            }
+          ]
+        }
+      ]
+    },
+    "yoso-normal-v1-8-1": {
+      "directory": "data/models/yoso-normal-v1-8-1",
+      "label": "StableNormal YOSO normal estimator (turbo)",
+      "page": "https://huggingface.co/Stable-X/yoso-normal-v1-8-1",
+      "license": "Apache-2.0",
+      "items": [
+        {
+          "kind": "huggingface",
+          "repo": "Stable-X/yoso-normal-v1-8-1",
+          "revision": "4dd7d000d76febb68254ebe27251c2cb79dc1c2a",
+          "target": ".",
+          "label": "yoso-normal-v1-8-1 (2.63 GB)",
+          "files": [
+            {
+              "path": "model_index.json",
+              "size": 294
+            },
+            {
+              "path": "controlnet/config.json",
+              "size": 1355
+            },
+            {
+              "path": "controlnet/controlnetvae.py",
+              "size": 11660
+            },
+            {
+              "path": "controlnet/diffusion_pytorch_model.fp16.safetensors",
+              "size": 728496840,
+              "sha256": "21480dc74282a13d663da0afaf4b454d03b469045742560cf3f5e9527cd98361"
+            },
+            {
+              "path": "unet/config.json",
+              "size": 1867
+            },
+            {
+              "path": "unet/diffusion_pytorch_model.fp16.safetensors",
+              "size": 1731904736,
+              "sha256": "ac542d8fe8e94768c005445c75fd1105b33a1d4064c90b63fb39f4770396bdf1"
+            },
+            {
+              "path": "vae/config.json",
+              "size": 702
+            },
+            {
+              "path": "vae/diffusion_pytorch_model.fp16.safetensors",
+              "size": 167335342,
+              "sha256": "3e4c08995484ee61270175e9e7a072b66a6e4eeb5f0c266667fe1f45b90daf9a"
+            }
+          ]
+        }
+      ]
+    },
+    "dinov2-vitl14-reg": {
+      "directory": "data/models/dinov2-vitl14-reg",
+      "label": "DINOv2 ViT-L/14 with registers (image features of TRELLIS v1)",
+      "page": "https://github.com/facebookresearch/dinov2",
+      "license": "Apache-2.0",
+      "items": [
+        {
+          "kind": "url",
+          "url": "https://dl.fbaipublicfiles.com/dinov2/dinov2_vitl14/dinov2_vitl14_reg4_pretrain.pth",
+          "target": "hub/checkpoints/dinov2_vitl14_reg4_pretrain.pth",
+          "label": "dinov2_vitl14_reg4_pretrain.pth (about 1.2 GB; no published hash, recorded on download)"
+        }
+      ]
+    }
+  }
+}

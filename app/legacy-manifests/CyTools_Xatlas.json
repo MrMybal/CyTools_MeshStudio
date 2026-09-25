@@ -1,0 +1,417 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": "1.0",
+  "id": "cy.tools.xatlas",
+  "name": "CyTools_Xatlas",
+  "version": "0.1.0",
+  "description": "Generation UV et packing xatlas sur CPU, sans modele IA.",
+  "vendor": "Cyberalien",
+  "author": "Cyberalien",
+  "executable": "runtime/python/Scripts/python.exe app/tool.py",
+  "categories": [
+    "utility"
+  ],
+  "tags": [],
+  "capabilities": [
+    "jobs",
+    "cancellation"
+  ],
+  "backends": [],
+  "platforms": [
+    {
+      "os": "Windows",
+      "architecture": "x64",
+      "status": "Supported",
+      "computeBackends": [
+        "CPU"
+      ]
+    },
+    {
+      "os": "Linux",
+      "architecture": "x64",
+      "status": "Unknown",
+      "computeBackends": [
+        "CPU"
+      ]
+    }
+  ],
+  "interfaces": [
+    "Native",
+    "CLI",
+    "JSONL",
+    "HTTP",
+    "MCP",
+    "ImGui"
+  ],
+  "runtimeRequirements": [],
+  "concurrency": {
+    "policy": "Sequential",
+    "maxWorkers": 1
+  },
+  "operations": [
+    {
+      "id": "unwrap",
+      "name": "unwrap",
+      "description": "Generate UV charts and pack a single atlas.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Mesh OBJ / PLY / STL",
+            "x-cy-kind": "File"
+          },
+          "resolution": {
+            "type": "integer",
+            "minimum": 64,
+            "maximum": 4096,
+            "default": 1024
+          },
+          "padding": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 32,
+            "default": 4
+          },
+          "iterations": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "default": 1
+          },
+          "maxCost": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 10,
+            "default": 2.0
+          },
+          "bruteForce": {
+            "type": "boolean",
+            "default": false
+          },
+          "rotateCharts": {
+            "type": "boolean",
+            "default": true
+          },
+          "blockAlign": {
+            "type": "boolean",
+            "default": false
+          },
+          "fixWinding": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "input"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "mesh": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "preview": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "mapping": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "report": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "vertices": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "triangles": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "charts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "utilization": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "required": [
+          "mesh",
+          "preview",
+          "mapping",
+          "report",
+          "vertices",
+          "triangles",
+          "charts",
+          "width",
+          "height",
+          "utilization"
+        ],
+        "additionalProperties": false
+      },
+      "supportedBackends": [],
+      "permissions": [
+        "filesystemExternal"
+      ],
+      "resourceRequirements": {
+        "ramBytes": 536870912,
+        "diskBytes": 67108864
+      },
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Supported",
+          "computeBackends": [
+            "CPU"
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CPU"
+          ]
+        }
+      ],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true
+    },
+    {
+      "id": "repack",
+      "name": "repack",
+      "description": "Repack existing vertex UVs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Mesh OBJ / PLY / STL",
+            "x-cy-kind": "File"
+          },
+          "resolution": {
+            "type": "integer",
+            "minimum": 64,
+            "maximum": 4096,
+            "default": 1024
+          },
+          "padding": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 32,
+            "default": 4
+          },
+          "iterations": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "default": 1
+          },
+          "maxCost": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 10,
+            "default": 2.0
+          },
+          "bruteForce": {
+            "type": "boolean",
+            "default": false
+          },
+          "rotateCharts": {
+            "type": "boolean",
+            "default": true
+          },
+          "blockAlign": {
+            "type": "boolean",
+            "default": false
+          },
+          "fixWinding": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "input"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "mesh": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "preview": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "mapping": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "report": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "vertices": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "triangles": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "charts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "utilization": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "required": [
+          "mesh",
+          "preview",
+          "mapping",
+          "report",
+          "vertices",
+          "triangles",
+          "charts",
+          "width",
+          "height",
+          "utilization"
+        ],
+        "additionalProperties": false
+      },
+      "supportedBackends": [],
+      "permissions": [
+        "filesystemExternal"
+      ],
+      "resourceRequirements": {
+        "ramBytes": 536870912,
+        "diskBytes": 67108864
+      },
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Supported",
+          "computeBackends": [
+            "CPU"
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CPU"
+          ]
+        }
+      ],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true
+    },
+    {
+      "id": "diagnose",
+      "name": "diagnose",
+      "description": "Verify engine imports and report versions.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "engine": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "python": {
+            "type": "string"
+          },
+          "modelsRequired": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "engine",
+          "version",
+          "python",
+          "modelsRequired",
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "supportedBackends": [],
+      "permissions": [],
+      "resourceRequirements": {
+        "ramBytes": 536870912,
+        "diskBytes": 67108864
+      },
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Supported",
+          "computeBackends": [
+            "CPU"
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CPU"
+          ]
+        }
+      ],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true
+    }
+  ],
+  "standaloneExecutable": "CyTools_Xatlas.exe",
+  "distributionStatus": "Windows local installation; Linux not executed"
+}

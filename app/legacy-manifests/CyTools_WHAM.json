@@ -1,0 +1,708 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": "1.0",
+  "id": "cy.tools.wham",
+  "name": "CyTools_WHAM",
+  "version": "0.1.0",
+  "description": "Video monoculaire vers mouvement humain 3D via WHAM officiel.",
+  "vendor": "Cyberalien",
+  "executable": "runtime/python/Scripts/python.exe app/tool.py",
+  "standaloneExecutable": "CyTools_WHAM.exe",
+  "distributionStatus": "Integration experimentale ; validation inference en attente des modeles SMPL autorises.",
+  "platforms": [
+    {
+      "os": "Windows",
+      "architecture": "x64",
+      "status": "Experimental",
+      "computeBackends": [
+        "CPU",
+        "CUDA"
+      ],
+      "notes": "Interface et orchestration testables ; inference WHAM non validee sans SMPL."
+    },
+    {
+      "os": "Linux",
+      "architecture": "x64",
+      "status": "Unknown",
+      "computeBackends": [
+        "CPU",
+        "CUDA"
+      ],
+      "notes": "Lanceur fourni ; non execute ici."
+    },
+    {
+      "os": "macOS",
+      "architecture": "ARM64",
+      "status": "Unsupported",
+      "computeBackends": []
+    }
+  ],
+  "concurrency": {
+    "policy": "Sequential",
+    "maxWorkers": 1
+  },
+  "interfaces": [
+    "ImGui",
+    "CLI",
+    "JSONL",
+    "HTTP",
+    "MCP"
+  ],
+  "capabilities": [
+    "jobs",
+    "cancellation",
+    "video-inspection"
+  ],
+  "runtimeRequirements": [
+    {
+      "id": "python",
+      "version": ">=3.11",
+      "required": true,
+      "installed": true
+    },
+    {
+      "id": "wham-python",
+      "version": "3.9",
+      "required": false
+    }
+  ],
+  "backends": [
+    {
+      "id": "wham",
+      "name": "WHAM BEDLAM CUDA",
+      "version": "2b54f7797391c94876848b905ed875b154c4a295",
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CPU",
+            "CUDA"
+          ],
+          "notes": "Interface et orchestration testables ; inference WHAM non validee sans SMPL."
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CPU",
+            "CUDA"
+          ],
+          "notes": "Lanceur fourni ; non execute ici."
+        },
+        {
+          "os": "macOS",
+          "architecture": "ARM64",
+          "status": "Unsupported",
+          "computeBackends": []
+        }
+      ],
+      "threadSafe": false,
+      "concurrentInference": false,
+      "shareableModelInstance": false,
+      "models": [
+        {
+          "id": "wham-bedlam",
+          "name": "WHAM + ViTPose + HMR2 + YOLO + SMPL neutre",
+          "version": "upstream-2b54f77",
+          "source": "https://github.com/yohanshin/WHAM",
+          "license": "Voir WHAM MIT et licences propres SMPL/auxiliaires",
+          "installed": false,
+          "location": "Local",
+          "runsLocally": true,
+          "computeBackends": [
+            "CUDA"
+          ]
+        }
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "inspect_video",
+      "name": "Inspecter une video",
+      "description": "Decode toutes les images et produit un apercu JPEG et les metadonnees.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "video": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Chemin relatif dans data/inputs, importe depuis ImGui."
+          }
+        },
+        "required": [
+          "video"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "frames": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "fps": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "duration": {
+            "type": "number"
+          },
+          "preview": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "report": {
+            "type": "string",
+            "x-cy-kind": "File"
+          }
+        },
+        "required": [
+          "frames",
+          "fps",
+          "width",
+          "height",
+          "duration",
+          "preview",
+          "report"
+        ],
+        "additionalProperties": false
+      },
+      "supportedBackends": [],
+      "permissions": [],
+      "resourceRequirements": {
+        "ramBytes": 536870912,
+        "cpuThreads": 1
+      },
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true,
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CPU",
+            "CUDA"
+          ],
+          "notes": "Interface et orchestration testables ; inference WHAM non validee sans SMPL."
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CPU",
+            "CUDA"
+          ],
+          "notes": "Lanceur fourni ; non execute ici."
+        },
+        {
+          "os": "macOS",
+          "architecture": "ARM64",
+          "status": "Unsupported",
+          "computeBackends": []
+        }
+      ]
+    },
+    {
+      "id": "diagnose_wham",
+      "name": "Diagnostic WHAM",
+      "description": "Verifie fichiers, empreintes locales, imports du moteur et CUDA.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "global_motion": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "report": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "diagnostic": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "report",
+          "diagnostic"
+        ],
+        "additionalProperties": false
+      },
+      "supportedBackends": [],
+      "permissions": [],
+      "resourceRequirements": {
+        "ramBytes": 536870912,
+        "cpuThreads": 1
+      },
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true,
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CPU",
+            "CUDA"
+          ],
+          "notes": "Interface et orchestration testables ; inference WHAM non validee sans SMPL."
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CPU",
+            "CUDA"
+          ],
+          "notes": "Lanceur fourni ; non execute ici."
+        },
+        {
+          "os": "macOS",
+          "architecture": "ARM64",
+          "status": "Unsupported",
+          "computeBackends": []
+        }
+      ]
+    },
+    {
+      "id": "reconstruct",
+      "name": "Reconstruire le mouvement 3D",
+      "description": "WHAM BEDLAM : poses SMPL, translations et reperes temporels en NPZ. Requiert poids et SMPL autorises.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "video": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Chemin relatif dans data/inputs, importe depuis ImGui."
+          },
+          "global_motion": {
+            "type": "boolean",
+            "default": false
+          },
+          "flip_eval": {
+            "type": "boolean",
+            "default": true
+          },
+          "refine": {
+            "type": "boolean",
+            "default": false
+          },
+          "gpu_index": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 7,
+            "default": 0
+          },
+          "ram_budget_gib": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 128,
+            "default": 8
+          },
+          "vram_budget_gib": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 80,
+            "default": 12
+          },
+          "disk_budget_gib": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "default": 4
+          },
+          "model_profile": {
+            "type": "string",
+            "default": "",
+            "description": "ID from the local model library; empty uses the selected built-in model."
+          }
+        },
+        "required": [
+          "video"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "motion": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "report": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "people": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "coordinates": {
+            "type": "string",
+            "enum": [
+              "world",
+              "camera"
+            ]
+          }
+        },
+        "required": [
+          "motion",
+          "report",
+          "people",
+          "coordinates"
+        ],
+        "additionalProperties": false
+      },
+      "supportedBackends": [
+        "wham"
+      ],
+      "permissions": [],
+      "resourceRequirements": {
+        "ramBytes": 536870912,
+        "cpuThreads": 1
+      },
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true,
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CPU",
+            "CUDA"
+          ],
+          "notes": "Interface et orchestration testables ; inference WHAM non validee sans SMPL."
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CPU",
+            "CUDA"
+          ],
+          "notes": "Lanceur fourni ; non execute ici."
+        },
+        {
+          "os": "macOS",
+          "architecture": "ARM64",
+          "status": "Unsupported",
+          "computeBackends": []
+        }
+      ],
+      "resourceEstimateNotes": "Budgets utilisateur conservateurs, non mesures ; aucune promesse de pic RAM/VRAM."
+    },
+    {
+      "id": "model_library_list",
+      "name": "model_library_list",
+      "description": "List compatible model formats, device capabilities and registered local model/LoRA references.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "capabilities": {
+            "type": "object"
+          },
+          "library": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "urn:cytools:v1:model-library",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "schemaVersion",
+              "models"
+            ],
+            "properties": {
+              "schemaVersion": {
+                "const": 1
+              },
+              "models": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "name",
+                    "path",
+                    "format",
+                    "kind",
+                    "base",
+                    "license",
+                    "source",
+                    "validation"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "path": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "format": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "kind": {
+                      "enum": [
+                        "model",
+                        "lora"
+                      ]
+                    },
+                    "base": {
+                      "type": "string"
+                    },
+                    "license": {
+                      "type": "string"
+                    },
+                    "source": {
+                      "type": "string"
+                    },
+                    "validation": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "capabilities",
+          "library"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": [
+        {
+          "id": "capabilities",
+          "type": "Object",
+          "description": "capabilities"
+        },
+        {
+          "id": "library",
+          "type": "Object",
+          "description": "library"
+        }
+      ],
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CPU",
+            "CUDA"
+          ],
+          "notes": "Interface et orchestration testables ; inference WHAM non validee sans SMPL."
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CPU",
+            "CUDA"
+          ],
+          "notes": "Lanceur fourni ; non execute ici."
+        },
+        {
+          "os": "macOS",
+          "architecture": "ARM64",
+          "status": "Unsupported",
+          "computeBackends": []
+        }
+      ],
+      "canRunAsync": true,
+      "canCancel": false,
+      "supportsProgress": false,
+      "supportedBackends": [],
+      "permissions": [],
+      "resourceRequirements": {
+        "ramBytes": 67108864,
+        "cpuThreads": 1
+      }
+    },
+    {
+      "id": "model_library_register",
+      "name": "model_library_register",
+      "description": "Register an existing compatible local model or LoRA by reference; does not download or copy weights. Registration is shared by clients of this local Tool.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name"
+          },
+          "path": {
+            "type": "string",
+            "description": "Absolute local path visible on the Tool host"
+          },
+          "format": {
+            "type": "string",
+            "description": "Format ID from model_library_list"
+          },
+          "base": {
+            "type": "string",
+            "description": "Compatible base variant ID"
+          },
+          "license": {
+            "type": "string",
+            "description": "License identifier or terms"
+          },
+          "source": {
+            "type": "string",
+            "description": "Original source URL or repository"
+          }
+        },
+        "required": [
+          "name",
+          "path",
+          "format"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "path",
+              "format",
+              "kind",
+              "base",
+              "license",
+              "source",
+              "validation"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "format": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "enum": [
+                  "model",
+                  "lora"
+                ]
+              },
+              "base": {
+                "type": "string"
+              },
+              "license": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "validation": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "model"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": [
+        {
+          "id": "model",
+          "type": "Object",
+          "description": "model"
+        }
+      ],
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CPU",
+            "CUDA"
+          ],
+          "notes": "Interface et orchestration testables ; inference WHAM non validee sans SMPL."
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CPU",
+            "CUDA"
+          ],
+          "notes": "Lanceur fourni ; non execute ici."
+        },
+        {
+          "os": "macOS",
+          "architecture": "ARM64",
+          "status": "Unsupported",
+          "computeBackends": []
+        }
+      ],
+      "canRunAsync": true,
+      "canCancel": false,
+      "supportsProgress": false,
+      "supportedBackends": [],
+      "permissions": [],
+      "resourceRequirements": {
+        "ramBytes": 67108864,
+        "cpuThreads": 1
+      }
+    }
+  ]
+}

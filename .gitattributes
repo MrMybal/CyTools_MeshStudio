@@ -1,0 +1,13 @@
+# Text files are stored and checked out with LF (the Linux launcher needs it; Python, JSON and
+# Markdown do not mind on Windows); PowerShell keeps CRLF.
+* text=auto eol=lf
+*.ps1 text eol=crlf
+
+# Fixtures and binaries. The OBJ fixtures are test data, not code: git diff --check leaves
+# their trailing blank lines alone.
+*.obj -whitespace
+*.png binary
+*.glb binary
+*.mp4 binary
+*.exe binary
+*.zip binary

@@ -1,0 +1,563 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": "1.0",
+  "id": "cy.tools.unirig",
+  "name": "CyTools_UniRig",
+  "version": "0.1.0",
+  "description": "Mesh vers squelette et poids de skinning avec UniRig",
+  "vendor": "Cyberalien",
+  "author": "Cyberalien",
+  "executable": "runtime/python/Scripts/python.exe app/tool.py",
+  "categories": [
+    "3d"
+  ],
+  "tags": [
+    "rigging",
+    "skeleton",
+    "skinning"
+  ],
+  "capabilities": [
+    "jobs",
+    "cancellation",
+    "progress",
+    "mesh-to-rig"
+  ],
+  "backends": [
+    {
+      "id": "unirig-cuda",
+      "name": "UniRig CUDA / PyTorch attention",
+      "threadSafe": false,
+      "shareableModelInstance": false,
+      "concurrentInference": false,
+      "maxConcurrentInference": 1,
+      "models": [
+        {
+          "id": "articulation-xl",
+          "name": "UniRig Skeleton + Skin Articulation-XL",
+          "version": "36842e2b5947e9e60f89275b83208c8e74071c63",
+          "source": "https://huggingface.co/VAST-AI/UniRig",
+          "license": "MIT",
+          "location": "Local",
+          "installed": false,
+          "computeBackends": [
+            "CUDA"
+          ],
+          "downloadSize": 5815082028
+        }
+      ]
+    }
+  ],
+  "platforms": [
+    {
+      "os": "Windows",
+      "architecture": "x64",
+      "status": "Experimental",
+      "computeBackends": [
+        "CUDA"
+      ]
+    },
+    {
+      "os": "Linux",
+      "architecture": "x64",
+      "status": "Unknown",
+      "computeBackends": [
+        "CUDA"
+      ]
+    },
+    {
+      "os": "macOS",
+      "architecture": "ARM64",
+      "status": "Unknown",
+      "computeBackends": [
+        "CUDA"
+      ]
+    }
+  ],
+  "interfaces": [
+    "Native",
+    "CLI",
+    "JSONL",
+    "HTTP",
+    "MCP",
+    "ImGui"
+  ],
+  "runtimeRequirements": [],
+  "concurrency": {
+    "policy": "Sequential",
+    "maxWorkers": 1
+  },
+  "operations": [
+    {
+      "id": "mesh_to_rig",
+      "name": "Mesh vers squelette + skin weights",
+      "description": "UniRig Articulation-XL, CUDA. OBJ sans dependances externes, GLB ou FBX.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mesh": {
+            "type": "string",
+            "minLength": 1,
+            "x-cy-kind": "File"
+          },
+          "seed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "default": 12345
+          },
+          "faces_target": {
+            "type": "integer",
+            "minimum": 500,
+            "maximum": 50000,
+            "default": 50000
+          },
+          "model_profile": {
+            "type": "string",
+            "default": "",
+            "description": "ID from the local model library; empty uses the selected built-in model."
+          }
+        },
+        "required": [
+          "mesh"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "rigged_mesh": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "skeleton": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "skin_weights": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "skeleton_fbx": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "skin_fbx": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "engine_revision": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "rigged_mesh",
+          "skeleton",
+          "skin_weights",
+          "skeleton_fbx",
+          "skin_fbx",
+          "engine_revision"
+        ],
+        "additionalProperties": false
+      },
+      "resourceRequirements": {
+        "ramBytes": 12884901888,
+        "vramBytes": {
+          "0": 8589934592
+        },
+        "diskBytes": 2147483648,
+        "cpuThreads": 4
+      },
+      "supportedBackends": [
+        "unirig-cuda"
+      ],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true,
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CUDA"
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CUDA"
+          ]
+        },
+        {
+          "os": "macOS",
+          "architecture": "ARM64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CUDA"
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "id": "rigged_mesh",
+          "type": "File",
+          "fileExtension": ".glb",
+          "mimeType": "model/gltf-binary"
+        },
+        {
+          "id": "skeleton",
+          "type": "File",
+          "fileExtension": ".json",
+          "mimeType": "application/json"
+        },
+        {
+          "id": "skin_weights",
+          "type": "File",
+          "fileExtension": ".npz",
+          "mimeType": "application/octet-stream"
+        },
+        {
+          "id": "skeleton_fbx",
+          "type": "File",
+          "fileExtension": ".fbx",
+          "mimeType": "application/octet-stream"
+        },
+        {
+          "id": "skin_fbx",
+          "type": "File",
+          "fileExtension": ".fbx",
+          "mimeType": "application/octet-stream"
+        }
+      ]
+    },
+    {
+      "id": "diagnose_backend",
+      "name": "Diagnostic",
+      "description": "Etat local des sources et des fichiers verifies.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "models_verified": {
+            "type": "boolean"
+          },
+          "source_present": {
+            "type": "boolean"
+          },
+          "python": {
+            "type": "string"
+          },
+          "inference_validation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "models_verified",
+          "source_present",
+          "python",
+          "inference_validation"
+        ],
+        "additionalProperties": false
+      },
+      "resourceRequirements": {
+        "ramBytes": 1048576
+      },
+      "supportedBackends": [],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": false
+    },
+    {
+      "id": "model_library_list",
+      "name": "model_library_list",
+      "description": "List compatible model formats, device capabilities and registered local model/LoRA references.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "capabilities": {
+            "type": "object"
+          },
+          "library": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "urn:cytools:v1:model-library",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "schemaVersion",
+              "models"
+            ],
+            "properties": {
+              "schemaVersion": {
+                "const": 1
+              },
+              "models": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "name",
+                    "path",
+                    "format",
+                    "kind",
+                    "base",
+                    "license",
+                    "source",
+                    "validation"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "path": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "format": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "kind": {
+                      "enum": [
+                        "model",
+                        "lora"
+                      ]
+                    },
+                    "base": {
+                      "type": "string"
+                    },
+                    "license": {
+                      "type": "string"
+                    },
+                    "source": {
+                      "type": "string"
+                    },
+                    "validation": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "capabilities",
+          "library"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": [
+        {
+          "id": "capabilities",
+          "type": "Object",
+          "description": "capabilities"
+        },
+        {
+          "id": "library",
+          "type": "Object",
+          "description": "library"
+        }
+      ],
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CUDA"
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CUDA"
+          ]
+        },
+        {
+          "os": "macOS",
+          "architecture": "ARM64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CUDA"
+          ]
+        }
+      ],
+      "canRunAsync": true,
+      "canCancel": false,
+      "supportsProgress": false,
+      "supportedBackends": [],
+      "permissions": [],
+      "resourceRequirements": {
+        "ramBytes": 67108864,
+        "cpuThreads": 1
+      }
+    },
+    {
+      "id": "model_library_register",
+      "name": "model_library_register",
+      "description": "Register an existing compatible local model or LoRA by reference; does not download or copy weights. Registration is shared by clients of this local Tool.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name"
+          },
+          "path": {
+            "type": "string",
+            "description": "Absolute local path visible on the Tool host"
+          },
+          "format": {
+            "type": "string",
+            "description": "Format ID from model_library_list"
+          },
+          "base": {
+            "type": "string",
+            "description": "Compatible base variant ID"
+          },
+          "license": {
+            "type": "string",
+            "description": "License identifier or terms"
+          },
+          "source": {
+            "type": "string",
+            "description": "Original source URL or repository"
+          }
+        },
+        "required": [
+          "name",
+          "path",
+          "format"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "path",
+              "format",
+              "kind",
+              "base",
+              "license",
+              "source",
+              "validation"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "format": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "enum": [
+                  "model",
+                  "lora"
+                ]
+              },
+              "base": {
+                "type": "string"
+              },
+              "license": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "validation": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "model"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": [
+        {
+          "id": "model",
+          "type": "Object",
+          "description": "model"
+        }
+      ],
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CUDA"
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CUDA"
+          ]
+        },
+        {
+          "os": "macOS",
+          "architecture": "ARM64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CUDA"
+          ]
+        }
+      ],
+      "canRunAsync": true,
+      "canCancel": false,
+      "supportsProgress": false,
+      "supportedBackends": [],
+      "permissions": [],
+      "resourceRequirements": {
+        "ramBytes": 67108864,
+        "cpuThreads": 1
+      }
+    }
+  ],
+  "standaloneExecutable": "CyTools_UniRig.exe",
+  "distributionStatus": "Windows x64 locally tested; Linux not executed"
+}

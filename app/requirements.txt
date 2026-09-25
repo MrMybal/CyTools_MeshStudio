@@ -1,0 +1,9 @@
+# The CyToolsCore SDK (GPL-3.0), pinned to the commit its version 0.9.0 was built from; the
+# mcp extra is what serves this Tool over MCP. Installing it needs git on the PATH.
+cytools-core[mcp] @ git+https://github.com/MrMybal/CyToolsCore.git@442f53740fc65f092e4abd6b4d8ccf70d391116a
+imgui-bundle==1.92.900
+moderngl==5.12.0
+trimesh>=4.4,<6
+numpy>=1.26,<3
+Pillow>=10,<13
+gdown>=5.2,<6

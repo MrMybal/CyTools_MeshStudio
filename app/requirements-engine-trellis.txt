@@ -1,0 +1,16 @@
+# TRELLIS.2 engine.
+#
+# The dependency set is declared by the engine package itself
+# (runtime/sources/localmesh-engine/pyproject.toml): transformers 5.x, huggingface_hub 1.x,
+# utils3d pinned to a commit, triton-windows, kornia, timm, o_voxel's zstandard, and so on.
+# engines.json installs that checkout through "installSources", so nothing is duplicated here;
+# only what the application adds on top belongs in this file.
+#
+# The three CUDA extensions (cumesh, flex_gemm, o_voxel) and natten are NOT here on purpose:
+# they are not on PyPI and "pip install cumesh" would fetch a different project. They are
+# declared in engines.json with their SHA-256 and installed with --no-deps.
+truststore>=0.10
+
+# texture_mesh unwraps a remeshed model itself, so that it can keep its quads: xatlas gives
+# back which input triangle and which input vertex every output corner came from.
+xatlas==0.0.11

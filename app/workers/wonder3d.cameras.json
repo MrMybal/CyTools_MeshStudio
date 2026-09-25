@@ -1,0 +1,61 @@
+{
+  "id": "wonder3d",
+  "origin": "Recorded while validating CyTools_MeshConstruct (2026-09); the full install plan it came from is archived in runtime/legacy-apps.",
+  "cameraConvention": {
+    "views": [
+      {
+        "viewName": "front",
+        "generatorAzimuth": 0,
+        "toolAzimuth": 0
+      },
+      {
+        "viewName": "front_right",
+        "generatorAzimuth": 45,
+        "toolAzimuth": -45
+      },
+      {
+        "viewName": "right",
+        "generatorAzimuth": 90,
+        "toolAzimuth": -90
+      },
+      {
+        "viewName": "back",
+        "generatorAzimuth": 180,
+        "toolAzimuth": 180
+      },
+      {
+        "viewName": "left",
+        "generatorAzimuth": -90,
+        "toolAzimuth": 90
+      },
+      {
+        "viewName": "front_left",
+        "generatorAzimuth": -45,
+        "toolAzimuth": 45
+      }
+    ],
+    "sign": "generatorAzimuth > 0 = the camera moves towards the RIGHT edge of the input picture (+X of the input camera), i.e. towards the object's LEFT side. Tool azimuth (+ = towards the object's RIGHT side) = -1.0 * generatorAzimuth.",
+    "elevation": "0 degrees for every view, RELATIVE to the input view: the camera turns around the vertical axis of the input picture, not around the world vertical. If the input picture looks down on the object by e degrees, 'back' looks up at it by e degrees and 'left'/'right' are level with the object but rolled by e degrees.",
+    "projection": "orthographic (fov reported as 0); the input picture is assumed orthographic too. Object scale: longest side of the object's bounding box = 192 px of a 256 px picture.",
+    "normals": "every normal map is expressed in the INPUT-view camera frame: R = +X (picture right), G = +Y (picture up), B = +Z (towards the input camera); the background is white.",
+    "evidence": {
+      "upstreamSource": [
+        "README.md: \"The six views are in the plane with 0 elevation degree in the camera system of the input image. [...] The azimuth degrees of the six views are 0, 45, 90, 180, -90, -45 respectively.\" and \"We assume the input images are captured by orthographic camera, so the generated views are also in orthographic space.\"",
+        "mvdiffusion/data/fixed_poses/nine_views/*_RT.txt (world-to-camera, the camera looks down -Z): R_view * R_front^T is a pure rotation about the camera Y axis for the six views (computed), and the camera centres expressed in the front-camera frame are right = (+1.3, 0, -1.3), left = (-1.3, 0, -1.3), back = (0, 0, -2.6) with the object at (0, 0, -1.3): 'right' is on the +X (picture right) side.",
+        "instant-nsr-pl/datasets/ortho.py loads the normals with normal_system='front'."
+      ],
+      "measuredOnAircraftFrontRight": [
+        "Input: nose at the lower right, blue RIGHT wing nearest to the camera, yellow LEFT wing behind the fuselage (camera at the aircraft's front-right).",
+        "front_right (+45): head-on view, the nose points at the camera, wings spread symmetrically left and right, fin vertical in the middle. From the aircraft's front-right, the head-on view is reached by moving towards the aircraft's LEFT side.",
+        "front_left (-45): right-side profile - fin at the left, nose at the right, fuselage longer than in the input, blue right wing foreshortened towards the viewer, yellow wing almost hidden behind: the camera moved towards the aircraft's RIGHT side.",
+        "right (+90): nose at the lower LEFT, fin at the upper right (front-left quarter view); left (-90): tail and fin nearest, at the left (rear-right quarter, poorly generated); back (180): mirrored silhouette of the input.",
+        "Normal maps, axis calibration on the front view: mean n_x = +0.41 on the right silhouette and -0.04 on the left one, mean n_y = +0.68 at the top and -0.46 at the bottom, mean n_z = +0.60. Mean visible normal (x, y, z) per view: front (-0.17, 0.44, 0.60), front_right (+0.19, 0.56, 0.32), right (+0.49, 0.52, -0.23), back (+0.18, -0.27, -0.51), left (-0.37, -0.48, 0.13), front_left (-0.35, 0.07, 0.58): the surfaces seen by 'right'/'front_right' face +X of the input camera, those seen by 'left'/'front_left' face -X, those seen by 'back' face -Z.",
+        "Zero relative elevation + orthographic: the vertical extent of the object is rows 85-170 (or 171) in ALL six views (a rotation about the picture's vertical axis keeps every row under an orthographic projection), and silhouette IoU(back, horizontally flipped front) = 0.965 (0.471 unflipped), IoU(left, flipped right) = 0.950 (0.407 unflipped)."
+      ]
+    }
+  },
+  "qualityObservations": [
+    "On this synthetic aircraft the geometry of the +/-45 degree views is plausible, but the model hallucinates: the head-on view (front_right) shows FOUR wings (a yellow pair above a blue pair), the 'right' view paints the near wing blue although a rigid aircraft would show the yellow left wing nearest, and 'back'/'left' are blurred mixtures. Colour cannot be trusted to identify object sides in the far views.",
+    "Outputs are 256x256 only."
+  ]
+}

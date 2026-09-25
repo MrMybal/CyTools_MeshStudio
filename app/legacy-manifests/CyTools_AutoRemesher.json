@@ -1,0 +1,301 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": "1.0",
+  "id": "cy.tools.autoremesher",
+  "name": "CyTools_AutoRemesher",
+  "version": "0.1.0",
+  "description": "Remeshing quad OBJ avec AutoRemesher officiel 1.2.0, CPU, geometrie uniquement.",
+  "vendor": "Cyberalien",
+  "author": "Cyberalien",
+  "executable": "runtime/python/Scripts/python.exe app/tool.py",
+  "categories": [
+    "3D",
+    "mesh"
+  ],
+  "tags": [
+    "quad",
+    "remeshing",
+    "AutoRemesher"
+  ],
+  "capabilities": [
+    "jobs",
+    "cancellation"
+  ],
+  "backends": [
+    {
+      "id": "autoremesher",
+      "name": "AutoRemesher CPU",
+      "version": "1.2.0",
+      "models": [],
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Supported",
+          "computeBackends": [
+            "CPU"
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CPU"
+          ]
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "autoremesher-executable",
+          "required": true,
+          "source": "https://github.com/huxingyi/autoremesher",
+          "version": "1.2.0"
+        }
+      ]
+    }
+  ],
+  "platforms": [
+    {
+      "os": "Windows",
+      "architecture": "x64",
+      "status": "Supported",
+      "computeBackends": [
+        "CPU"
+      ]
+    },
+    {
+      "os": "Linux",
+      "architecture": "x64",
+      "status": "Unknown",
+      "computeBackends": [
+        "CPU"
+      ]
+    }
+  ],
+  "interfaces": [
+    "Native",
+    "CLI",
+    "JSONL",
+    "HTTP",
+    "MCP",
+    "ImGui"
+  ],
+  "runtimeRequirements": [],
+  "concurrency": {
+    "policy": "Sequential",
+    "maxWorkers": 1
+  },
+  "operations": [
+    {
+      "supportedBackends": [
+        "autoremesher"
+      ],
+      "canRunAsync": true,
+      "canCancel": true,
+      "resourceRequirements": {
+        "ramBytes": 2147483648,
+        "diskBytes": 536870912
+      },
+      "id": "remesh",
+      "name": "Remesher OBJ",
+      "description": "Produit un OBJ quad dominant et un rapport de topologie. UV/materiaux non conserves ; cible approximative.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input_file": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "x-cy-kind": "File"
+          },
+          "target_quads": {
+            "type": "integer",
+            "default": 1000,
+            "minimum": 16,
+            "maximum": 100000
+          },
+          "edge_scaling": {
+            "type": "number",
+            "default": 1,
+            "minimum": 1,
+            "maximum": 4
+          },
+          "sharp_edge": {
+            "type": "number",
+            "default": 90,
+            "minimum": 30,
+            "maximum": 180
+          },
+          "smooth_normal": {
+            "type": "number",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 180
+          },
+          "adaptivity": {
+            "type": "number",
+            "default": 1,
+            "minimum": 0,
+            "maximum": 1
+          },
+          "anisotropy": {
+            "type": "number",
+            "default": 1,
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "required": [
+          "input_file"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string"
+          },
+          "report": {
+            "type": "string"
+          },
+          "log": {
+            "type": "string"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "vertices": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "faces": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "quads": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "nonQuads": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "quadRatio": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "required": [
+          "file",
+          "report",
+          "log",
+          "mimeType",
+          "vertices",
+          "faces",
+          "quads",
+          "nonQuads",
+          "quadRatio"
+        ],
+        "additionalProperties": false
+      },
+      "permissions": [
+        "filesystemExternal"
+      ],
+      "supportsProgress": true,
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Supported",
+          "computeBackends": [
+            "CPU"
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CPU"
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "id": "file",
+          "type": "File",
+          "mimeType": "model/obj",
+          "fileExtension": ".obj"
+        },
+        {
+          "id": "report",
+          "type": "File",
+          "mimeType": "application/json",
+          "fileExtension": ".json"
+        },
+        {
+          "id": "log",
+          "type": "File",
+          "mimeType": "text/plain",
+          "fileExtension": ".log"
+        }
+      ]
+    },
+    {
+      "supportedBackends": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "resourceRequirements": {
+        "ramBytes": 1048576
+      },
+      "id": "diagnose_engine",
+      "name": "Diagnostic moteur",
+      "description": "Etat local du moteur et chemins.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "installed": {
+            "type": "boolean"
+          },
+          "engine": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "modelsRequired": {
+            "type": "boolean"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "inputRoot": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "installed",
+          "engine",
+          "version",
+          "modelsRequired",
+          "platform",
+          "inputRoot"
+        ],
+        "additionalProperties": false
+      },
+      "permissions": [],
+      "supportsProgress": false
+    }
+  ],
+  "standaloneExecutable": "CyTools_AutoRemesher.exe",
+  "distributionStatus": "Windows installation locale validee ; Linux non execute"
+}

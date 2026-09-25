@@ -1,0 +1,1015 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": "1.0",
+  "id": "cy.tool.trellis2texture",
+  "name": "CyTools_Trellis2Texture",
+  "displayName": "CyTools Trellis2Texture",
+  "version": "0.2.0",
+  "description": "Generates the PBR channels of an existing 3D mesh: Base Color, Metallic, Roughness and Alpha. Colour carried by the mesh is baked into a UV atlas; channels the mesh does not carry are derived with documented deterministic heuristics. CPU only, no neural model.",
+  "vendor": "Cyberalien",
+  "author": "Cyberalien",
+  "license": "Proprietary",
+  "executable": "runtime/python/Scripts/python.exe app/tool.py",
+  "standaloneExecutable": "CyTools_Trellis2Texture.exe",
+  "distributionStatus": "Windows x64 launcher compiled and executed here; the private runtime is built from the Python 3.11 installed on the machine, so this is not yet a redistributable installer. Linux launcher shipped but not executed.",
+  "documentation": "app/README.md",
+  "categories": [
+    "3d",
+    "texturing",
+    "material"
+  ],
+  "tags": [
+    "PBR",
+    "mesh",
+    "texture",
+    "baking",
+    "UV",
+    "glTF",
+    "TRELLIS"
+  ],
+  "capabilities": [
+    "jobs",
+    "cancellation",
+    "progress",
+    "pbr-texture-generation",
+    "uv-unwrap",
+    "texture-baking",
+    "imgui-interface"
+  ],
+  "interfaces": [
+    "Native",
+    "CLI",
+    "JSONL",
+    "HTTP",
+    "MCP",
+    "ImGui"
+  ],
+  "platforms": [
+    {
+      "os": "Windows",
+      "architecture": "x64",
+      "status": "Supported",
+      "computeBackends": [
+        "CPU"
+      ],
+      "tested": [
+        {
+          "osVersion": "10.0.19044",
+          "device": "CPU",
+          "runtime": "Python 3.11.5 / trimesh 4.12.2 / xatlas 0.0.11 / imgui-bundle 1.92.900",
+          "date": "2026-09-20",
+          "status": "Supported"
+        }
+      ]
+    },
+    {
+      "os": "Linux",
+      "architecture": "x64",
+      "status": "Experimental",
+      "computeBackends": [
+        "CPU"
+      ],
+      "notes": "Every dependency ships Linux wheels, but no bake has been executed on Linux."
+    },
+    {
+      "os": "macOS",
+      "architecture": "ARM64",
+      "status": "Experimental",
+      "computeBackends": [
+        "CPU"
+      ],
+      "notes": "Declared target only; no bake has been executed on macOS."
+    }
+  ],
+  "runtimeRequirements": [],
+  "concurrency": {
+    "policy": "Sequential",
+    "maxWorkers": 1
+  },
+  "idleUnloadPolicy": "AfterJob",
+  "backends": [
+    {
+      "id": "bake-cpu",
+      "name": "Deterministic CPU UV baker",
+      "version": "0.2.0",
+      "models": [],
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Supported",
+          "computeBackends": [
+            "CPU"
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CPU"
+          ],
+          "notes": "Every dependency ships Linux wheels, but no bake has been executed on Linux."
+        },
+        {
+          "os": "macOS",
+          "architecture": "ARM64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CPU"
+          ],
+          "notes": "Declared target only; no bake has been executed on macOS."
+        }
+      ],
+      "threadSafe": false,
+      "shareableModelInstance": false,
+      "concurrentInference": false,
+      "maxConcurrentInference": 1,
+      "dependencies": [
+        {
+          "id": "numpy",
+          "version": ">=1.26,<3",
+          "required": false,
+          "installed": false,
+          "source": "https://pypi.org/project/numpy/",
+          "platforms": [
+            {
+              "os": "Windows",
+              "architecture": "x64",
+              "status": "Supported",
+              "computeBackends": [
+                "CPU"
+              ]
+            },
+            {
+              "os": "Linux",
+              "architecture": "x64",
+              "status": "Experimental",
+              "computeBackends": [
+                "CPU"
+              ],
+              "notes": "Every dependency ships Linux wheels, but no bake has been executed on Linux."
+            },
+            {
+              "os": "macOS",
+              "architecture": "ARM64",
+              "status": "Experimental",
+              "computeBackends": [
+                "CPU"
+              ],
+              "notes": "Declared target only; no bake has been executed on macOS."
+            }
+          ],
+          "notes": "Rasterisation and channel derivation."
+        },
+        {
+          "id": "trimesh",
+          "version": ">=4.4,<5",
+          "required": false,
+          "installed": false,
+          "source": "https://pypi.org/project/trimesh/",
+          "platforms": [
+            {
+              "os": "Windows",
+              "architecture": "x64",
+              "status": "Supported",
+              "computeBackends": [
+                "CPU"
+              ]
+            },
+            {
+              "os": "Linux",
+              "architecture": "x64",
+              "status": "Experimental",
+              "computeBackends": [
+                "CPU"
+              ],
+              "notes": "Every dependency ships Linux wheels, but no bake has been executed on Linux."
+            },
+            {
+              "os": "macOS",
+              "architecture": "ARM64",
+              "status": "Experimental",
+              "computeBackends": [
+                "CPU"
+              ],
+              "notes": "Declared target only; no bake has been executed on macOS."
+            }
+          ],
+          "notes": "Mesh and glTF input/output."
+        },
+        {
+          "id": "scipy",
+          "version": ">=1.11,<2",
+          "required": false,
+          "installed": false,
+          "source": "https://pypi.org/project/scipy/",
+          "platforms": [
+            {
+              "os": "Windows",
+              "architecture": "x64",
+              "status": "Supported",
+              "computeBackends": [
+                "CPU"
+              ]
+            },
+            {
+              "os": "Linux",
+              "architecture": "x64",
+              "status": "Experimental",
+              "computeBackends": [
+                "CPU"
+              ],
+              "notes": "Every dependency ships Linux wheels, but no bake has been executed on Linux."
+            },
+            {
+              "os": "macOS",
+              "architecture": "ARM64",
+              "status": "Experimental",
+              "computeBackends": [
+                "CPU"
+              ],
+              "notes": "Declared target only; no bake has been executed on macOS."
+            }
+          ],
+          "notes": "Sparse vertex-normal path used by trimesh."
+        },
+        {
+          "id": "Pillow",
+          "version": ">=10,<12",
+          "required": false,
+          "installed": false,
+          "source": "https://pypi.org/project/Pillow/",
+          "platforms": [
+            {
+              "os": "Windows",
+              "architecture": "x64",
+              "status": "Supported",
+              "computeBackends": [
+                "CPU"
+              ]
+            },
+            {
+              "os": "Linux",
+              "architecture": "x64",
+              "status": "Experimental",
+              "computeBackends": [
+                "CPU"
+              ],
+              "notes": "Every dependency ships Linux wheels, but no bake has been executed on Linux."
+            },
+            {
+              "os": "macOS",
+              "architecture": "ARM64",
+              "status": "Experimental",
+              "computeBackends": [
+                "CPU"
+              ],
+              "notes": "Declared target only; no bake has been executed on macOS."
+            }
+          ],
+          "notes": "PNG encoding and texture decoding."
+        },
+        {
+          "id": "xatlas",
+          "version": ">=0.0.9,<1",
+          "required": false,
+          "installed": false,
+          "source": "https://pypi.org/project/xatlas/",
+          "platforms": [
+            {
+              "os": "Windows",
+              "architecture": "x64",
+              "status": "Supported",
+              "computeBackends": [
+                "CPU"
+              ]
+            },
+            {
+              "os": "Linux",
+              "architecture": "x64",
+              "status": "Experimental",
+              "computeBackends": [
+                "CPU"
+              ],
+              "notes": "Every dependency ships Linux wheels, but no bake has been executed on Linux."
+            },
+            {
+              "os": "macOS",
+              "architecture": "ARM64",
+              "status": "Experimental",
+              "computeBackends": [
+                "CPU"
+              ],
+              "notes": "Declared target only; no bake has been executed on macOS."
+            }
+          ],
+          "notes": "UV atlas generation when the mesh has no usable UV."
+        }
+      ],
+      "resourceRequirements": {
+        "cpuThreads": 2,
+        "networkRequired": false,
+        "cpu": {
+          "supported": true,
+          "minimumCores": 1,
+          "recommendedCores": 4
+        },
+        "gpu": {
+          "supported": false,
+          "required": false
+        }
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "diagnose_backend",
+      "name": "Diagnose the baking backend",
+      "description": "Report the Python dependencies, their versions and the configured limits. Readiness does not prove that a bake succeeds.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "python_version": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "dependencies": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "xatlas_available": {
+            "type": "boolean"
+          },
+          "ready_for_generation": {
+            "type": "boolean"
+          },
+          "mesh_root": {
+            "type": "string",
+            "x-cy-kind": "Directory"
+          },
+          "supported_extensions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "max_faces": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "max_mesh_bytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "python_version",
+          "platform",
+          "dependencies",
+          "xatlas_available",
+          "ready_for_generation",
+          "mesh_root",
+          "supported_extensions",
+          "max_faces",
+          "max_mesh_bytes",
+          "note"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": [],
+      "supportedBackends": [],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true,
+      "estimatedDurationSeconds": 3,
+      "resourceRequirements": {
+        "ramBytes": 536870912,
+        "cpuThreads": 1,
+        "diskBytes": 0,
+        "networkRequired": false
+      }
+    },
+    {
+      "id": "inspect_mesh",
+      "name": "Inspect a mesh before generating its material",
+      "description": "Report geometry, UV, colour source and transparency of a mesh, plus the settings recommended for generate_pbr. Writes no file.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mesh_file": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "x-cy-kind": "File",
+            "description": "Mesh path inside the configured mesh root: GLB, GLTF, OBJ, PLY, STL, OFF.",
+            "x-cy-ui": {
+              "help": "Relative to CYTOOLS_TRELLIS2TEXTURE_MESH_ROOT; absolute paths must stay inside it."
+            }
+          }
+        },
+        "required": [
+          "mesh_file"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "vertices": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "faces": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "geometry_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "file_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "is_watertight": {
+            "type": "boolean"
+          },
+          "bounds": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 6,
+            "maxItems": 6
+          },
+          "extents": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "has_uv": {
+            "type": "boolean"
+          },
+          "uv_in_unit_square": {
+            "type": "boolean"
+          },
+          "material_type": {
+            "type": "string"
+          },
+          "color_source": {
+            "enum": [
+              "texture",
+              "vertex_colors",
+              "base_color_factor",
+              "none"
+            ]
+          },
+          "has_vertex_colors": {
+            "type": "boolean"
+          },
+          "has_base_color_texture": {
+            "type": "boolean"
+          },
+          "base_color_texture_size": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maxItems": 2
+          },
+          "has_metallic_roughness_texture": {
+            "type": "boolean"
+          },
+          "has_alpha": {
+            "type": "boolean"
+          },
+          "recommended": {
+            "type": "object",
+            "properties": {
+              "uv_mode": {
+                "enum": [
+                  "auto",
+                  "keep",
+                  "unwrap",
+                  "grid"
+                ]
+              },
+              "resolution": {
+                "enum": [
+                  512,
+                  1024,
+                  2048,
+                  4096
+                ]
+              },
+              "alpha_mode": {
+                "enum": [
+                  "from_source",
+                  "opaque",
+                  "from_coverage"
+                ]
+              }
+            },
+            "required": [
+              "uv_mode",
+              "resolution",
+              "alpha_mode"
+            ],
+            "additionalProperties": false
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "vertices",
+          "faces",
+          "geometry_count",
+          "file_bytes",
+          "is_watertight",
+          "bounds",
+          "extents",
+          "has_uv",
+          "uv_in_unit_square",
+          "material_type",
+          "color_source",
+          "has_vertex_colors",
+          "has_base_color_texture",
+          "base_color_texture_size",
+          "has_metallic_roughness_texture",
+          "has_alpha",
+          "recommended",
+          "warnings"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": [],
+      "supportedBackends": [
+        "bake-cpu"
+      ],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true,
+      "estimatedDurationSeconds": 10,
+      "resourceRequirements": {
+        "ramBytes": 2147483648,
+        "cpuThreads": 1,
+        "diskBytes": 67108864,
+        "networkRequired": false
+      }
+    },
+    {
+      "id": "generate_pbr",
+      "name": "Generate the PBR maps of a mesh",
+      "description": "Bake Base Color, Metallic, Roughness and Alpha into a UV atlas, plus the glTF-packed metallic-roughness map, an optional PBR GLB and a JSON report. Up to 2000000 triangles.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mesh_file": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "x-cy-kind": "File",
+            "description": "Mesh path inside the configured mesh root: GLB, GLTF, OBJ, PLY, STL, OFF.",
+            "x-cy-ui": {
+              "help": "Relative to CYTOOLS_TRELLIS2TEXTURE_MESH_ROOT; absolute paths must stay inside it."
+            }
+          },
+          "resolution": {
+            "enum": [
+              512,
+              1024,
+              2048,
+              4096
+            ],
+            "default": 1024,
+            "x-cy-kind": "Enum",
+            "description": "Square size in texels of every generated map."
+          },
+          "uv_mode": {
+            "enum": [
+              "auto",
+              "keep",
+              "unwrap",
+              "grid"
+            ],
+            "default": "auto",
+            "x-cy-kind": "Enum",
+            "description": "auto keeps existing UV and unwraps only when there is none; keep fails without UV; unwrap rebuilds an atlas with xatlas and falls back to grid if xatlas fails; grid gives every triangle its own cell, which never overlaps but wastes texels."
+          },
+          "padding_pixels": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 64,
+            "default": 8,
+            "x-cy-kind": "Integer",
+            "description": "Texels of nearest-neighbour padding grown around each UV island."
+          },
+          "cavity_delight": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.0,
+            "x-cy-kind": "Float",
+            "description": "Brightens concave areas to attenuate shading baked into the source colour. Geometric heuristic, not an inverse-rendering de-lighting.",
+            "x-cy-ui": {
+              "advanced": true,
+              "step": 0.05
+            }
+          },
+          "metallic_mode": {
+            "enum": [
+              "constant",
+              "estimate",
+              "source"
+            ],
+            "default": "constant",
+            "x-cy-kind": "Enum",
+            "description": "constant writes metallic_value; estimate applies the documented colour heuristic; source resamples the metallic-roughness texture of the mesh."
+          },
+          "metallic_value": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.0,
+            "x-cy-kind": "Float",
+            "description": "Constant metallic, and lower bound of the estimated metallic.",
+            "x-cy-ui": {
+              "step": 0.05
+            }
+          },
+          "roughness_mode": {
+            "enum": [
+              "estimate",
+              "constant",
+              "source"
+            ],
+            "default": "estimate",
+            "x-cy-kind": "Enum",
+            "description": "estimate applies the documented detail heuristic; constant writes roughness_value; source resamples the mesh metallic-roughness texture."
+          },
+          "roughness_value": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.5,
+            "x-cy-kind": "Float",
+            "description": "Constant roughness, and centre of the estimated roughness.",
+            "x-cy-ui": {
+              "step": 0.05
+            }
+          },
+          "alpha_mode": {
+            "enum": [
+              "from_source",
+              "opaque",
+              "from_coverage"
+            ],
+            "default": "from_source",
+            "x-cy-kind": "Enum",
+            "description": "from_source keeps the source transparency; opaque writes white; from_coverage marks the texels covered by a triangle, without padding."
+          },
+          "export_glb": {
+            "type": "boolean",
+            "default": true,
+            "x-cy-kind": "Boolean",
+            "description": "Also write a GLB carrying the UV layout and the generated PBR material."
+          }
+        },
+        "required": [
+          "mesh_file"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "metallic_mode": {
+                  "const": "constant"
+                }
+              },
+              "required": [
+                "metallic_mode"
+              ]
+            },
+            "then": {
+              "required": [
+                "metallic_value"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "roughness_mode": {
+                  "const": "constant"
+                }
+              },
+              "required": [
+                "roughness_mode"
+              ]
+            },
+            "then": {
+              "required": [
+                "roughness_value"
+              ]
+            }
+          }
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "base_color_file": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "metallic_file": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "roughness_file": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "alpha_file": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "metallic_roughness_file": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "material_mesh_file": {
+            "type": "string",
+            "x-cy-kind": "File",
+            "description": "Empty when export_glb is false."
+          },
+          "report_file": {
+            "type": "string",
+            "x-cy-kind": "File"
+          },
+          "resolution": {
+            "enum": [
+              512,
+              1024,
+              2048,
+              4096
+            ]
+          },
+          "vertices": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "faces": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "uv_source": {
+            "enum": [
+              "existing",
+              "xatlas",
+              "grid"
+            ]
+          },
+          "padding_pixels": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 64,
+            "description": "Padding actually applied; grid mode lowers it to fit its cells."
+          },
+          "color_source": {
+            "enum": [
+              "texture",
+              "vertex_colors",
+              "base_color_factor",
+              "none"
+            ]
+          },
+          "metallic_mode": {
+            "enum": [
+              "constant",
+              "estimate",
+              "source"
+            ]
+          },
+          "roughness_mode": {
+            "enum": [
+              "estimate",
+              "constant",
+              "source"
+            ]
+          },
+          "alpha_mode": {
+            "enum": [
+              "from_source",
+              "opaque",
+              "from_coverage"
+            ]
+          },
+          "texel_coverage": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Fraction of texels covered by a triangle, before padding."
+          },
+          "padded_coverage": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Fraction of texels holding a value after padding."
+          },
+          "stamped_faces": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Triangles smaller than a texel, forced onto a single texel."
+          },
+          "source_texture_size": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maxItems": 2
+          },
+          "worker_memory_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "memory_measurement": {
+            "type": "string"
+          },
+          "formulas": {
+            "type": "object",
+            "properties": {
+              "roughness": {
+                "type": "string"
+              },
+              "metallic": {
+                "type": "string"
+              },
+              "cavity_delight": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "roughness",
+              "metallic",
+              "cavity_delight"
+            ],
+            "additionalProperties": false
+          },
+          "color_space_note": {
+            "type": "string"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "timings": {
+            "type": "object",
+            "properties": {
+              "load_seconds": {
+                "type": "number",
+                "minimum": 0
+              },
+              "bake_seconds": {
+                "type": "number",
+                "minimum": 0
+              },
+              "total_seconds": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "load_seconds",
+              "bake_seconds",
+              "total_seconds"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "base_color_file",
+          "metallic_file",
+          "roughness_file",
+          "alpha_file",
+          "metallic_roughness_file",
+          "material_mesh_file",
+          "report_file",
+          "resolution",
+          "vertices",
+          "faces",
+          "uv_source",
+          "color_source",
+          "metallic_mode",
+          "roughness_mode",
+          "alpha_mode",
+          "padding_pixels",
+          "texel_coverage",
+          "padded_coverage",
+          "stamped_faces",
+          "source_texture_size",
+          "worker_memory_bytes",
+          "memory_measurement",
+          "formulas",
+          "color_space_note",
+          "warnings",
+          "timings"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": [
+        {
+          "id": "base_color_file",
+          "type": "File",
+          "mimeType": "image/png",
+          "fileExtension": ".png",
+          "description": "Base colour with the alpha channel, sRGB encoded"
+        },
+        {
+          "id": "metallic_file",
+          "type": "File",
+          "mimeType": "image/png",
+          "fileExtension": ".png",
+          "description": "Metallic, single channel"
+        },
+        {
+          "id": "roughness_file",
+          "type": "File",
+          "mimeType": "image/png",
+          "fileExtension": ".png",
+          "description": "Roughness, single channel"
+        },
+        {
+          "id": "alpha_file",
+          "type": "File",
+          "mimeType": "image/png",
+          "fileExtension": ".png",
+          "description": "Alpha, single channel"
+        },
+        {
+          "id": "metallic_roughness_file",
+          "type": "File",
+          "mimeType": "image/png",
+          "fileExtension": ".png",
+          "description": "glTF packing: green is roughness, blue is metallic, red is unused"
+        },
+        {
+          "id": "material_mesh_file",
+          "type": "File",
+          "mimeType": "model/gltf-binary",
+          "fileExtension": ".glb",
+          "description": "Mesh carrying the UV layout and the generated PBR material",
+          "optional": true
+        },
+        {
+          "id": "report_file",
+          "type": "File",
+          "mimeType": "application/json",
+          "fileExtension": ".json",
+          "description": "Settings, measurements, formulas and warnings of this job"
+        }
+      ],
+      "supportedBackends": [
+        "bake-cpu"
+      ],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true,
+      "estimatedDurationSeconds": 60,
+      "resourceRequirements": {
+        "ramBytes": 1073741824,
+        "cpuThreads": 2,
+        "diskBytes": 268435456,
+        "networkRequired": false
+      }
+    }
+  ]
+}

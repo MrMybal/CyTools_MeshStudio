@@ -1,0 +1,105 @@
+{
+  "format": "cytools-meshstudio-workflow",
+  "schemaVersion": 1,
+  "name": "Compare the shape engines on one image",
+  "description": "The same cut-out given to the four engines, one after the other: TripoSR and SPAR3D (a few seconds each), Hi3DGen (normal map, then shape), and LocalMesh at the High tier. Each result stays in its own step folder of the job (2-triposr, 3-spar3d, 4-hi3dgen, 5-localmesh) and the viewer opens the last one. An engine that fails is listed in the report and the others still run.",
+  "input_mode": "each",
+  "createdAt": "2026-09-24T14:02:46.633990+00:00",
+  "updatedAt": "2026-09-24T14:02:46.633990+00:00",
+  "steps": [
+    {
+      "id": "subject",
+      "operation": "prepare_subject",
+      "backend": "birefnet",
+      "parameters": {
+        "common_framing": true,
+        "measure_camera": false,
+        "contact_sheet": true
+      },
+      "input_from": "",
+      "input_field": "",
+      "input_to": "",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "triposr",
+      "operation": "image_to_mesh_triposr",
+      "backend": "triposr",
+      "parameters": {
+        "mc_resolution": 256,
+        "bake_texture": true,
+        "texture_resolution": 1024,
+        "output_format": "obj"
+      },
+      "input_from": "subject",
+      "input_field": "subject_set",
+      "input_to": "subject_set",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": true
+    },
+    {
+      "id": "spar3d",
+      "operation": "image_to_mesh_spar3d",
+      "backend": "spar3d",
+      "parameters": {
+        "texture_resolution": 1024
+      },
+      "input_from": "subject",
+      "input_field": "subject_set",
+      "input_to": "subject_set",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": true
+    },
+    {
+      "id": "hi3dgen",
+      "operation": "image_to_mesh_hi3dgen",
+      "backend": "hi3dgen",
+      "parameters": {
+        "seed": -1,
+        "normal_resolution": 768
+      },
+      "input_from": "subject",
+      "input_field": "subject_set",
+      "input_to": "subject_set",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": true
+    },
+    {
+      "id": "localmesh",
+      "operation": "photos_to_mesh",
+      "backend": "trellis",
+      "parameters": {
+        "mode": "single",
+        "tier": "high",
+        "seed": -1,
+        "gpu": 0,
+        "sampler": "recipe",
+        "transparency": "auto",
+        "up_axis": "y",
+        "texture_size": 0,
+        "target_faces": 0,
+        "real_size_mm": 0,
+        "fidelity": 0,
+        "tex_guidance": 0,
+        "steps_structure": 0,
+        "steps_shape": 0,
+        "steps_texture": 0,
+        "bake_normal_map": true,
+        "origin_at_base": true,
+        "remove_floaters": true,
+        "fill_holes": true
+      },
+      "input_from": "subject",
+      "input_field": "subject_set",
+      "input_to": "subject_set",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": true
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "format": "cytools-meshstudio-workflow",
+  "schemaVersion": 1,
+  "name": "Image to 3D print (STL)",
+  "description": "One image to a file for the slicer. LocalMesh builds the model (High tier); only its largest part is kept, its holes are closed, its normals fixed, it is turned Z-up, scaled to 100 mm high and put on the plate. The report says whether the result is watertight: closing holes is attempted, not guaranteed, so check it in the slicer. Change the height in the \"print\" step.",
+  "input_mode": "each",
+  "createdAt": "2026-09-24T14:02:46.633990+00:00",
+  "updatedAt": "2026-09-24T14:02:46.633990+00:00",
+  "steps": [
+    {
+      "id": "subject",
+      "operation": "prepare_subject",
+      "backend": "birefnet",
+      "parameters": {
+        "common_framing": true,
+        "measure_camera": false,
+        "contact_sheet": true
+      },
+      "input_from": "",
+      "input_field": "",
+      "input_to": "",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "shape",
+      "operation": "photos_to_mesh",
+      "backend": "trellis",
+      "parameters": {
+        "mode": "single",
+        "tier": "high",
+        "seed": -1,
+        "gpu": 0,
+        "sampler": "recipe",
+        "transparency": "auto",
+        "up_axis": "y",
+        "texture_size": 1024,
+        "target_faces": 0,
+        "real_size_mm": 0,
+        "fidelity": 0,
+        "tex_guidance": 0,
+        "steps_structure": 0,
+        "steps_shape": 0,
+        "steps_texture": 0,
+        "bake_normal_map": true,
+        "origin_at_base": true,
+        "remove_floaters": true,
+        "fill_holes": true
+      },
+      "input_from": "subject",
+      "input_field": "subject_set",
+      "input_to": "subject_set",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "print",
+      "operation": "mesh_edit",
+      "backend": "meshedit",
+      "parameters": {
+        "steps": [
+          {
+            "action": "keep_largest"
+          },
+          {
+            "action": "fill_holes"
+          },
+          {
+            "action": "fix_normals"
+          },
+          {
+            "action": "swap_up_axis",
+            "axis": "y"
+          },
+          {
+            "action": "scale_to_size",
+            "axis": "z",
+            "value": 100
+          },
+          {
+            "action": "recenter_base",
+            "axis": "z"
+          }
+        ],
+        "output_format": "stl",
+        "keep_materials": false
+      },
+      "input_from": "shape",
+      "input_field": "file",
+      "input_to": "",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    }
+  ]
+}

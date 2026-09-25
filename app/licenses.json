@@ -1,0 +1,86 @@
+[
+  {
+    "kind": "SDK",
+    "name": "CyToolsCore 0.9.0",
+    "license": "GPL-3.0-only",
+    "url": "https://github.com/MrMybal/CyToolsCore"
+  },
+  {
+    "kind": "Native program",
+    "name": "AutoRemesher 1.2.0 (huxingyi)",
+    "license": "MIT",
+    "url": "https://github.com/huxingyi/autoremesher"
+  },
+  {
+    "kind": "Native program",
+    "name": "QuadWild Bi-MDF v0.0.2",
+    "license": "GPL-3.0 (binaries redistributed by the upstream release)",
+    "url": "https://github.com/cgg-bern/quadwild-bimdf"
+  },
+  {
+    "kind": "Source",
+    "name": "TripoSR (torch-cu124)",
+    "license": "MIT (code); weights under the Stability AI Community License",
+    "url": "https://github.com/VAST-AI-Research/TripoSR.git"
+  },
+  {
+    "kind": "Source",
+    "name": "SPAR3D (torch-cu124)",
+    "license": "Stability AI Community License (code and weights)",
+    "url": "https://github.com/Stability-AI/stable-point-aware-3d.git"
+  },
+  {
+    "kind": "Source",
+    "name": "UniRig (torch-cu124)",
+    "license": "MIT (code); Articulation-XL weights under their own terms",
+    "url": "https://github.com/VAST-AI-Research/UniRig.git"
+  },
+  {
+    "kind": "Source",
+    "name": "localmesh-engine (trellis)",
+    "license": "See the engine repository LICENSE and NOTICE",
+    "url": "https://github.com/Quentincls/localmesh-engine"
+  },
+  {
+    "kind": "Source",
+    "name": "PerspectiveFields (diffusion)",
+    "license": "CC-BY-NC-4.0",
+    "url": "https://github.com/jinlinyi/PerspectiveFields.git"
+  },
+  {
+    "kind": "Source",
+    "name": "WHAM (wham)",
+    "license": "CC-BY-NC-4.0 (code); SMPL body model under its own licence",
+    "url": "https://github.com/yohanshin/WHAM.git"
+  },
+  {
+    "kind": "Source",
+    "name": "Wonder3D (wonder3d)",
+    "license": "AGPL-3.0 (code); weights CC-BY-NC",
+    "url": "https://github.com/xxlong0/Wonder3D.git"
+  },
+  {
+    "kind": "Source",
+    "name": "SyncDreamer (syncdreamer)",
+    "license": "MIT (code); weights under the upstream research terms",
+    "url": "https://github.com/liuyuan-pal/SyncDreamer.git"
+  },
+  {
+    "kind": "Source",
+    "name": "Hi3DGen (hi3dgen)",
+    "license": "MIT (code adapted from TRELLIS; weights MIT)",
+    "url": "https://github.com/Stable-X/Hi3DGen.git"
+  },
+  {
+    "kind": "Source",
+    "name": "StableNormal (hi3dgen)",
+    "license": "Apache-2.0 (code; YOSO weights Apache-2.0)",
+    "url": "https://github.com/hugoycj/StableNormal.git"
+  },
+  {
+    "kind": "Source",
+    "name": "dinov2 (hi3dgen)",
+    "license": "Apache-2.0 (code and weights)",
+    "url": "https://github.com/facebookresearch/dinov2.git"
+  }
+]

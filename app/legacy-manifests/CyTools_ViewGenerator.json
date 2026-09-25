@@ -1,0 +1,3553 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": "1.0",
+  "id": "cy.tools.viewgenerator",
+  "name": "CyTools_ViewGenerator",
+  "version": "0.1.0",
+  "description": "Analyse one or more images of the same object and generate new consistent views of it locally.",
+  "vendor": "Cyberalien",
+  "author": "Cyberalien",
+  "license": "Not declared by the Tool owner",
+  "documentation": "app/README.md",
+  "executable": "runtime/python/Scripts/python.exe app/tool.py",
+  "standaloneExecutable": "CyTools_ViewGenerator.exe",
+  "distributionStatus": "Experimental: see data/reports/VALIDATION.md for the checks that were actually executed",
+  "categories": [
+    "image",
+    "multi-view",
+    "3d"
+  ],
+  "tags": [
+    "multi-view",
+    "novel-view-synthesis",
+    "segmentation",
+    "camera-pose"
+  ],
+  "capabilities": [
+    "jobs",
+    "cancellation"
+  ],
+  "backends": [
+    {
+      "id": "zero123plus",
+      "name": "Zero123++ v1.2 (local CUDA diffusion)",
+      "version": "1.2",
+      "threadSafe": false,
+      "shareableModelInstance": false,
+      "concurrentInference": false,
+      "maxConcurrentInference": 1,
+      "models": [
+        {
+          "id": "zero123plus-v1.2",
+          "name": "Zero123++ v1.2 base model",
+          "version": "revision pinned at installation",
+          "source": "https://huggingface.co/sudo-ai/zero123plus-v1.2",
+          "license": "Weights CC-BY-NC-4.0 (non commercial); reference code Apache-2.0",
+          "licenseUrl": "https://github.com/SUDO-AI-3D/zero123plus#license",
+          "location": "Local",
+          "installed": false,
+          "runsLocally": true,
+          "networkRequired": false,
+          "computeBackends": [
+            "CUDA",
+            "CPU"
+          ],
+          "precisions": [
+            "fp16",
+            "fp32"
+          ]
+        },
+        {
+          "id": "zero123plus-normal",
+          "name": "Zero123++ v1.2 normal ControlNet",
+          "version": "revision pinned at installation",
+          "source": "https://huggingface.co/sudo-ai/controlnet-zp12-normal-gen-v1",
+          "license": "CC-BY-NC-4.0 (non commercial)",
+          "licenseUrl": "https://huggingface.co/sudo-ai/controlnet-zp12-normal-gen-v1",
+          "location": "Local",
+          "installed": false,
+          "runsLocally": true,
+          "networkRequired": false,
+          "computeBackends": [
+            "CUDA"
+          ],
+          "precisions": [
+            "fp16"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mirror",
+      "name": "Mirrored existing view (geometric, no model)",
+      "version": "1",
+      "threadSafe": true,
+      "shareableModelInstance": true,
+      "concurrentInference": true,
+      "maxConcurrentInference": 1,
+      "models": []
+    }
+  ],
+  "platforms": [
+    {
+      "os": "Windows",
+      "architecture": "x64",
+      "status": "Experimental",
+      "computeBackends": [
+        "CUDA",
+        "CPU"
+      ],
+      "notes": "Executed on this machine; see data/reports/VALIDATION.md.",
+      "tested": [
+        {
+          "osVersion": "Windows 10 Enterprise LTSC 2021 19044",
+          "device": "NVIDIA GeForce RTX 3090 24 GB",
+          "driver": "610.47",
+          "runtime": "CPython 3.12.13, torch 2.8.0+cu128, diffusers 0.35.2",
+          "date": "2026-09-20",
+          "status": "Generation and analysis executed"
+        }
+      ]
+    },
+    {
+      "os": "Linux",
+      "architecture": "x64",
+      "status": "Unknown",
+      "computeBackends": [
+        "CUDA",
+        "CPU"
+      ],
+      "notes": "Not executed. The launcher and the installer scripts exist but no Linux run was performed, so nothing is declared as supported."
+    }
+  ],
+  "interfaces": [
+    "Native",
+    "CLI",
+    "JSONL",
+    "HTTP",
+    "MCP",
+    "ImGui"
+  ],
+  "runtimeRequirements": [
+    {
+      "id": "engine-python",
+      "version": "3.12",
+      "required": true,
+      "installed": false,
+      "path": "runtime/engine/Scripts/python.exe",
+      "source": "Created by the guided installation (\"Install or repair the inference environment\"). Holds torch 2.8.0+cu128, diffusers and transformers. The interface interpreter in runtime/python never imports torch or a model. The runtime replaces this relative declaration with the absolute path of the interpreter for the current platform."
+    }
+  ],
+  "concurrency": {
+    "policy": "Sequential",
+    "maxWorkers": 1
+  },
+  "operations": [
+    {
+      "id": "analyze_views",
+      "name": "Analyse the supplied views",
+      "description": "Segment the object in every supplied image, verify that the images show the same object, place each viewpoint and report the coverage of the sphere with the viewpoints that are still missing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "title": "Input images",
+            "items": {
+              "type": "object",
+              "title": "Input image",
+              "additionalProperties": false,
+              "required": [
+                "file"
+              ],
+              "properties": {
+                "file": {
+                  "type": "string",
+                  "title": "Image file",
+                  "x-cy-kind": "Image",
+                  "minLength": 1,
+                  "maxLength": 1024,
+                  "description": "Image path: an absolute local path, or a path relative to data/inputs. The file is copied into the private job workspace automatically; no manual import is required. PNG, JPEG or WebP, at most 48 MiB and 60 megapixels."
+                },
+                "name": {
+                  "type": "string",
+                  "title": "Name",
+                  "maxLength": 120,
+                  "default": "",
+                  "description": "Identifier used in the View Set; the file stem is used when it is empty."
+                },
+                "view": {
+                  "type": "string",
+                  "title": "Declared viewpoint",
+                  "enum": [
+                    "Auto",
+                    "Front",
+                    "FrontRight",
+                    "Right",
+                    "RearRight",
+                    "Rear",
+                    "RearLeft",
+                    "Left",
+                    "FrontLeft",
+                    "Top",
+                    "Bottom"
+                  ],
+                  "default": "Auto",
+                  "x-cy-kind": "Enum",
+                  "description": "Declaring the viewpoint is exact and is the recommended input. Auto runs the automatic estimator, which only measures an azimuth for narrow baselines and reports its confidence."
+                },
+                "azimuth": {
+                  "type": "number",
+                  "title": "Azimuth",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "elevation": {
+                  "type": "number",
+                  "title": "Elevation",
+                  "minimum": -90,
+                  "maximum": 90,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "roll": {
+                  "type": "number",
+                  "title": "Roll",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "fov": {
+                  "type": "number",
+                  "title": "Horizontal field of view",
+                  "minimum": 1,
+                  "maximum": 179,
+                  "description": "Horizontal field of view in degrees, when it is known."
+                }
+              }
+            },
+            "minItems": 1,
+            "maxItems": 24,
+            "default": [],
+            "x-cy-kind": "Array",
+            "description": "One or more images of the same object. Image path: an absolute local path, or a path relative to data/inputs. The file is copied into the private job workspace automatically; no manual import is required. PNG, JPEG or WebP, at most 48 MiB and 60 megapixels."
+          },
+          "segmentation_backend": {
+            "type": "string",
+            "title": "Segmentation backend",
+            "enum": [
+              "sam2",
+              "classical",
+              "alpha"
+            ],
+            "default": "sam2",
+            "x-cy-kind": "Enum",
+            "description": "sam2 uses the local SAM 2.1 weights. classical is a GrabCut fallback that needs no model. alpha uses the alpha channel of the supplied image."
+          },
+          "device": {
+            "type": "string",
+            "title": "Compute device",
+            "enum": [
+              "auto",
+              "cuda",
+              "cpu"
+            ],
+            "default": "auto",
+            "x-cy-kind": "Enum",
+            "description": "Auto selects CUDA when a device is present. CPU works for segmentation and analysis; generation on CPU is extremely slow and is not validated."
+          },
+          "force_same_object": {
+            "type": "boolean",
+            "title": "Use the images even when they may show different objects",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Same-object verification reports suspicious images and refuses to generate from them. Enable this to proceed anyway."
+          },
+          "keep_input_copies": {
+            "type": "boolean",
+            "title": "Keep the private input copies after processing",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Private input copies are deleted when the worker stops, including on failure and cancellation. Original files and generated results are never deleted.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          }
+        },
+        "required": [
+          "images"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "viewSet",
+          "directory",
+          "thumbnail",
+          "views",
+          "coverage",
+          "sameObjectConfidence",
+          "recommendations",
+          "generatedCount",
+          "realCount",
+          "lowConfidenceViews",
+          "seeds",
+          "device",
+          "peakVramGiB",
+          "seconds",
+          "notes"
+        ],
+        "properties": {
+          "viewSet": {
+            "type": "string"
+          },
+          "directory": {
+            "type": "string"
+          },
+          "thumbnail": {
+            "type": "string"
+          },
+          "views": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "name",
+                "viewType",
+                "azimuth",
+                "elevation",
+                "roll",
+                "isReal",
+                "isGenerated",
+                "image",
+                "confidence"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "viewType": {
+                  "type": "string"
+                },
+                "azimuth": {
+                  "type": "number"
+                },
+                "elevation": {
+                  "type": "number"
+                },
+                "roll": {
+                  "type": "number"
+                },
+                "fov": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "isReal": {
+                  "type": "boolean"
+                },
+                "isGenerated": {
+                  "type": "boolean"
+                },
+                "image": {
+                  "type": "string"
+                },
+                "mask": {
+                  "type": "string"
+                },
+                "normal": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "type": "number"
+                },
+                "sourceViews": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "generationBackend": {
+                  "type": "string"
+                },
+                "modelVersion": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "targetAzimuth": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "targetElevation": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "targetRoll": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "poseError": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "notes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "coverage": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "sameObjectConfidence": {
+            "type": "number"
+          },
+          "recommendations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requestedViews": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "generatedCount": {
+            "type": "integer"
+          },
+          "realCount": {
+            "type": "integer"
+          },
+          "lowConfidenceViews": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "seeds": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "symmetryScore": {
+            "type": "number"
+          },
+          "device": {
+            "type": "string"
+          },
+          "peakVramGiB": {
+            "type": "number"
+          },
+          "seconds": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "outputs": [
+        {
+          "id": "viewSet",
+          "type": "File",
+          "mimeType": "application/json",
+          "fileExtension": ".json",
+          "description": "Portable View Set: every view with its camera pose, real or generated state, source views, backend, model version and confidence. Consumed directly by other CyTools such as a mesh reconstruction Tool."
+        },
+        {
+          "id": "directory",
+          "type": "Directory",
+          "description": "Job output directory holding views/, masks/, normals/ and view-set.json."
+        },
+        {
+          "id": "thumbnail",
+          "type": "File",
+          "mimeType": "image/png",
+          "fileExtension": ".png",
+          "description": "Contact sheet of every view in the set, for preview only."
+        },
+        {
+          "id": "views",
+          "type": "Array",
+          "description": "The same views as structured records, in View Set order."
+        },
+        {
+          "id": "coverage",
+          "type": "Object",
+          "description": "Per sector Real/Partial/Generated/Missing state and the coverage percent."
+        }
+      ],
+      "resourceRequirements": {
+        "ramBytes": 536870912
+      },
+      "supportedBackends": [],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true,
+      "estimatedDurationSeconds": 20
+    },
+    {
+      "id": "generate_views",
+      "name": "Generate the requested views",
+      "description": "Generate the requested viewpoints of the object locally. Real photographs are reused when they already cover a request, an existing view is mirrored when the object is bilaterally symmetric, and everything else is produced by the selected backend. Each produced view carries the pose that was really achieved, its angular error and a consistency score.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "title": "Input images",
+            "items": {
+              "type": "object",
+              "title": "Input image",
+              "additionalProperties": false,
+              "required": [
+                "file"
+              ],
+              "properties": {
+                "file": {
+                  "type": "string",
+                  "title": "Image file",
+                  "x-cy-kind": "Image",
+                  "minLength": 1,
+                  "maxLength": 1024,
+                  "description": "Image path: an absolute local path, or a path relative to data/inputs. The file is copied into the private job workspace automatically; no manual import is required. PNG, JPEG or WebP, at most 48 MiB and 60 megapixels."
+                },
+                "name": {
+                  "type": "string",
+                  "title": "Name",
+                  "maxLength": 120,
+                  "default": "",
+                  "description": "Identifier used in the View Set; the file stem is used when it is empty."
+                },
+                "view": {
+                  "type": "string",
+                  "title": "Declared viewpoint",
+                  "enum": [
+                    "Auto",
+                    "Front",
+                    "FrontRight",
+                    "Right",
+                    "RearRight",
+                    "Rear",
+                    "RearLeft",
+                    "Left",
+                    "FrontLeft",
+                    "Top",
+                    "Bottom"
+                  ],
+                  "default": "Auto",
+                  "x-cy-kind": "Enum",
+                  "description": "Declaring the viewpoint is exact and is the recommended input. Auto runs the automatic estimator, which only measures an azimuth for narrow baselines and reports its confidence."
+                },
+                "azimuth": {
+                  "type": "number",
+                  "title": "Azimuth",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "elevation": {
+                  "type": "number",
+                  "title": "Elevation",
+                  "minimum": -90,
+                  "maximum": 90,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "roll": {
+                  "type": "number",
+                  "title": "Roll",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "fov": {
+                  "type": "number",
+                  "title": "Horizontal field of view",
+                  "minimum": 1,
+                  "maximum": 179,
+                  "description": "Horizontal field of view in degrees, when it is known."
+                }
+              }
+            },
+            "minItems": 1,
+            "maxItems": 24,
+            "default": [],
+            "x-cy-kind": "Array",
+            "description": "One or more images of the same object. Image path: an absolute local path, or a path relative to data/inputs. The file is copied into the private job workspace automatically; no manual import is required. PNG, JPEG or WebP, at most 48 MiB and 60 megapixels."
+          },
+          "segmentation_backend": {
+            "type": "string",
+            "title": "Segmentation backend",
+            "enum": [
+              "sam2",
+              "classical",
+              "alpha"
+            ],
+            "default": "sam2",
+            "x-cy-kind": "Enum",
+            "description": "sam2 uses the local SAM 2.1 weights. classical is a GrabCut fallback that needs no model. alpha uses the alpha channel of the supplied image."
+          },
+          "device": {
+            "type": "string",
+            "title": "Compute device",
+            "enum": [
+              "auto",
+              "cuda",
+              "cpu"
+            ],
+            "default": "auto",
+            "x-cy-kind": "Enum",
+            "description": "Auto selects CUDA when a device is present. CPU works for segmentation and analysis; generation on CPU is extremely slow and is not validated."
+          },
+          "force_same_object": {
+            "type": "boolean",
+            "title": "Use the images even when they may show different objects",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Same-object verification reports suspicious images and refuses to generate from them. Enable this to proceed anyway."
+          },
+          "keep_input_copies": {
+            "type": "boolean",
+            "title": "Keep the private input copies after processing",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Private input copies are deleted when the worker stops, including on failure and cancellation. Original files and generated results are never deleted.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "background": {
+            "type": "string",
+            "title": "Background",
+            "enum": [
+              "transparent",
+              "neutral",
+              "original"
+            ],
+            "default": "transparent",
+            "x-cy-kind": "Enum",
+            "description": "transparent writes RGBA using the object mask. neutral composites on a flat grey. original keeps the background the backend produced."
+          },
+          "resolution": {
+            "type": "integer",
+            "title": "Output resolution",
+            "enum": [
+              0,
+              320,
+              512,
+              768,
+              1024
+            ],
+            "default": 0,
+            "x-cy-kind": "Enum",
+            "description": "0 keeps the native resolution of the backend. A larger value only applies when resampling is enabled; resampling adds no detail."
+          },
+          "upscale": {
+            "type": "boolean",
+            "title": "Allow resampling above the native resolution",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Lanczos resampling only. This Tool performs no super resolution."
+          },
+          "symmetry": {
+            "type": "string",
+            "title": "Symmetry",
+            "enum": [
+              "auto",
+              "off",
+              "force"
+            ],
+            "default": "auto",
+            "x-cy-kind": "Enum",
+            "description": "auto mirrors an existing view only when the measured silhouette symmetry passes the threshold. force mirrors regardless and marks the result. off never mirrors."
+          },
+          "symmetry_threshold": {
+            "type": "number",
+            "title": "Symmetry threshold",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "default": 0.82,
+            "description": "Minimum silhouette symmetry score accepted for an automatic mirror.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "allow_mirror": {
+            "type": "boolean",
+            "title": "Allow mirrored views",
+            "default": true,
+            "x-cy-kind": "Boolean",
+            "description": "Mirroring an existing view is instant and uses no model, but it assumes bilateral symmetry."
+          },
+          "prefer_real": {
+            "type": "boolean",
+            "title": "Never replace a real view by a generated one",
+            "default": true,
+            "x-cy-kind": "Boolean",
+            "description": "When a real photograph already covers a requested viewpoint it is reused instead of generated."
+          },
+          "reuse_tolerance": {
+            "type": "number",
+            "title": "Reuse tolerance",
+            "minimum": 0.0,
+            "maximum": 90.0,
+            "default": 15.0,
+            "description": "Angular distance in degrees within which a real photograph answers a requested viewpoint.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "seed": {
+            "type": "integer",
+            "title": "Seed",
+            "minimum": -1,
+            "maximum": 2147483647,
+            "default": -1,
+            "description": "-1 draws a seed. The resolved seed is reported in the outputs and in the View Set so a run can be repeated.",
+            "x-cy-kind": "Seed"
+          },
+          "steps": {
+            "type": "integer",
+            "title": "Diffusion steps",
+            "minimum": 4,
+            "maximum": 200,
+            "default": 36,
+            "description": "Only used by backends that expose a step count."
+          },
+          "guidance": {
+            "type": "number",
+            "title": "Guidance scale",
+            "minimum": 0.5,
+            "maximum": 20.0,
+            "default": 4.0,
+            "description": "Classifier-free guidance of the generation backend."
+          },
+          "variants": {
+            "type": "integer",
+            "title": "Variants per view",
+            "minimum": 1,
+            "maximum": 8,
+            "default": 1,
+            "description": "Each variant is a complete generation with its own seed, so the best one can be selected afterwards."
+          },
+          "generate_normals": {
+            "type": "boolean",
+            "title": "Also generate view-space normal maps",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Uses the Zero123++ normal ControlNet. It also produces a matted alpha channel that is more accurate than the segmentation backend."
+          },
+          "normal_guidance": {
+            "type": "number",
+            "title": "Normal guidance scale",
+            "minimum": 0.5,
+            "maximum": 20.0,
+            "default": 4.0,
+            "description": "Guidance used for the normal pass only.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "condition_ratio": {
+            "type": "number",
+            "title": "Object fill ratio of the conditioning image",
+            "minimum": 0.5,
+            "maximum": 1.0,
+            "default": 0.95,
+            "description": "Fraction of the square conditioning image the object occupies before generation.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "targets": {
+            "type": "array",
+            "title": "Requested views",
+            "items": {
+              "type": "object",
+              "title": "Requested view",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "view": {
+                  "type": "string",
+                  "title": "Preset",
+                  "enum": [
+                    "Custom",
+                    "Front",
+                    "FrontRight",
+                    "Right",
+                    "RearRight",
+                    "Rear",
+                    "RearLeft",
+                    "Left",
+                    "FrontLeft",
+                    "Top",
+                    "Bottom"
+                  ],
+                  "default": "Custom",
+                  "x-cy-kind": "Enum",
+                  "description": "A preset viewpoint, or Custom to use the angles below."
+                },
+                "azimuth": {
+                  "type": "number",
+                  "title": "Azimuth",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "default": 0.0,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "elevation": {
+                  "type": "number",
+                  "title": "Elevation",
+                  "minimum": -90,
+                  "maximum": 90,
+                  "default": 0.0,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "roll": {
+                  "type": "number",
+                  "title": "Roll",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "default": 0.0,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "name": {
+                  "type": "string",
+                  "title": "Name",
+                  "maxLength": 120,
+                  "default": "",
+                  "description": "Name of the produced view; a preset name is used when empty."
+                }
+              }
+            },
+            "minItems": 1,
+            "maxItems": 48,
+            "default": [],
+            "x-cy-kind": "Array",
+            "description": "Preset viewpoints, arbitrary azimuth/elevation/roll, or a mix. A requested view already covered by a real photograph is reused instead of generated."
+          },
+          "model_profile": {
+            "type": "string",
+            "default": "",
+            "description": "ID from the local model library; empty uses the selected built-in model."
+          }
+        },
+        "required": [
+          "images",
+          "targets"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "viewSet",
+          "directory",
+          "thumbnail",
+          "views",
+          "coverage",
+          "sameObjectConfidence",
+          "recommendations",
+          "generatedCount",
+          "realCount",
+          "lowConfidenceViews",
+          "seeds",
+          "device",
+          "peakVramGiB",
+          "seconds",
+          "notes"
+        ],
+        "properties": {
+          "viewSet": {
+            "type": "string"
+          },
+          "directory": {
+            "type": "string"
+          },
+          "thumbnail": {
+            "type": "string"
+          },
+          "views": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "name",
+                "viewType",
+                "azimuth",
+                "elevation",
+                "roll",
+                "isReal",
+                "isGenerated",
+                "image",
+                "confidence"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "viewType": {
+                  "type": "string"
+                },
+                "azimuth": {
+                  "type": "number"
+                },
+                "elevation": {
+                  "type": "number"
+                },
+                "roll": {
+                  "type": "number"
+                },
+                "fov": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "isReal": {
+                  "type": "boolean"
+                },
+                "isGenerated": {
+                  "type": "boolean"
+                },
+                "image": {
+                  "type": "string"
+                },
+                "mask": {
+                  "type": "string"
+                },
+                "normal": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "type": "number"
+                },
+                "sourceViews": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "generationBackend": {
+                  "type": "string"
+                },
+                "modelVersion": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "targetAzimuth": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "targetElevation": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "targetRoll": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "poseError": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "notes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "coverage": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "sameObjectConfidence": {
+            "type": "number"
+          },
+          "recommendations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requestedViews": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "generatedCount": {
+            "type": "integer"
+          },
+          "realCount": {
+            "type": "integer"
+          },
+          "lowConfidenceViews": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "seeds": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "symmetryScore": {
+            "type": "number"
+          },
+          "device": {
+            "type": "string"
+          },
+          "peakVramGiB": {
+            "type": "number"
+          },
+          "seconds": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "outputs": [
+        {
+          "id": "viewSet",
+          "type": "File",
+          "mimeType": "application/json",
+          "fileExtension": ".json",
+          "description": "Portable View Set: every view with its camera pose, real or generated state, source views, backend, model version and confidence. Consumed directly by other CyTools such as a mesh reconstruction Tool."
+        },
+        {
+          "id": "directory",
+          "type": "Directory",
+          "description": "Job output directory holding views/, masks/, normals/ and view-set.json."
+        },
+        {
+          "id": "thumbnail",
+          "type": "File",
+          "mimeType": "image/png",
+          "fileExtension": ".png",
+          "description": "Contact sheet of every view in the set, for preview only."
+        },
+        {
+          "id": "views",
+          "type": "Array",
+          "description": "The same views as structured records, in View Set order."
+        },
+        {
+          "id": "coverage",
+          "type": "Object",
+          "description": "Per sector Real/Partial/Generated/Missing state and the coverage percent."
+        }
+      ],
+      "resourceRequirements": {
+        "ramBytes": 536870912
+      },
+      "supportedBackends": [
+        "zero123plus",
+        "mirror"
+      ],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true,
+      "estimatedDurationSeconds": 90
+    },
+    {
+      "id": "auto_complete_view_set",
+      "name": "Complete the view set automatically",
+      "description": "Analyse the supplied images, decide which important viewpoints are missing and generate only those. The recommendation and the produced set are both reported.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "title": "Input images",
+            "items": {
+              "type": "object",
+              "title": "Input image",
+              "additionalProperties": false,
+              "required": [
+                "file"
+              ],
+              "properties": {
+                "file": {
+                  "type": "string",
+                  "title": "Image file",
+                  "x-cy-kind": "Image",
+                  "minLength": 1,
+                  "maxLength": 1024,
+                  "description": "Image path: an absolute local path, or a path relative to data/inputs. The file is copied into the private job workspace automatically; no manual import is required. PNG, JPEG or WebP, at most 48 MiB and 60 megapixels."
+                },
+                "name": {
+                  "type": "string",
+                  "title": "Name",
+                  "maxLength": 120,
+                  "default": "",
+                  "description": "Identifier used in the View Set; the file stem is used when it is empty."
+                },
+                "view": {
+                  "type": "string",
+                  "title": "Declared viewpoint",
+                  "enum": [
+                    "Auto",
+                    "Front",
+                    "FrontRight",
+                    "Right",
+                    "RearRight",
+                    "Rear",
+                    "RearLeft",
+                    "Left",
+                    "FrontLeft",
+                    "Top",
+                    "Bottom"
+                  ],
+                  "default": "Auto",
+                  "x-cy-kind": "Enum",
+                  "description": "Declaring the viewpoint is exact and is the recommended input. Auto runs the automatic estimator, which only measures an azimuth for narrow baselines and reports its confidence."
+                },
+                "azimuth": {
+                  "type": "number",
+                  "title": "Azimuth",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "elevation": {
+                  "type": "number",
+                  "title": "Elevation",
+                  "minimum": -90,
+                  "maximum": 90,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "roll": {
+                  "type": "number",
+                  "title": "Roll",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "fov": {
+                  "type": "number",
+                  "title": "Horizontal field of view",
+                  "minimum": 1,
+                  "maximum": 179,
+                  "description": "Horizontal field of view in degrees, when it is known."
+                }
+              }
+            },
+            "minItems": 1,
+            "maxItems": 24,
+            "default": [],
+            "x-cy-kind": "Array",
+            "description": "One or more images of the same object. Image path: an absolute local path, or a path relative to data/inputs. The file is copied into the private job workspace automatically; no manual import is required. PNG, JPEG or WebP, at most 48 MiB and 60 megapixels."
+          },
+          "segmentation_backend": {
+            "type": "string",
+            "title": "Segmentation backend",
+            "enum": [
+              "sam2",
+              "classical",
+              "alpha"
+            ],
+            "default": "sam2",
+            "x-cy-kind": "Enum",
+            "description": "sam2 uses the local SAM 2.1 weights. classical is a GrabCut fallback that needs no model. alpha uses the alpha channel of the supplied image."
+          },
+          "device": {
+            "type": "string",
+            "title": "Compute device",
+            "enum": [
+              "auto",
+              "cuda",
+              "cpu"
+            ],
+            "default": "auto",
+            "x-cy-kind": "Enum",
+            "description": "Auto selects CUDA when a device is present. CPU works for segmentation and analysis; generation on CPU is extremely slow and is not validated."
+          },
+          "force_same_object": {
+            "type": "boolean",
+            "title": "Use the images even when they may show different objects",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Same-object verification reports suspicious images and refuses to generate from them. Enable this to proceed anyway."
+          },
+          "keep_input_copies": {
+            "type": "boolean",
+            "title": "Keep the private input copies after processing",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Private input copies are deleted when the worker stops, including on failure and cancellation. Original files and generated results are never deleted.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "background": {
+            "type": "string",
+            "title": "Background",
+            "enum": [
+              "transparent",
+              "neutral",
+              "original"
+            ],
+            "default": "transparent",
+            "x-cy-kind": "Enum",
+            "description": "transparent writes RGBA using the object mask. neutral composites on a flat grey. original keeps the background the backend produced."
+          },
+          "resolution": {
+            "type": "integer",
+            "title": "Output resolution",
+            "enum": [
+              0,
+              320,
+              512,
+              768,
+              1024
+            ],
+            "default": 0,
+            "x-cy-kind": "Enum",
+            "description": "0 keeps the native resolution of the backend. A larger value only applies when resampling is enabled; resampling adds no detail."
+          },
+          "upscale": {
+            "type": "boolean",
+            "title": "Allow resampling above the native resolution",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Lanczos resampling only. This Tool performs no super resolution."
+          },
+          "symmetry": {
+            "type": "string",
+            "title": "Symmetry",
+            "enum": [
+              "auto",
+              "off",
+              "force"
+            ],
+            "default": "auto",
+            "x-cy-kind": "Enum",
+            "description": "auto mirrors an existing view only when the measured silhouette symmetry passes the threshold. force mirrors regardless and marks the result. off never mirrors."
+          },
+          "symmetry_threshold": {
+            "type": "number",
+            "title": "Symmetry threshold",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "default": 0.82,
+            "description": "Minimum silhouette symmetry score accepted for an automatic mirror.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "allow_mirror": {
+            "type": "boolean",
+            "title": "Allow mirrored views",
+            "default": true,
+            "x-cy-kind": "Boolean",
+            "description": "Mirroring an existing view is instant and uses no model, but it assumes bilateral symmetry."
+          },
+          "prefer_real": {
+            "type": "boolean",
+            "title": "Never replace a real view by a generated one",
+            "default": true,
+            "x-cy-kind": "Boolean",
+            "description": "When a real photograph already covers a requested viewpoint it is reused instead of generated."
+          },
+          "reuse_tolerance": {
+            "type": "number",
+            "title": "Reuse tolerance",
+            "minimum": 0.0,
+            "maximum": 90.0,
+            "default": 15.0,
+            "description": "Angular distance in degrees within which a real photograph answers a requested viewpoint.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "seed": {
+            "type": "integer",
+            "title": "Seed",
+            "minimum": -1,
+            "maximum": 2147483647,
+            "default": -1,
+            "description": "-1 draws a seed. The resolved seed is reported in the outputs and in the View Set so a run can be repeated.",
+            "x-cy-kind": "Seed"
+          },
+          "steps": {
+            "type": "integer",
+            "title": "Diffusion steps",
+            "minimum": 4,
+            "maximum": 200,
+            "default": 36,
+            "description": "Only used by backends that expose a step count."
+          },
+          "guidance": {
+            "type": "number",
+            "title": "Guidance scale",
+            "minimum": 0.5,
+            "maximum": 20.0,
+            "default": 4.0,
+            "description": "Classifier-free guidance of the generation backend."
+          },
+          "variants": {
+            "type": "integer",
+            "title": "Variants per view",
+            "minimum": 1,
+            "maximum": 8,
+            "default": 1,
+            "description": "Each variant is a complete generation with its own seed, so the best one can be selected afterwards."
+          },
+          "generate_normals": {
+            "type": "boolean",
+            "title": "Also generate view-space normal maps",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Uses the Zero123++ normal ControlNet. It also produces a matted alpha channel that is more accurate than the segmentation backend."
+          },
+          "normal_guidance": {
+            "type": "number",
+            "title": "Normal guidance scale",
+            "minimum": 0.5,
+            "maximum": 20.0,
+            "default": 4.0,
+            "description": "Guidance used for the normal pass only.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "condition_ratio": {
+            "type": "number",
+            "title": "Object fill ratio of the conditioning image",
+            "minimum": 0.5,
+            "maximum": 1.0,
+            "default": 0.95,
+            "description": "Fraction of the square conditioning image the object occupies before generation.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "include_polar": {
+            "type": "boolean",
+            "title": "Include Top and Bottom",
+            "default": true,
+            "x-cy-kind": "Boolean"
+          },
+          "max_views": {
+            "type": "integer",
+            "title": "Maximum generated views",
+            "minimum": 1,
+            "maximum": 16,
+            "default": 8
+          },
+          "model_profile": {
+            "type": "string",
+            "default": "",
+            "description": "ID from the local model library; empty uses the selected built-in model."
+          }
+        },
+        "required": [
+          "images"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "viewSet",
+          "directory",
+          "thumbnail",
+          "views",
+          "coverage",
+          "sameObjectConfidence",
+          "recommendations",
+          "generatedCount",
+          "realCount",
+          "lowConfidenceViews",
+          "seeds",
+          "device",
+          "peakVramGiB",
+          "seconds",
+          "notes"
+        ],
+        "properties": {
+          "viewSet": {
+            "type": "string"
+          },
+          "directory": {
+            "type": "string"
+          },
+          "thumbnail": {
+            "type": "string"
+          },
+          "views": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "name",
+                "viewType",
+                "azimuth",
+                "elevation",
+                "roll",
+                "isReal",
+                "isGenerated",
+                "image",
+                "confidence"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "viewType": {
+                  "type": "string"
+                },
+                "azimuth": {
+                  "type": "number"
+                },
+                "elevation": {
+                  "type": "number"
+                },
+                "roll": {
+                  "type": "number"
+                },
+                "fov": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "isReal": {
+                  "type": "boolean"
+                },
+                "isGenerated": {
+                  "type": "boolean"
+                },
+                "image": {
+                  "type": "string"
+                },
+                "mask": {
+                  "type": "string"
+                },
+                "normal": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "type": "number"
+                },
+                "sourceViews": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "generationBackend": {
+                  "type": "string"
+                },
+                "modelVersion": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "targetAzimuth": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "targetElevation": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "targetRoll": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "poseError": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "notes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "coverage": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "sameObjectConfidence": {
+            "type": "number"
+          },
+          "recommendations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requestedViews": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "generatedCount": {
+            "type": "integer"
+          },
+          "realCount": {
+            "type": "integer"
+          },
+          "lowConfidenceViews": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "seeds": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "symmetryScore": {
+            "type": "number"
+          },
+          "device": {
+            "type": "string"
+          },
+          "peakVramGiB": {
+            "type": "number"
+          },
+          "seconds": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "outputs": [
+        {
+          "id": "viewSet",
+          "type": "File",
+          "mimeType": "application/json",
+          "fileExtension": ".json",
+          "description": "Portable View Set: every view with its camera pose, real or generated state, source views, backend, model version and confidence. Consumed directly by other CyTools such as a mesh reconstruction Tool."
+        },
+        {
+          "id": "directory",
+          "type": "Directory",
+          "description": "Job output directory holding views/, masks/, normals/ and view-set.json."
+        },
+        {
+          "id": "thumbnail",
+          "type": "File",
+          "mimeType": "image/png",
+          "fileExtension": ".png",
+          "description": "Contact sheet of every view in the set, for preview only."
+        },
+        {
+          "id": "views",
+          "type": "Array",
+          "description": "The same views as structured records, in View Set order."
+        },
+        {
+          "id": "coverage",
+          "type": "Object",
+          "description": "Per sector Real/Partial/Generated/Missing state and the coverage percent."
+        }
+      ],
+      "resourceRequirements": {
+        "ramBytes": 536870912
+      },
+      "supportedBackends": [
+        "zero123plus",
+        "mirror"
+      ],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true,
+      "estimatedDurationSeconds": 120
+    },
+    {
+      "id": "turntable_views",
+      "name": "Turntable around the object",
+      "description": "Produce N equally spaced views around the object, on one ring or on several rings at different elevations. The achieved pose of each view is reported next to the requested one.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "title": "Input images",
+            "items": {
+              "type": "object",
+              "title": "Input image",
+              "additionalProperties": false,
+              "required": [
+                "file"
+              ],
+              "properties": {
+                "file": {
+                  "type": "string",
+                  "title": "Image file",
+                  "x-cy-kind": "Image",
+                  "minLength": 1,
+                  "maxLength": 1024,
+                  "description": "Image path: an absolute local path, or a path relative to data/inputs. The file is copied into the private job workspace automatically; no manual import is required. PNG, JPEG or WebP, at most 48 MiB and 60 megapixels."
+                },
+                "name": {
+                  "type": "string",
+                  "title": "Name",
+                  "maxLength": 120,
+                  "default": "",
+                  "description": "Identifier used in the View Set; the file stem is used when it is empty."
+                },
+                "view": {
+                  "type": "string",
+                  "title": "Declared viewpoint",
+                  "enum": [
+                    "Auto",
+                    "Front",
+                    "FrontRight",
+                    "Right",
+                    "RearRight",
+                    "Rear",
+                    "RearLeft",
+                    "Left",
+                    "FrontLeft",
+                    "Top",
+                    "Bottom"
+                  ],
+                  "default": "Auto",
+                  "x-cy-kind": "Enum",
+                  "description": "Declaring the viewpoint is exact and is the recommended input. Auto runs the automatic estimator, which only measures an azimuth for narrow baselines and reports its confidence."
+                },
+                "azimuth": {
+                  "type": "number",
+                  "title": "Azimuth",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "elevation": {
+                  "type": "number",
+                  "title": "Elevation",
+                  "minimum": -90,
+                  "maximum": 90,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "roll": {
+                  "type": "number",
+                  "title": "Roll",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "fov": {
+                  "type": "number",
+                  "title": "Horizontal field of view",
+                  "minimum": 1,
+                  "maximum": 179,
+                  "description": "Horizontal field of view in degrees, when it is known."
+                }
+              }
+            },
+            "minItems": 1,
+            "maxItems": 24,
+            "default": [],
+            "x-cy-kind": "Array",
+            "description": "One or more images of the same object. Image path: an absolute local path, or a path relative to data/inputs. The file is copied into the private job workspace automatically; no manual import is required. PNG, JPEG or WebP, at most 48 MiB and 60 megapixels."
+          },
+          "segmentation_backend": {
+            "type": "string",
+            "title": "Segmentation backend",
+            "enum": [
+              "sam2",
+              "classical",
+              "alpha"
+            ],
+            "default": "sam2",
+            "x-cy-kind": "Enum",
+            "description": "sam2 uses the local SAM 2.1 weights. classical is a GrabCut fallback that needs no model. alpha uses the alpha channel of the supplied image."
+          },
+          "device": {
+            "type": "string",
+            "title": "Compute device",
+            "enum": [
+              "auto",
+              "cuda",
+              "cpu"
+            ],
+            "default": "auto",
+            "x-cy-kind": "Enum",
+            "description": "Auto selects CUDA when a device is present. CPU works for segmentation and analysis; generation on CPU is extremely slow and is not validated."
+          },
+          "force_same_object": {
+            "type": "boolean",
+            "title": "Use the images even when they may show different objects",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Same-object verification reports suspicious images and refuses to generate from them. Enable this to proceed anyway."
+          },
+          "keep_input_copies": {
+            "type": "boolean",
+            "title": "Keep the private input copies after processing",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Private input copies are deleted when the worker stops, including on failure and cancellation. Original files and generated results are never deleted.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "background": {
+            "type": "string",
+            "title": "Background",
+            "enum": [
+              "transparent",
+              "neutral",
+              "original"
+            ],
+            "default": "transparent",
+            "x-cy-kind": "Enum",
+            "description": "transparent writes RGBA using the object mask. neutral composites on a flat grey. original keeps the background the backend produced."
+          },
+          "resolution": {
+            "type": "integer",
+            "title": "Output resolution",
+            "enum": [
+              0,
+              320,
+              512,
+              768,
+              1024
+            ],
+            "default": 0,
+            "x-cy-kind": "Enum",
+            "description": "0 keeps the native resolution of the backend. A larger value only applies when resampling is enabled; resampling adds no detail."
+          },
+          "upscale": {
+            "type": "boolean",
+            "title": "Allow resampling above the native resolution",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Lanczos resampling only. This Tool performs no super resolution."
+          },
+          "symmetry": {
+            "type": "string",
+            "title": "Symmetry",
+            "enum": [
+              "auto",
+              "off",
+              "force"
+            ],
+            "default": "auto",
+            "x-cy-kind": "Enum",
+            "description": "auto mirrors an existing view only when the measured silhouette symmetry passes the threshold. force mirrors regardless and marks the result. off never mirrors."
+          },
+          "symmetry_threshold": {
+            "type": "number",
+            "title": "Symmetry threshold",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "default": 0.82,
+            "description": "Minimum silhouette symmetry score accepted for an automatic mirror.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "allow_mirror": {
+            "type": "boolean",
+            "title": "Allow mirrored views",
+            "default": true,
+            "x-cy-kind": "Boolean",
+            "description": "Mirroring an existing view is instant and uses no model, but it assumes bilateral symmetry."
+          },
+          "prefer_real": {
+            "type": "boolean",
+            "title": "Never replace a real view by a generated one",
+            "default": true,
+            "x-cy-kind": "Boolean",
+            "description": "When a real photograph already covers a requested viewpoint it is reused instead of generated."
+          },
+          "reuse_tolerance": {
+            "type": "number",
+            "title": "Reuse tolerance",
+            "minimum": 0.0,
+            "maximum": 90.0,
+            "default": 15.0,
+            "description": "Angular distance in degrees within which a real photograph answers a requested viewpoint.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "seed": {
+            "type": "integer",
+            "title": "Seed",
+            "minimum": -1,
+            "maximum": 2147483647,
+            "default": -1,
+            "description": "-1 draws a seed. The resolved seed is reported in the outputs and in the View Set so a run can be repeated.",
+            "x-cy-kind": "Seed"
+          },
+          "steps": {
+            "type": "integer",
+            "title": "Diffusion steps",
+            "minimum": 4,
+            "maximum": 200,
+            "default": 36,
+            "description": "Only used by backends that expose a step count."
+          },
+          "guidance": {
+            "type": "number",
+            "title": "Guidance scale",
+            "minimum": 0.5,
+            "maximum": 20.0,
+            "default": 4.0,
+            "description": "Classifier-free guidance of the generation backend."
+          },
+          "variants": {
+            "type": "integer",
+            "title": "Variants per view",
+            "minimum": 1,
+            "maximum": 8,
+            "default": 1,
+            "description": "Each variant is a complete generation with its own seed, so the best one can be selected afterwards."
+          },
+          "generate_normals": {
+            "type": "boolean",
+            "title": "Also generate view-space normal maps",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Uses the Zero123++ normal ControlNet. It also produces a matted alpha channel that is more accurate than the segmentation backend."
+          },
+          "normal_guidance": {
+            "type": "number",
+            "title": "Normal guidance scale",
+            "minimum": 0.5,
+            "maximum": 20.0,
+            "default": 4.0,
+            "description": "Guidance used for the normal pass only.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "condition_ratio": {
+            "type": "number",
+            "title": "Object fill ratio of the conditioning image",
+            "minimum": 0.5,
+            "maximum": 1.0,
+            "default": 0.95,
+            "description": "Fraction of the square conditioning image the object occupies before generation.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "count": {
+            "type": "integer",
+            "title": "Views per ring",
+            "minimum": 2,
+            "maximum": 36,
+            "default": 8,
+            "description": "Number of equally spaced azimuths on each ring."
+          },
+          "elevation": {
+            "type": "number",
+            "title": "Ring elevation",
+            "minimum": -90,
+            "maximum": 90,
+            "default": 0.0,
+            "description": "Used when no explicit list of ring elevations is given."
+          },
+          "start_azimuth": {
+            "type": "number",
+            "title": "First azimuth",
+            "minimum": -180,
+            "maximum": 180,
+            "default": 0.0
+          },
+          "ring_elevations": {
+            "type": "array",
+            "title": "Ring elevations",
+            "items": {
+              "type": "number",
+              "minimum": -90,
+              "maximum": 90
+            },
+            "maxItems": 6,
+            "x-cy-kind": "Array",
+            "description": "One ring per elevation, for example [0, 30, -20]. Overrides the single ring elevation when present."
+          },
+          "model_profile": {
+            "type": "string",
+            "default": "",
+            "description": "ID from the local model library; empty uses the selected built-in model."
+          }
+        },
+        "required": [
+          "images"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "viewSet",
+          "directory",
+          "thumbnail",
+          "views",
+          "coverage",
+          "sameObjectConfidence",
+          "recommendations",
+          "generatedCount",
+          "realCount",
+          "lowConfidenceViews",
+          "seeds",
+          "device",
+          "peakVramGiB",
+          "seconds",
+          "notes"
+        ],
+        "properties": {
+          "viewSet": {
+            "type": "string"
+          },
+          "directory": {
+            "type": "string"
+          },
+          "thumbnail": {
+            "type": "string"
+          },
+          "views": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "name",
+                "viewType",
+                "azimuth",
+                "elevation",
+                "roll",
+                "isReal",
+                "isGenerated",
+                "image",
+                "confidence"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "viewType": {
+                  "type": "string"
+                },
+                "azimuth": {
+                  "type": "number"
+                },
+                "elevation": {
+                  "type": "number"
+                },
+                "roll": {
+                  "type": "number"
+                },
+                "fov": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "isReal": {
+                  "type": "boolean"
+                },
+                "isGenerated": {
+                  "type": "boolean"
+                },
+                "image": {
+                  "type": "string"
+                },
+                "mask": {
+                  "type": "string"
+                },
+                "normal": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "type": "number"
+                },
+                "sourceViews": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "generationBackend": {
+                  "type": "string"
+                },
+                "modelVersion": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "targetAzimuth": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "targetElevation": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "targetRoll": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "poseError": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "notes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "coverage": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "sameObjectConfidence": {
+            "type": "number"
+          },
+          "recommendations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requestedViews": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "generatedCount": {
+            "type": "integer"
+          },
+          "realCount": {
+            "type": "integer"
+          },
+          "lowConfidenceViews": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "seeds": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "symmetryScore": {
+            "type": "number"
+          },
+          "device": {
+            "type": "string"
+          },
+          "peakVramGiB": {
+            "type": "number"
+          },
+          "seconds": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "outputs": [
+        {
+          "id": "viewSet",
+          "type": "File",
+          "mimeType": "application/json",
+          "fileExtension": ".json",
+          "description": "Portable View Set: every view with its camera pose, real or generated state, source views, backend, model version and confidence. Consumed directly by other CyTools such as a mesh reconstruction Tool."
+        },
+        {
+          "id": "directory",
+          "type": "Directory",
+          "description": "Job output directory holding views/, masks/, normals/ and view-set.json."
+        },
+        {
+          "id": "thumbnail",
+          "type": "File",
+          "mimeType": "image/png",
+          "fileExtension": ".png",
+          "description": "Contact sheet of every view in the set, for preview only."
+        },
+        {
+          "id": "views",
+          "type": "Array",
+          "description": "The same views as structured records, in View Set order."
+        },
+        {
+          "id": "coverage",
+          "type": "Object",
+          "description": "Per sector Real/Partial/Generated/Missing state and the coverage percent."
+        }
+      ],
+      "resourceRequirements": {
+        "ramBytes": 536870912
+      },
+      "supportedBackends": [
+        "zero123plus",
+        "mirror"
+      ],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true,
+      "estimatedDurationSeconds": 120
+    },
+    {
+      "id": "mirror_view",
+      "name": "Mirror an existing view",
+      "description": "Produce the opposite view by mirroring one real image. This is a geometric flip, not an AI generation, and it is only valid for a bilaterally symmetric object; the measured symmetry score is always reported.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "title": "Image to mirror",
+            "items": {
+              "type": "object",
+              "title": "Input image",
+              "additionalProperties": false,
+              "required": [
+                "file"
+              ],
+              "properties": {
+                "file": {
+                  "type": "string",
+                  "title": "Image file",
+                  "x-cy-kind": "Image",
+                  "minLength": 1,
+                  "maxLength": 1024,
+                  "description": "Image path: an absolute local path, or a path relative to data/inputs. The file is copied into the private job workspace automatically; no manual import is required. PNG, JPEG or WebP, at most 48 MiB and 60 megapixels."
+                },
+                "name": {
+                  "type": "string",
+                  "title": "Name",
+                  "maxLength": 120,
+                  "default": "",
+                  "description": "Identifier used in the View Set; the file stem is used when it is empty."
+                },
+                "view": {
+                  "type": "string",
+                  "title": "Declared viewpoint",
+                  "enum": [
+                    "Auto",
+                    "Front",
+                    "FrontRight",
+                    "Right",
+                    "RearRight",
+                    "Rear",
+                    "RearLeft",
+                    "Left",
+                    "FrontLeft",
+                    "Top",
+                    "Bottom"
+                  ],
+                  "default": "Auto",
+                  "x-cy-kind": "Enum",
+                  "description": "Declaring the viewpoint is exact and is the recommended input. Auto runs the automatic estimator, which only measures an azimuth for narrow baselines and reports its confidence."
+                },
+                "azimuth": {
+                  "type": "number",
+                  "title": "Azimuth",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "elevation": {
+                  "type": "number",
+                  "title": "Elevation",
+                  "minimum": -90,
+                  "maximum": 90,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "roll": {
+                  "type": "number",
+                  "title": "Roll",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "fov": {
+                  "type": "number",
+                  "title": "Horizontal field of view",
+                  "minimum": 1,
+                  "maximum": 179,
+                  "description": "Horizontal field of view in degrees, when it is known."
+                }
+              }
+            },
+            "minItems": 1,
+            "maxItems": 1,
+            "default": [],
+            "x-cy-kind": "Array",
+            "description": "One or more images of the same object. Image path: an absolute local path, or a path relative to data/inputs. The file is copied into the private job workspace automatically; no manual import is required. PNG, JPEG or WebP, at most 48 MiB and 60 megapixels."
+          },
+          "segmentation_backend": {
+            "type": "string",
+            "title": "Segmentation backend",
+            "enum": [
+              "sam2",
+              "classical",
+              "alpha"
+            ],
+            "default": "sam2",
+            "x-cy-kind": "Enum",
+            "description": "sam2 uses the local SAM 2.1 weights. classical is a GrabCut fallback that needs no model. alpha uses the alpha channel of the supplied image."
+          },
+          "device": {
+            "type": "string",
+            "title": "Compute device",
+            "enum": [
+              "auto",
+              "cuda",
+              "cpu"
+            ],
+            "default": "auto",
+            "x-cy-kind": "Enum",
+            "description": "Auto selects CUDA when a device is present. CPU works for segmentation and analysis; generation on CPU is extremely slow and is not validated."
+          },
+          "force_same_object": {
+            "type": "boolean",
+            "title": "Use the images even when they may show different objects",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Same-object verification reports suspicious images and refuses to generate from them. Enable this to proceed anyway."
+          },
+          "keep_input_copies": {
+            "type": "boolean",
+            "title": "Keep the private input copies after processing",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Private input copies are deleted when the worker stops, including on failure and cancellation. Original files and generated results are never deleted.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "background": {
+            "type": "string",
+            "title": "Background",
+            "enum": [
+              "transparent",
+              "neutral",
+              "original"
+            ],
+            "default": "transparent",
+            "x-cy-kind": "Enum",
+            "description": "transparent writes RGBA using the object mask. neutral composites on a flat grey. original keeps the background the backend produced."
+          },
+          "resolution": {
+            "type": "integer",
+            "title": "Output resolution",
+            "enum": [
+              0,
+              320,
+              512,
+              768,
+              1024
+            ],
+            "default": 0,
+            "x-cy-kind": "Enum",
+            "description": "0 keeps the native resolution of the backend. A larger value only applies when resampling is enabled; resampling adds no detail."
+          },
+          "upscale": {
+            "type": "boolean",
+            "title": "Allow resampling above the native resolution",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Lanczos resampling only. This Tool performs no super resolution."
+          },
+          "symmetry": {
+            "type": "string",
+            "title": "Symmetry",
+            "enum": [
+              "auto",
+              "off",
+              "force"
+            ],
+            "default": "auto",
+            "x-cy-kind": "Enum",
+            "description": "auto mirrors an existing view only when the measured silhouette symmetry passes the threshold. force mirrors regardless and marks the result. off never mirrors."
+          },
+          "symmetry_threshold": {
+            "type": "number",
+            "title": "Symmetry threshold",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "default": 0.82,
+            "description": "Minimum silhouette symmetry score accepted for an automatic mirror.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          }
+        },
+        "required": [
+          "images"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "viewSet",
+          "directory",
+          "thumbnail",
+          "views",
+          "coverage",
+          "sameObjectConfidence",
+          "recommendations",
+          "generatedCount",
+          "realCount",
+          "lowConfidenceViews",
+          "seeds",
+          "device",
+          "peakVramGiB",
+          "seconds",
+          "notes"
+        ],
+        "properties": {
+          "viewSet": {
+            "type": "string"
+          },
+          "directory": {
+            "type": "string"
+          },
+          "thumbnail": {
+            "type": "string"
+          },
+          "views": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "name",
+                "viewType",
+                "azimuth",
+                "elevation",
+                "roll",
+                "isReal",
+                "isGenerated",
+                "image",
+                "confidence"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "viewType": {
+                  "type": "string"
+                },
+                "azimuth": {
+                  "type": "number"
+                },
+                "elevation": {
+                  "type": "number"
+                },
+                "roll": {
+                  "type": "number"
+                },
+                "fov": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "isReal": {
+                  "type": "boolean"
+                },
+                "isGenerated": {
+                  "type": "boolean"
+                },
+                "image": {
+                  "type": "string"
+                },
+                "mask": {
+                  "type": "string"
+                },
+                "normal": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "type": "number"
+                },
+                "sourceViews": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "generationBackend": {
+                  "type": "string"
+                },
+                "modelVersion": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "targetAzimuth": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "targetElevation": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "targetRoll": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "poseError": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "notes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "coverage": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "sameObjectConfidence": {
+            "type": "number"
+          },
+          "recommendations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requestedViews": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "generatedCount": {
+            "type": "integer"
+          },
+          "realCount": {
+            "type": "integer"
+          },
+          "lowConfidenceViews": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "seeds": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "symmetryScore": {
+            "type": "number"
+          },
+          "device": {
+            "type": "string"
+          },
+          "peakVramGiB": {
+            "type": "number"
+          },
+          "seconds": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "outputs": [
+        {
+          "id": "viewSet",
+          "type": "File",
+          "mimeType": "application/json",
+          "fileExtension": ".json",
+          "description": "Portable View Set: every view with its camera pose, real or generated state, source views, backend, model version and confidence. Consumed directly by other CyTools such as a mesh reconstruction Tool."
+        },
+        {
+          "id": "directory",
+          "type": "Directory",
+          "description": "Job output directory holding views/, masks/, normals/ and view-set.json."
+        },
+        {
+          "id": "thumbnail",
+          "type": "File",
+          "mimeType": "image/png",
+          "fileExtension": ".png",
+          "description": "Contact sheet of every view in the set, for preview only."
+        },
+        {
+          "id": "views",
+          "type": "Array",
+          "description": "The same views as structured records, in View Set order."
+        },
+        {
+          "id": "coverage",
+          "type": "Object",
+          "description": "Per sector Real/Partial/Generated/Missing state and the coverage percent."
+        }
+      ],
+      "resourceRequirements": {
+        "ramBytes": 536870912
+      },
+      "supportedBackends": [],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true,
+      "estimatedDurationSeconds": 5
+    },
+    {
+      "id": "segment_object",
+      "name": "Segment the object",
+      "description": "Isolate the object in every supplied image and return its mask, an RGBA cut-out and its bounding box, so downstream steps work on the object instead of the background.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "title": "Input images",
+            "items": {
+              "type": "object",
+              "title": "Input image",
+              "additionalProperties": false,
+              "required": [
+                "file"
+              ],
+              "properties": {
+                "file": {
+                  "type": "string",
+                  "title": "Image file",
+                  "x-cy-kind": "Image",
+                  "minLength": 1,
+                  "maxLength": 1024,
+                  "description": "Image path: an absolute local path, or a path relative to data/inputs. The file is copied into the private job workspace automatically; no manual import is required. PNG, JPEG or WebP, at most 48 MiB and 60 megapixels."
+                },
+                "name": {
+                  "type": "string",
+                  "title": "Name",
+                  "maxLength": 120,
+                  "default": "",
+                  "description": "Identifier used in the View Set; the file stem is used when it is empty."
+                },
+                "view": {
+                  "type": "string",
+                  "title": "Declared viewpoint",
+                  "enum": [
+                    "Auto",
+                    "Front",
+                    "FrontRight",
+                    "Right",
+                    "RearRight",
+                    "Rear",
+                    "RearLeft",
+                    "Left",
+                    "FrontLeft",
+                    "Top",
+                    "Bottom"
+                  ],
+                  "default": "Auto",
+                  "x-cy-kind": "Enum",
+                  "description": "Declaring the viewpoint is exact and is the recommended input. Auto runs the automatic estimator, which only measures an azimuth for narrow baselines and reports its confidence."
+                },
+                "azimuth": {
+                  "type": "number",
+                  "title": "Azimuth",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "elevation": {
+                  "type": "number",
+                  "title": "Elevation",
+                  "minimum": -90,
+                  "maximum": 90,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "roll": {
+                  "type": "number",
+                  "title": "Roll",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "fov": {
+                  "type": "number",
+                  "title": "Horizontal field of view",
+                  "minimum": 1,
+                  "maximum": 179,
+                  "description": "Horizontal field of view in degrees, when it is known."
+                }
+              }
+            },
+            "minItems": 1,
+            "maxItems": 24,
+            "default": [],
+            "x-cy-kind": "Array",
+            "description": "One or more images of the same object. Image path: an absolute local path, or a path relative to data/inputs. The file is copied into the private job workspace automatically; no manual import is required. PNG, JPEG or WebP, at most 48 MiB and 60 megapixels."
+          },
+          "segmentation_backend": {
+            "type": "string",
+            "title": "Segmentation backend",
+            "enum": [
+              "sam2",
+              "classical",
+              "alpha"
+            ],
+            "default": "sam2",
+            "x-cy-kind": "Enum",
+            "description": "sam2 uses the local SAM 2.1 weights. classical is a GrabCut fallback that needs no model. alpha uses the alpha channel of the supplied image."
+          },
+          "device": {
+            "type": "string",
+            "title": "Compute device",
+            "enum": [
+              "auto",
+              "cuda",
+              "cpu"
+            ],
+            "default": "auto",
+            "x-cy-kind": "Enum",
+            "description": "Auto selects CUDA when a device is present. CPU works for segmentation and analysis; generation on CPU is extremely slow and is not validated."
+          },
+          "force_same_object": {
+            "type": "boolean",
+            "title": "Use the images even when they may show different objects",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Same-object verification reports suspicious images and refuses to generate from them. Enable this to proceed anyway."
+          },
+          "keep_input_copies": {
+            "type": "boolean",
+            "title": "Keep the private input copies after processing",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Private input copies are deleted when the worker stops, including on failure and cancellation. Original files and generated results are never deleted.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          }
+        },
+        "required": [
+          "images"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "objects",
+          "directory",
+          "device",
+          "deviceNote",
+          "seconds"
+        ],
+        "properties": {
+          "objects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "name",
+                "mask",
+                "rgba",
+                "boundingBox",
+                "method",
+                "confidence"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "source": {
+                  "type": "string"
+                },
+                "mask": {
+                  "type": "string"
+                },
+                "rgba": {
+                  "type": "string"
+                },
+                "boundingBox": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "coverage": {
+                  "type": "number"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "type": "number"
+                },
+                "width": {
+                  "type": "integer"
+                },
+                "height": {
+                  "type": "integer"
+                },
+                "notes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "directory": {
+            "type": "string"
+          },
+          "device": {
+            "type": "string"
+          },
+          "deviceNote": {
+            "type": "string"
+          },
+          "seconds": {
+            "type": "number"
+          }
+        }
+      },
+      "outputs": [
+        {
+          "id": "objects",
+          "type": "Array",
+          "description": "Per image mask, RGBA cut-out, bounding box, method and confidence."
+        },
+        {
+          "id": "directory",
+          "type": "Directory",
+          "description": "Job output directory."
+        }
+      ],
+      "resourceRequirements": {
+        "ramBytes": 536870912
+      },
+      "supportedBackends": [],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true,
+      "estimatedDurationSeconds": 10
+    },
+    {
+      "id": "validate_views",
+      "name": "Validate candidate views",
+      "description": "Score candidate views against the real photographs of the same object: identity, features, colour and material, major proportions and silhouette. Views that the checks do not confirm are reported as LowConfidence instead of being accepted.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "title": "Input images",
+            "items": {
+              "type": "object",
+              "title": "Input image",
+              "additionalProperties": false,
+              "required": [
+                "file"
+              ],
+              "properties": {
+                "file": {
+                  "type": "string",
+                  "title": "Image file",
+                  "x-cy-kind": "Image",
+                  "minLength": 1,
+                  "maxLength": 1024,
+                  "description": "Image path: an absolute local path, or a path relative to data/inputs. The file is copied into the private job workspace automatically; no manual import is required. PNG, JPEG or WebP, at most 48 MiB and 60 megapixels."
+                },
+                "name": {
+                  "type": "string",
+                  "title": "Name",
+                  "maxLength": 120,
+                  "default": "",
+                  "description": "Identifier used in the View Set; the file stem is used when it is empty."
+                },
+                "view": {
+                  "type": "string",
+                  "title": "Declared viewpoint",
+                  "enum": [
+                    "Auto",
+                    "Front",
+                    "FrontRight",
+                    "Right",
+                    "RearRight",
+                    "Rear",
+                    "RearLeft",
+                    "Left",
+                    "FrontLeft",
+                    "Top",
+                    "Bottom"
+                  ],
+                  "default": "Auto",
+                  "x-cy-kind": "Enum",
+                  "description": "Declaring the viewpoint is exact and is the recommended input. Auto runs the automatic estimator, which only measures an azimuth for narrow baselines and reports its confidence."
+                },
+                "azimuth": {
+                  "type": "number",
+                  "title": "Azimuth",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "elevation": {
+                  "type": "number",
+                  "title": "Elevation",
+                  "minimum": -90,
+                  "maximum": 90,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "roll": {
+                  "type": "number",
+                  "title": "Roll",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "fov": {
+                  "type": "number",
+                  "title": "Horizontal field of view",
+                  "minimum": 1,
+                  "maximum": 179,
+                  "description": "Horizontal field of view in degrees, when it is known."
+                }
+              }
+            },
+            "minItems": 1,
+            "maxItems": 24,
+            "default": [],
+            "x-cy-kind": "Array",
+            "description": "One or more images of the same object. Image path: an absolute local path, or a path relative to data/inputs. The file is copied into the private job workspace automatically; no manual import is required. PNG, JPEG or WebP, at most 48 MiB and 60 megapixels."
+          },
+          "segmentation_backend": {
+            "type": "string",
+            "title": "Segmentation backend",
+            "enum": [
+              "sam2",
+              "classical",
+              "alpha"
+            ],
+            "default": "sam2",
+            "x-cy-kind": "Enum",
+            "description": "sam2 uses the local SAM 2.1 weights. classical is a GrabCut fallback that needs no model. alpha uses the alpha channel of the supplied image."
+          },
+          "device": {
+            "type": "string",
+            "title": "Compute device",
+            "enum": [
+              "auto",
+              "cuda",
+              "cpu"
+            ],
+            "default": "auto",
+            "x-cy-kind": "Enum",
+            "description": "Auto selects CUDA when a device is present. CPU works for segmentation and analysis; generation on CPU is extremely slow and is not validated."
+          },
+          "force_same_object": {
+            "type": "boolean",
+            "title": "Use the images even when they may show different objects",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Same-object verification reports suspicious images and refuses to generate from them. Enable this to proceed anyway."
+          },
+          "keep_input_copies": {
+            "type": "boolean",
+            "title": "Keep the private input copies after processing",
+            "default": false,
+            "x-cy-kind": "Boolean",
+            "description": "Private input copies are deleted when the worker stops, including on failure and cancellation. Original files and generated results are never deleted.",
+            "x-cy-ui": {
+              "advanced": true
+            }
+          },
+          "candidates": {
+            "type": "array",
+            "title": "Views to validate",
+            "items": {
+              "type": "object",
+              "title": "Input image",
+              "additionalProperties": false,
+              "required": [
+                "file"
+              ],
+              "properties": {
+                "file": {
+                  "type": "string",
+                  "title": "Image file",
+                  "x-cy-kind": "Image",
+                  "minLength": 1,
+                  "maxLength": 1024,
+                  "description": "Image path: an absolute local path, or a path relative to data/inputs. The file is copied into the private job workspace automatically; no manual import is required. PNG, JPEG or WebP, at most 48 MiB and 60 megapixels."
+                },
+                "name": {
+                  "type": "string",
+                  "title": "Name",
+                  "maxLength": 120,
+                  "default": "",
+                  "description": "Identifier used in the View Set; the file stem is used when it is empty."
+                },
+                "view": {
+                  "type": "string",
+                  "title": "Declared viewpoint",
+                  "enum": [
+                    "Auto",
+                    "Front",
+                    "FrontRight",
+                    "Right",
+                    "RearRight",
+                    "Rear",
+                    "RearLeft",
+                    "Left",
+                    "FrontLeft",
+                    "Top",
+                    "Bottom"
+                  ],
+                  "default": "Auto",
+                  "x-cy-kind": "Enum",
+                  "description": "Declaring the viewpoint is exact and is the recommended input. Auto runs the automatic estimator, which only measures an azimuth for narrow baselines and reports its confidence."
+                },
+                "azimuth": {
+                  "type": "number",
+                  "title": "Azimuth",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "elevation": {
+                  "type": "number",
+                  "title": "Elevation",
+                  "minimum": -90,
+                  "maximum": 90,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "roll": {
+                  "type": "number",
+                  "title": "Roll",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Angles in degrees. Azimuth 0 looks at the front of the object and positive values move the camera towards the object right side, so +90 is Right, -90 is Left and 180 is Rear. Positive elevation places the camera above the object."
+                },
+                "fov": {
+                  "type": "number",
+                  "title": "Horizontal field of view",
+                  "minimum": 1,
+                  "maximum": 179,
+                  "description": "Horizontal field of view in degrees, when it is known."
+                }
+              }
+            },
+            "minItems": 1,
+            "maxItems": 24,
+            "default": [],
+            "x-cy-kind": "Array",
+            "description": "One or more images of the same object. Image path: an absolute local path, or a path relative to data/inputs. The file is copied into the private job workspace automatically; no manual import is required. PNG, JPEG or WebP, at most 48 MiB and 60 megapixels."
+          }
+        },
+        "required": [
+          "images",
+          "candidates"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "candidates",
+          "referenceCount",
+          "device",
+          "deviceNote",
+          "directory",
+          "lowConfidenceViews",
+          "seconds"
+        ],
+        "properties": {
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "name",
+                "file",
+                "state",
+                "confidence",
+                "signals"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "file": {
+                  "type": "string"
+                },
+                "state": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "type": "number"
+                },
+                "signals": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "weights": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "width": {
+                  "type": "integer"
+                },
+                "height": {
+                  "type": "integer"
+                },
+                "notes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "referenceCount": {
+            "type": "integer"
+          },
+          "device": {
+            "type": "string"
+          },
+          "deviceNote": {
+            "type": "string"
+          },
+          "directory": {
+            "type": "string"
+          },
+          "lowConfidenceViews": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "seconds": {
+            "type": "number"
+          }
+        }
+      },
+      "outputs": [
+        {
+          "id": "candidates",
+          "type": "Array",
+          "description": "Per candidate state, confidence and the individual signals."
+        }
+      ],
+      "resourceRequirements": {
+        "ramBytes": 536870912
+      },
+      "supportedBackends": [],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true,
+      "estimatedDurationSeconds": 15
+    },
+    {
+      "id": "diagnose_backend",
+      "name": "Diagnose the inference backend",
+      "description": "Report the private interpreter, torch and CUDA build, the visible devices, the installed libraries, the state of every declared backend and the model directories.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "python",
+          "torch",
+          "cuda",
+          "cudaAvailable",
+          "devices",
+          "modules",
+          "backends",
+          "models",
+          "offline"
+        ],
+        "properties": {
+          "python": {
+            "type": "string"
+          },
+          "torch": {
+            "type": "string"
+          },
+          "cuda": {
+            "type": "string"
+          },
+          "cudaAvailable": {
+            "type": "boolean"
+          },
+          "devices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "modules": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "backends": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "models": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "offline": {
+            "type": "boolean"
+          }
+        }
+      },
+      "outputs": [
+        {
+          "id": "modules",
+          "type": "Object",
+          "description": "Installed library versions."
+        },
+        {
+          "id": "backends",
+          "type": "Object",
+          "description": "Declared backends and their state."
+        }
+      ],
+      "resourceRequirements": {
+        "ramBytes": 536870912
+      },
+      "supportedBackends": [],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": false,
+      "supportsProgress": false,
+      "estimatedDurationSeconds": 5
+    },
+    {
+      "id": "model_library_list",
+      "name": "model_library_list",
+      "description": "List compatible model formats, device capabilities and registered local model/LoRA references.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "capabilities": {
+            "type": "object"
+          },
+          "library": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "urn:cytools:v1:model-library",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "schemaVersion",
+              "models"
+            ],
+            "properties": {
+              "schemaVersion": {
+                "const": 1
+              },
+              "models": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "name",
+                    "path",
+                    "format",
+                    "kind",
+                    "base",
+                    "license",
+                    "source",
+                    "validation"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "path": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "format": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "kind": {
+                      "enum": [
+                        "model",
+                        "lora"
+                      ]
+                    },
+                    "base": {
+                      "type": "string"
+                    },
+                    "license": {
+                      "type": "string"
+                    },
+                    "source": {
+                      "type": "string"
+                    },
+                    "validation": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "capabilities",
+          "library"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": [
+        {
+          "id": "capabilities",
+          "type": "Object",
+          "description": "capabilities"
+        },
+        {
+          "id": "library",
+          "type": "Object",
+          "description": "library"
+        }
+      ],
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CUDA",
+            "CPU"
+          ],
+          "notes": "Executed on this machine; see data/reports/VALIDATION.md.",
+          "tested": [
+            {
+              "osVersion": "Windows 10 Enterprise LTSC 2021 19044",
+              "device": "NVIDIA GeForce RTX 3090 24 GB",
+              "driver": "610.47",
+              "runtime": "CPython 3.12.13, torch 2.8.0+cu128, diffusers 0.35.2",
+              "date": "2026-09-20",
+              "status": "Generation and analysis executed"
+            }
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CUDA",
+            "CPU"
+          ],
+          "notes": "Not executed. The launcher and the installer scripts exist but no Linux run was performed, so nothing is declared as supported."
+        }
+      ],
+      "canRunAsync": true,
+      "canCancel": false,
+      "supportsProgress": false,
+      "supportedBackends": [],
+      "permissions": [],
+      "resourceRequirements": {
+        "ramBytes": 67108864,
+        "cpuThreads": 1
+      }
+    },
+    {
+      "id": "model_library_register",
+      "name": "model_library_register",
+      "description": "Register an existing compatible local model or LoRA by reference; does not download or copy weights. Registration is shared by clients of this local Tool.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name"
+          },
+          "path": {
+            "type": "string",
+            "description": "Absolute local path visible on the Tool host"
+          },
+          "format": {
+            "type": "string",
+            "description": "Format ID from model_library_list"
+          },
+          "base": {
+            "type": "string",
+            "description": "Compatible base variant ID"
+          },
+          "license": {
+            "type": "string",
+            "description": "License identifier or terms"
+          },
+          "source": {
+            "type": "string",
+            "description": "Original source URL or repository"
+          }
+        },
+        "required": [
+          "name",
+          "path",
+          "format"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "path",
+              "format",
+              "kind",
+              "base",
+              "license",
+              "source",
+              "validation"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "format": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "enum": [
+                  "model",
+                  "lora"
+                ]
+              },
+              "base": {
+                "type": "string"
+              },
+              "license": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "validation": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "model"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": [
+        {
+          "id": "model",
+          "type": "Object",
+          "description": "model"
+        }
+      ],
+      "platforms": [
+        {
+          "os": "Windows",
+          "architecture": "x64",
+          "status": "Experimental",
+          "computeBackends": [
+            "CUDA",
+            "CPU"
+          ],
+          "notes": "Executed on this machine; see data/reports/VALIDATION.md.",
+          "tested": [
+            {
+              "osVersion": "Windows 10 Enterprise LTSC 2021 19044",
+              "device": "NVIDIA GeForce RTX 3090 24 GB",
+              "driver": "610.47",
+              "runtime": "CPython 3.12.13, torch 2.8.0+cu128, diffusers 0.35.2",
+              "date": "2026-09-20",
+              "status": "Generation and analysis executed"
+            }
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "x64",
+          "status": "Unknown",
+          "computeBackends": [
+            "CUDA",
+            "CPU"
+          ],
+          "notes": "Not executed. The launcher and the installer scripts exist but no Linux run was performed, so nothing is declared as supported."
+        }
+      ],
+      "canRunAsync": true,
+      "canCancel": false,
+      "supportsProgress": false,
+      "supportedBackends": [],
+      "permissions": [],
+      "resourceRequirements": {
+        "ramBytes": 67108864,
+        "cpuThreads": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,1901 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": "1.0",
+  "id": "cy.tool.meshconstruct",
+  "name": "CyTools_MeshConstruct",
+  "displayName": "MeshConstruct - proxy mesh from pictures",
+  "version": "0.1.0",
+  "description": "Builds a very simple, clean, mostly hard-surface proxy mesh (lofted cross-sections, extruded polygons, boxes, cylinders) from one or several pictures of the same object and projects the pictures on it. AI models only supply masks, relative depth and optional low-weight synthetic views of the unseen sides (Zero123++); the geometry is fitted deterministically (understand, fit, construct - never generate then decimate).",
+  "vendor": "Cyberalien",
+  "author": "Cyberalien",
+  "license": "Not declared",
+  "executable": "runtime/python/Scripts/python.exe app/tool.py",
+  "categories": [
+    "3d",
+    "mesh",
+    "reconstruction"
+  ],
+  "tags": [
+    "proxy",
+    "blockout",
+    "hard-surface",
+    "image-to-3d",
+    "primitive-fitting",
+    "cross-section"
+  ],
+  "capabilities": [
+    "jobs",
+    "cancellation",
+    "progress"
+  ],
+  "backends": [
+    {
+      "id": "proxy-fitting-cpu",
+      "name": "CyTools proxy fitting engine (NumPy / OpenCV / SciPy / xatlas)",
+      "version": "0.1.0",
+      "threadSafe": false,
+      "shareableModelInstance": false,
+      "concurrentInference": false,
+      "maxConcurrentInference": 1,
+      "models": []
+    },
+    {
+      "id": "understanding-torch",
+      "name": "Hugging Face transformers + diffusers / PyTorch (SAM 2.1, Depth Anything V2, Zero123++)",
+      "version": "4.57.6",
+      "threadSafe": false,
+      "shareableModelInstance": false,
+      "concurrentInference": false,
+      "maxConcurrentInference": 1,
+      "models": [
+        {
+          "id": "sam2.1-hiera-tiny",
+          "name": "facebook/sam2.1-hiera-tiny",
+          "version": "de431c4043854a71d8101e17995dfe596bf101a5",
+          "source": "https://huggingface.co/facebook/sam2.1-hiera-tiny",
+          "license": "Apache-2.0",
+          "location": "Local",
+          "runsLocally": true,
+          "installed": false,
+          "computeBackends": [
+            "CUDA",
+            "CPU"
+          ],
+          "precisions": [
+            "fp32"
+          ],
+          "downloadSize": 155915242,
+          "installedSize": 155915242,
+          "capabilities": [
+            "segmentation"
+          ],
+          "files": [
+            {
+              "path": "config.json",
+              "sizeBytes": 5695,
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-tiny/resolve/de431c4043854a71d8101e17995dfe596bf101a5/config.json",
+              "revision": "de431c4043854a71d8101e17995dfe596bf101a5"
+            },
+            {
+              "path": "model.safetensors",
+              "sizeBytes": 155908064,
+              "sha256": "48c14467e5cf9e51870511feb72c89688e82dd74523142c0538b663e193ac2a7",
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-tiny/resolve/de431c4043854a71d8101e17995dfe596bf101a5/model.safetensors",
+              "revision": "de431c4043854a71d8101e17995dfe596bf101a5"
+            },
+            {
+              "path": "preprocessor_config.json",
+              "sizeBytes": 683,
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-tiny/resolve/de431c4043854a71d8101e17995dfe596bf101a5/preprocessor_config.json",
+              "revision": "de431c4043854a71d8101e17995dfe596bf101a5"
+            },
+            {
+              "path": "processor_config.json",
+              "sizeBytes": 95,
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-tiny/resolve/de431c4043854a71d8101e17995dfe596bf101a5/processor_config.json",
+              "revision": "de431c4043854a71d8101e17995dfe596bf101a5"
+            },
+            {
+              "path": "video_preprocessor_config.json",
+              "sizeBytes": 705,
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-tiny/resolve/de431c4043854a71d8101e17995dfe596bf101a5/video_preprocessor_config.json",
+              "revision": "de431c4043854a71d8101e17995dfe596bf101a5"
+            }
+          ]
+        },
+        {
+          "id": "sam2.1-hiera-small",
+          "name": "facebook/sam2.1-hiera-small",
+          "version": "ee5bba1d82bb8749febdf90f45e84b687142ba03",
+          "source": "https://huggingface.co/facebook/sam2.1-hiera-small",
+          "license": "Apache-2.0",
+          "location": "Local",
+          "runsLocally": true,
+          "installed": false,
+          "computeBackends": [
+            "CUDA",
+            "CPU"
+          ],
+          "precisions": [
+            "fp32"
+          ],
+          "downloadSize": 184312461,
+          "installedSize": 184312461,
+          "capabilities": [
+            "segmentation"
+          ],
+          "files": [
+            {
+              "path": "config.json",
+              "sizeBytes": 5698,
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-small/resolve/ee5bba1d82bb8749febdf90f45e84b687142ba03/config.json",
+              "revision": "ee5bba1d82bb8749febdf90f45e84b687142ba03"
+            },
+            {
+              "path": "model.safetensors",
+              "sizeBytes": 184305280,
+              "sha256": "0a4067b11ce1e23d5229203f11c718a823060d15a4b23fa2372a7d4b77cbbc60",
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-small/resolve/ee5bba1d82bb8749febdf90f45e84b687142ba03/model.safetensors",
+              "revision": "ee5bba1d82bb8749febdf90f45e84b687142ba03"
+            },
+            {
+              "path": "preprocessor_config.json",
+              "sizeBytes": 683,
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-small/resolve/ee5bba1d82bb8749febdf90f45e84b687142ba03/preprocessor_config.json",
+              "revision": "ee5bba1d82bb8749febdf90f45e84b687142ba03"
+            },
+            {
+              "path": "processor_config.json",
+              "sizeBytes": 95,
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-small/resolve/ee5bba1d82bb8749febdf90f45e84b687142ba03/processor_config.json",
+              "revision": "ee5bba1d82bb8749febdf90f45e84b687142ba03"
+            },
+            {
+              "path": "video_preprocessor_config.json",
+              "sizeBytes": 705,
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-small/resolve/ee5bba1d82bb8749febdf90f45e84b687142ba03/video_preprocessor_config.json",
+              "revision": "ee5bba1d82bb8749febdf90f45e84b687142ba03"
+            }
+          ]
+        },
+        {
+          "id": "sam2.1-hiera-base-plus",
+          "name": "facebook/sam2.1-hiera-base-plus",
+          "version": "b7320756a13354e7530a63935656d35b2f91a290",
+          "source": "https://huggingface.co/facebook/sam2.1-hiera-base-plus",
+          "license": "Apache-2.0",
+          "location": "Local",
+          "runsLocally": true,
+          "installed": false,
+          "computeBackends": [
+            "CUDA",
+            "CPU"
+          ],
+          "precisions": [
+            "fp32"
+          ],
+          "downloadSize": 323483484,
+          "installedSize": 323483484,
+          "capabilities": [
+            "segmentation"
+          ],
+          "files": [
+            {
+              "path": "config.json",
+              "sizeBytes": 5705,
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-base-plus/resolve/b7320756a13354e7530a63935656d35b2f91a290/config.json",
+              "revision": "b7320756a13354e7530a63935656d35b2f91a290"
+            },
+            {
+              "path": "model.safetensors",
+              "sizeBytes": 323476296,
+              "sha256": "2012733a0de5d03efd1bba550a2847c4551be9ef2e0d497c83074df66189f780",
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-base-plus/resolve/b7320756a13354e7530a63935656d35b2f91a290/model.safetensors",
+              "revision": "b7320756a13354e7530a63935656d35b2f91a290"
+            },
+            {
+              "path": "preprocessor_config.json",
+              "sizeBytes": 683,
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-base-plus/resolve/b7320756a13354e7530a63935656d35b2f91a290/preprocessor_config.json",
+              "revision": "b7320756a13354e7530a63935656d35b2f91a290"
+            },
+            {
+              "path": "processor_config.json",
+              "sizeBytes": 95,
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-base-plus/resolve/b7320756a13354e7530a63935656d35b2f91a290/processor_config.json",
+              "revision": "b7320756a13354e7530a63935656d35b2f91a290"
+            },
+            {
+              "path": "video_preprocessor_config.json",
+              "sizeBytes": 705,
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-base-plus/resolve/b7320756a13354e7530a63935656d35b2f91a290/video_preprocessor_config.json",
+              "revision": "b7320756a13354e7530a63935656d35b2f91a290"
+            }
+          ]
+        },
+        {
+          "id": "sam2.1-hiera-large",
+          "name": "facebook/sam2.1-hiera-large",
+          "version": "665f8e2ad61cf5f53d65644ff27c8ee525124610",
+          "source": "https://huggingface.co/facebook/sam2.1-hiera-large",
+          "license": "Apache-2.0",
+          "location": "Local",
+          "runsLocally": true,
+          "installed": false,
+          "computeBackends": [
+            "CUDA",
+            "CPU"
+          ],
+          "precisions": [
+            "fp32"
+          ],
+          "downloadSize": 897904604,
+          "installedSize": 897904604,
+          "capabilities": [
+            "segmentation"
+          ],
+          "files": [
+            {
+              "path": "config.json",
+              "sizeBytes": 5705,
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-large/resolve/665f8e2ad61cf5f53d65644ff27c8ee525124610/config.json",
+              "revision": "665f8e2ad61cf5f53d65644ff27c8ee525124610"
+            },
+            {
+              "path": "model.safetensors",
+              "sizeBytes": 897897416,
+              "sha256": "dc407dce21301fd94abb395c5099b4f2c455fdc8a8f261ac3d0ea6d4cd197230",
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-large/resolve/665f8e2ad61cf5f53d65644ff27c8ee525124610/model.safetensors",
+              "revision": "665f8e2ad61cf5f53d65644ff27c8ee525124610"
+            },
+            {
+              "path": "preprocessor_config.json",
+              "sizeBytes": 683,
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-large/resolve/665f8e2ad61cf5f53d65644ff27c8ee525124610/preprocessor_config.json",
+              "revision": "665f8e2ad61cf5f53d65644ff27c8ee525124610"
+            },
+            {
+              "path": "processor_config.json",
+              "sizeBytes": 95,
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-large/resolve/665f8e2ad61cf5f53d65644ff27c8ee525124610/processor_config.json",
+              "revision": "665f8e2ad61cf5f53d65644ff27c8ee525124610"
+            },
+            {
+              "path": "video_preprocessor_config.json",
+              "sizeBytes": 705,
+              "url": "https://huggingface.co/facebook/sam2.1-hiera-large/resolve/665f8e2ad61cf5f53d65644ff27c8ee525124610/video_preprocessor_config.json",
+              "revision": "665f8e2ad61cf5f53d65644ff27c8ee525124610"
+            }
+          ]
+        },
+        {
+          "id": "depth-anything-v2-small",
+          "name": "depth-anything/Depth-Anything-V2-Small-hf",
+          "version": "5426e4f0f36572d16453bbda7a8389317b1bef99",
+          "source": "https://huggingface.co/depth-anything/Depth-Anything-V2-Small-hf",
+          "license": "Apache-2.0",
+          "location": "Local",
+          "runsLocally": true,
+          "installed": false,
+          "computeBackends": [
+            "CUDA",
+            "CPU"
+          ],
+          "precisions": [
+            "fp32"
+          ],
+          "downloadSize": 99175385,
+          "installedSize": 99175385,
+          "capabilities": [
+            "depth"
+          ],
+          "files": [
+            {
+              "path": "config.json",
+              "sizeBytes": 950,
+              "url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Small-hf/resolve/5426e4f0f36572d16453bbda7a8389317b1bef99/config.json",
+              "revision": "5426e4f0f36572d16453bbda7a8389317b1bef99"
+            },
+            {
+              "path": "model.safetensors",
+              "sizeBytes": 99173660,
+              "sha256": "3152477ce0d8d6978d76b995120de97cb5b928701fd0f817769f59e249a16b70",
+              "url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Small-hf/resolve/5426e4f0f36572d16453bbda7a8389317b1bef99/model.safetensors",
+              "revision": "5426e4f0f36572d16453bbda7a8389317b1bef99"
+            },
+            {
+              "path": "preprocessor_config.json",
+              "sizeBytes": 775,
+              "url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Small-hf/resolve/5426e4f0f36572d16453bbda7a8389317b1bef99/preprocessor_config.json",
+              "revision": "5426e4f0f36572d16453bbda7a8389317b1bef99"
+            }
+          ]
+        },
+        {
+          "id": "depth-anything-v2-base",
+          "name": "depth-anything/Depth-Anything-V2-Base-hf",
+          "version": "b1958afc87fb45a9e3746cb387596094de553ed8",
+          "source": "https://huggingface.co/depth-anything/Depth-Anything-V2-Base-hf",
+          "license": "CC-BY-NC-4.0 (non-commercial; personal acceptance required)",
+          "location": "Local",
+          "runsLocally": true,
+          "installed": false,
+          "computeBackends": [
+            "CUDA",
+            "CPU"
+          ],
+          "precisions": [
+            "fp32"
+          ],
+          "downloadSize": 389918708,
+          "installedSize": 389918708,
+          "capabilities": [
+            "depth"
+          ],
+          "files": [
+            {
+              "path": "config.json",
+              "sizeBytes": 953,
+              "url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Base-hf/resolve/b1958afc87fb45a9e3746cb387596094de553ed8/config.json",
+              "revision": "b1958afc87fb45a9e3746cb387596094de553ed8"
+            },
+            {
+              "path": "model.safetensors",
+              "sizeBytes": 389916980,
+              "sha256": "9996d15c334d264cfcc29f4318d7d3789a006ecc444782c2fb82f7eaa1acb8bf",
+              "url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Base-hf/resolve/b1958afc87fb45a9e3746cb387596094de553ed8/model.safetensors",
+              "revision": "b1958afc87fb45a9e3746cb387596094de553ed8"
+            },
+            {
+              "path": "preprocessor_config.json",
+              "sizeBytes": 775,
+              "url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Base-hf/resolve/b1958afc87fb45a9e3746cb387596094de553ed8/preprocessor_config.json",
+              "revision": "b1958afc87fb45a9e3746cb387596094de553ed8"
+            }
+          ]
+        },
+        {
+          "id": "depth-anything-v2-large",
+          "name": "depth-anything/Depth-Anything-V2-Large-hf",
+          "version": "7581137eff8d4e94f6e796d3baea0e9fa79b22d2",
+          "source": "https://huggingface.co/depth-anything/Depth-Anything-V2-Large-hf",
+          "license": "CC-BY-NC-4.0 (non-commercial; personal acceptance required)",
+          "location": "Local",
+          "runsLocally": true,
+          "installed": false,
+          "computeBackends": [
+            "CUDA",
+            "CPU"
+          ],
+          "precisions": [
+            "fp32"
+          ],
+          "downloadSize": 1341325074,
+          "installedSize": 1341325074,
+          "capabilities": [
+            "depth"
+          ],
+          "files": [
+            {
+              "path": "config.json",
+              "sizeBytes": 1431,
+              "url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Large-hf/resolve/7581137eff8d4e94f6e796d3baea0e9fa79b22d2/config.json",
+              "revision": "7581137eff8d4e94f6e796d3baea0e9fa79b22d2"
+            },
+            {
+              "path": "model.safetensors",
+              "sizeBytes": 1341322868,
+              "sha256": "4e01e34ed5549b529b70b92d53226bc370f03041977b390d3dde45d47f516cf9",
+              "url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Large-hf/resolve/7581137eff8d4e94f6e796d3baea0e9fa79b22d2/model.safetensors",
+              "revision": "7581137eff8d4e94f6e796d3baea0e9fa79b22d2"
+            },
+            {
+              "path": "preprocessor_config.json",
+              "sizeBytes": 775,
+              "url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Large-hf/resolve/7581137eff8d4e94f6e796d3baea0e9fa79b22d2/preprocessor_config.json",
+              "revision": "7581137eff8d4e94f6e796d3baea0e9fa79b22d2"
+            }
+          ]
+        },
+        {
+          "id": "zero123plus-v1.2",
+          "name": "sudo-ai/zero123plus-v1.2",
+          "version": "2da07e89919e1a130c9b5add1584c70c7aa065fd",
+          "source": "https://huggingface.co/sudo-ai/zero123plus-v1.2",
+          "license": "CC-BY-NC-4.0 (weights, per the official GitHub README); pipeline code Apache-2.0 (non-commercial; personal acceptance required)",
+          "location": "Local",
+          "runsLocally": true,
+          "installed": false,
+          "computeBackends": [
+            "CUDA",
+            "CPU"
+          ],
+          "precisions": [
+            "fp32"
+          ],
+          "downloadSize": 5577709069,
+          "installedSize": 5577709069,
+          "capabilities": [
+            "synthesis"
+          ],
+          "files": [
+            {
+              "path": "feature_extractor_clip/preprocessor_config.json",
+              "sizeBytes": 466,
+              "url": "https://huggingface.co/sudo-ai/zero123plus-v1.2/resolve/2da07e89919e1a130c9b5add1584c70c7aa065fd/feature_extractor_clip/preprocessor_config.json",
+              "revision": "2da07e89919e1a130c9b5add1584c70c7aa065fd"
+            },
+            {
+              "path": "feature_extractor_vae/preprocessor_config.json",
+              "sizeBytes": 369,
+              "url": "https://huggingface.co/sudo-ai/zero123plus-v1.2/resolve/2da07e89919e1a130c9b5add1584c70c7aa065fd/feature_extractor_vae/preprocessor_config.json",
+              "revision": "2da07e89919e1a130c9b5add1584c70c7aa065fd"
+            },
+            {
+              "path": "model_index.json",
+              "sizeBytes": 2630,
+              "url": "https://huggingface.co/sudo-ai/zero123plus-v1.2/resolve/2da07e89919e1a130c9b5add1584c70c7aa065fd/model_index.json",
+              "revision": "2da07e89919e1a130c9b5add1584c70c7aa065fd"
+            },
+            {
+              "path": "scheduler/scheduler_config.json",
+              "sizeBytes": 391,
+              "url": "https://huggingface.co/sudo-ai/zero123plus-v1.2/resolve/2da07e89919e1a130c9b5add1584c70c7aa065fd/scheduler/scheduler_config.json",
+              "revision": "2da07e89919e1a130c9b5add1584c70c7aa065fd"
+            },
+            {
+              "path": "text_encoder/config.json",
+              "sizeBytes": 708,
+              "url": "https://huggingface.co/sudo-ai/zero123plus-v1.2/resolve/2da07e89919e1a130c9b5add1584c70c7aa065fd/text_encoder/config.json",
+              "revision": "2da07e89919e1a130c9b5add1584c70c7aa065fd"
+            },
+            {
+              "path": "text_encoder/model.safetensors",
+              "sizeBytes": 680820392,
+              "sha256": "bc1827c465450322616f06dea41596eac7d493f4e95904dcb51f0fc745c4e13f",
+              "url": "https://huggingface.co/sudo-ai/zero123plus-v1.2/resolve/2da07e89919e1a130c9b5add1584c70c7aa065fd/text_encoder/model.safetensors",
+              "revision": "2da07e89919e1a130c9b5add1584c70c7aa065fd"
+            },
+            {
+              "path": "tokenizer/merges.txt",
+              "sizeBytes": 524619,
+              "url": "https://huggingface.co/sudo-ai/zero123plus-v1.2/resolve/2da07e89919e1a130c9b5add1584c70c7aa065fd/tokenizer/merges.txt",
+              "revision": "2da07e89919e1a130c9b5add1584c70c7aa065fd"
+            },
+            {
+              "path": "tokenizer/special_tokens_map.json",
+              "sizeBytes": 460,
+              "url": "https://huggingface.co/sudo-ai/zero123plus-v1.2/resolve/2da07e89919e1a130c9b5add1584c70c7aa065fd/tokenizer/special_tokens_map.json",
+              "revision": "2da07e89919e1a130c9b5add1584c70c7aa065fd"
+            },
+            {
+              "path": "tokenizer/tokenizer_config.json",
+              "sizeBytes": 855,
+              "url": "https://huggingface.co/sudo-ai/zero123plus-v1.2/resolve/2da07e89919e1a130c9b5add1584c70c7aa065fd/tokenizer/tokenizer_config.json",
+              "revision": "2da07e89919e1a130c9b5add1584c70c7aa065fd"
+            },
+            {
+              "path": "tokenizer/vocab.json",
+              "sizeBytes": 1059962,
+              "url": "https://huggingface.co/sudo-ai/zero123plus-v1.2/resolve/2da07e89919e1a130c9b5add1584c70c7aa065fd/tokenizer/vocab.json",
+              "revision": "2da07e89919e1a130c9b5add1584c70c7aa065fd"
+            },
+            {
+              "path": "unet/config.json",
+              "sizeBytes": 1964,
+              "url": "https://huggingface.co/sudo-ai/zero123plus-v1.2/resolve/2da07e89919e1a130c9b5add1584c70c7aa065fd/unet/config.json",
+              "revision": "2da07e89919e1a130c9b5add1584c70c7aa065fd"
+            },
+            {
+              "path": "unet/diffusion_pytorch_model.safetensors",
+              "sizeBytes": 3463726504,
+              "sha256": "481a8c8d268810095c6bc85ea71b44a0bb9a5ea6457d6c8792275f43989442a3",
+              "url": "https://huggingface.co/sudo-ai/zero123plus-v1.2/resolve/2da07e89919e1a130c9b5add1584c70c7aa065fd/unet/diffusion_pytorch_model.safetensors",
+              "revision": "2da07e89919e1a130c9b5add1584c70c7aa065fd"
+            },
+            {
+              "path": "vae/config.json",
+              "sizeBytes": 745,
+              "url": "https://huggingface.co/sudo-ai/zero123plus-v1.2/resolve/2da07e89919e1a130c9b5add1584c70c7aa065fd/vae/config.json",
+              "revision": "2da07e89919e1a130c9b5add1584c70c7aa065fd"
+            },
+            {
+              "path": "vae/diffusion_pytorch_model.safetensors",
+              "sizeBytes": 167335342,
+              "sha256": "3e4c08995484ee61270175e9e7a072b66a6e4eeb5f0c266667fe1f45b90daf9a",
+              "url": "https://huggingface.co/sudo-ai/zero123plus-v1.2/resolve/2da07e89919e1a130c9b5add1584c70c7aa065fd/vae/diffusion_pytorch_model.safetensors",
+              "revision": "2da07e89919e1a130c9b5add1584c70c7aa065fd"
+            },
+            {
+              "path": "vision_encoder/config.json",
+              "sizeBytes": 672,
+              "url": "https://huggingface.co/sudo-ai/zero123plus-v1.2/resolve/2da07e89919e1a130c9b5add1584c70c7aa065fd/vision_encoder/config.json",
+              "revision": "2da07e89919e1a130c9b5add1584c70c7aa065fd"
+            },
+            {
+              "path": "vision_encoder/model.safetensors",
+              "sizeBytes": 1264217240,
+              "sha256": "ae616c24393dd1854372b0639e5541666f7521cbe219669255e865cb7f89466a",
+              "url": "https://huggingface.co/sudo-ai/zero123plus-v1.2/resolve/2da07e89919e1a130c9b5add1584c70c7aa065fd/vision_encoder/model.safetensors",
+              "revision": "2da07e89919e1a130c9b5add1584c70c7aa065fd"
+            },
+            {
+              "path": "pipeline/pipeline.py",
+              "sizeBytes": 15750,
+              "sha256": "d33babc5d138b832294da9e18496c52d0ea7006b47464d4e5b1bd60cd7e37acd",
+              "url": "https://huggingface.co/sudo-ai/zero123plus-pipeline/resolve/983e66d28a3637ddd8e3e2fd8165cdff32230872/pipeline.py",
+              "revision": "983e66d28a3637ddd8e3e2fd8165cdff32230872"
+            }
+          ]
+        },
+        {
+          "id": "perspective-fields-paramnet-360cities",
+          "name": "spaces/jinlinyi/PerspectiveFields",
+          "version": "7bd81cc708454976b917699ba206d9a39c713b38",
+          "source": "https://github.com/jinlinyi/PerspectiveFields",
+          "license": "Adobe Research License (non-commercial) (non-commercial; personal acceptance required)",
+          "location": "Local",
+          "runsLocally": true,
+          "installed": false,
+          "computeBackends": [
+            "CUDA",
+            "CPU"
+          ],
+          "precisions": [
+            "fp32"
+          ],
+          "downloadSize": 837147876,
+          "installedSize": 837147876,
+          "capabilities": [
+            "camera"
+          ],
+          "files": [
+            {
+              "path": "paramnet_360cities_edina_rpf.pth",
+              "sizeBytes": 837147876,
+              "sha256": "58fe0285fe5d4592aec77e9ef57ac94273deb79bcb99f27d08bae68a2d1efc4a",
+              "url": "https://huggingface.co/spaces/jinlinyi/PerspectiveFields/resolve/7bd81cc708454976b917699ba206d9a39c713b38/models/paramnet_360cities_edina_rpf.pth",
+              "revision": "7bd81cc708454976b917699ba206d9a39c713b38"
+            }
+          ]
+        },
+        {
+          "id": "syncdreamer",
+          "name": "https://huggingface.co/spaces/liuyuan-pal/SyncDreamer",
+          "version": "8a7598c17a62e68407d20e22b7b5ff5fdc414148",
+          "source": "https://huggingface.co/spaces/liuyuan-pal/SyncDreamer",
+          "license": "Code: MIT. SyncDreamer checkpoint: no explicit licence in the GitHub repository; the Space metadata says cc-by-sa-3.0. CLIP ViT-L/14: MIT (OpenAI). Commercial use of the checkpoint is NOT clearly granted by the official sources. (non-commercial; personal acceptance required)",
+          "location": "Local",
+          "runsLocally": true,
+          "installed": false,
+          "computeBackends": [
+            "CUDA",
+            "CPU"
+          ],
+          "precisions": [
+            "fp32"
+          ],
+          "downloadSize": 6502802305,
+          "installedSize": 6502802305,
+          "capabilities": [
+            "synthesis"
+          ],
+          "files": [
+            {
+              "path": "syncdreamer-pretrain.ckpt",
+              "sizeBytes": 5570034171,
+              "sha256": "5ebb31334d9e4002b2590dd805e25238beaf95fa082f6e39a132344624448dcb",
+              "url": "https://huggingface.co/spaces/liuyuan-pal/SyncDreamer/resolve/8a7598c17a62e68407d20e22b7b5ff5fdc414148/ckpt/syncdreamer-pretrain.ckpt",
+              "revision": "8a7598c17a62e68407d20e22b7b5ff5fdc414148"
+            },
+            {
+              "path": "ViT-L-14.pt",
+              "sizeBytes": 932768134,
+              "sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+              "url": "https://huggingface.co/spaces/liuyuan-pal/SyncDreamer/resolve/8a7598c17a62e68407d20e22b7b5ff5fdc414148/ckpt/ViT-L-14.pt",
+              "revision": "8a7598c17a62e68407d20e22b7b5ff5fdc414148"
+            }
+          ]
+        },
+        {
+          "id": "wonder3d-v1.0",
+          "name": "flamehaze1115/wonder3d-v1.0",
+          "version": "d6d2efc033a06a74d3761268de7295c97e6935d2",
+          "source": "https://huggingface.co/flamehaze1115/wonder3d-v1.0",
+          "license": "weights: AGPL-3.0; code: MIT (non-commercial; personal acceptance required)",
+          "location": "Local",
+          "runsLocally": true,
+          "installed": false,
+          "computeBackends": [
+            "CUDA",
+            "CPU"
+          ],
+          "precisions": [
+            "fp32"
+          ],
+          "downloadSize": 2597400151,
+          "installedSize": 2597400151,
+          "capabilities": [
+            "synthesis"
+          ],
+          "files": [
+            {
+              "path": ".gitattributes",
+              "sizeBytes": 1519,
+              "sha256": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361",
+              "url": "https://huggingface.co/flamehaze1115/wonder3d-v1.0/resolve/d6d2efc033a06a74d3761268de7295c97e6935d2/.gitattributes",
+              "revision": "d6d2efc033a06a74d3761268de7295c97e6935d2"
+            },
+            {
+              "path": "README.md",
+              "sizeBytes": 26,
+              "sha256": "2579a1a33b80a453d494e76959976a1b5fb02d1e61a4d628424d499842bd8baa",
+              "url": "https://huggingface.co/flamehaze1115/wonder3d-v1.0/resolve/d6d2efc033a06a74d3761268de7295c97e6935d2/README.md",
+              "revision": "d6d2efc033a06a74d3761268de7295c97e6935d2"
+            },
+            {
+              "path": "feature_extractor/preprocessor_config.json",
+              "sizeBytes": 518,
+              "sha256": "4db495644e3e5bd8fcac52f70e7fc0b413c911086021acf73ac30e5911166e95",
+              "url": "https://huggingface.co/flamehaze1115/wonder3d-v1.0/resolve/d6d2efc033a06a74d3761268de7295c97e6935d2/feature_extractor/preprocessor_config.json",
+              "revision": "d6d2efc033a06a74d3761268de7295c97e6935d2"
+            },
+            {
+              "path": "image_encoder/config.json",
+              "sizeBytes": 585,
+              "sha256": "b5bbbb2e0d2e426a59487a4913f32b74eb6a65127b9f0da6594e4e770f87d7b4",
+              "url": "https://huggingface.co/flamehaze1115/wonder3d-v1.0/resolve/d6d2efc033a06a74d3761268de7295c97e6935d2/image_encoder/config.json",
+              "revision": "d6d2efc033a06a74d3761268de7295c97e6935d2"
+            },
+            {
+              "path": "image_encoder/pytorch_model.bin",
+              "sizeBytes": 608067629,
+              "sha256": "40be8734e66d0b9f24484226f0dcdeec90872a0e996697fb68a52fd83263a7e6",
+              "url": "https://huggingface.co/flamehaze1115/wonder3d-v1.0/resolve/d6d2efc033a06a74d3761268de7295c97e6935d2/image_encoder/pytorch_model.bin",
+              "revision": "d6d2efc033a06a74d3761268de7295c97e6935d2"
+            },
+            {
+              "path": "model_index.json",
+              "sizeBytes": 524,
+              "sha256": "be5d497476ad974af960553d295a91d62f43415ae915c5e2f0ca35889f75ab5f",
+              "url": "https://huggingface.co/flamehaze1115/wonder3d-v1.0/resolve/d6d2efc033a06a74d3761268de7295c97e6935d2/model_index.json",
+              "revision": "d6d2efc033a06a74d3761268de7295c97e6935d2"
+            },
+            {
+              "path": "scheduler/scheduler_config.json",
+              "sizeBytes": 528,
+              "sha256": "fa7743b633a82721f0695a9dece388583346ce87810e06a9911fc46a273fb007",
+              "url": "https://huggingface.co/flamehaze1115/wonder3d-v1.0/resolve/d6d2efc033a06a74d3761268de7295c97e6935d2/scheduler/scheduler_config.json",
+              "revision": "d6d2efc033a06a74d3761268de7295c97e6935d2"
+            },
+            {
+              "path": "unet/config.json",
+              "sizeBytes": 2032,
+              "sha256": "4d0ad00fb3295ff7cedee6d098445f768176486645e58f49a91bf59ed8e6c0db",
+              "url": "https://huggingface.co/flamehaze1115/wonder3d-v1.0/resolve/d6d2efc033a06a74d3761268de7295c97e6935d2/unet/config.json",
+              "revision": "d6d2efc033a06a74d3761268de7295c97e6935d2"
+            },
+            {
+              "path": "unet/diffusion_pytorch_model.bin",
+              "sizeBytes": 1821918269,
+              "sha256": "d21f6b707bf4ca34c1b33447a35a47c41fa4179eb5de3eb21589b25e86d38137",
+              "url": "https://huggingface.co/flamehaze1115/wonder3d-v1.0/resolve/d6d2efc033a06a74d3761268de7295c97e6935d2/unet/diffusion_pytorch_model.bin",
+              "revision": "d6d2efc033a06a74d3761268de7295c97e6935d2"
+            },
+            {
+              "path": "vae/config.json",
+              "sizeBytes": 664,
+              "sha256": "f6e5fcd60ad797a2e304aa10e45d839536b5f9a87f92c7b8cca00408b4e52b9b",
+              "url": "https://huggingface.co/flamehaze1115/wonder3d-v1.0/resolve/d6d2efc033a06a74d3761268de7295c97e6935d2/vae/config.json",
+              "revision": "d6d2efc033a06a74d3761268de7295c97e6935d2"
+            },
+            {
+              "path": "vae/diffusion_pytorch_model.bin",
+              "sizeBytes": 167407857,
+              "sha256": "7cfdd672df17db3283633acb3721afc7735927293c2d3bd2bf64939a6dcd950e",
+              "url": "https://huggingface.co/flamehaze1115/wonder3d-v1.0/resolve/d6d2efc033a06a74d3761268de7295c97e6935d2/vae/diffusion_pytorch_model.bin",
+              "revision": "d6d2efc033a06a74d3761268de7295c97e6935d2"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "platforms": [
+    {
+      "os": "Windows",
+      "architecture": "x64",
+      "status": "Supported",
+      "computeBackends": [
+        "CPU",
+        "CUDA"
+      ],
+      "notes": "Executed end to end on this platform: application (exe launched from another directory), real SAM 2.1 + Depth Anything V2 runs on CUDA and on CPU, fitting, texturing, 3D viewer, cancellation, CLI, MCP stdio, model installation, staged update and rollback with a loopback fixture. See app/VALIDATION.md.",
+      "tested": [
+        {
+          "osVersion": "Windows 10 Enterprise LTSC 2021 x64 build 19044",
+          "device": "NVIDIA GeForce RTX 3090 24 GiB",
+          "driver": "610.47",
+          "runtime": "Python 3.12.0, PyTorch 2.8.0+cu128, transformers 4.57.6, NumPy 2.5.3, OpenCV 5.0.0.93, xatlas 0.0.11",
+          "date": "2026-09-20",
+          "status": "Supported"
+        }
+      ]
+    },
+    {
+      "os": "Linux",
+      "architecture": "x64",
+      "status": "Experimental",
+      "computeBackends": [
+        "CPU",
+        "CUDA"
+      ],
+      "notes": "No Windows-only code in the runtime or the engine, and a launcher plus install script are provided, but nothing was ever installed or executed on Linux. Declared Experimental, not validated."
+    }
+  ],
+  "interfaces": [
+    "Native",
+    "CLI",
+    "JSONL",
+    "HTTP",
+    "MCP",
+    "ImGui"
+  ],
+  "runtimeRequirements": [],
+  "concurrency": {
+    "policy": "Sequential",
+    "maxWorkers": 1
+  },
+  "operations": [
+    {
+      "id": "construct_mesh",
+      "name": "Construct proxy mesh",
+      "description": "Pictures -> masks / depth / poses -> coverage map -> weighted support volume -> cross-section loft + fitted primitives (progressive, complexity-penalised) -> xatlas UV -> camera projection with occlusion test -> textured GLB. With one picture the result is a volume hypothesis and is reported as such.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 12,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "image"
+              ],
+              "properties": {
+                "image": {
+                  "type": "string",
+                  "x-cy-kind": "File",
+                  "description": "Picture of the object (PNG, JPEG, WebP, BMP, TIFF; 64 MiB max). An absolute path on the Tool host is accepted and imported automatically into the private job workspace; an alpha channel is used as the object mask."
+                },
+                "label": {
+                  "type": "string",
+                  "enum": [
+                    "Front",
+                    "FrontRight",
+                    "Right",
+                    "RearRight",
+                    "Back",
+                    "RearLeft",
+                    "Left",
+                    "FrontLeft",
+                    "Top",
+                    "Bottom"
+                  ],
+                  "description": "Optional human view label. Internally converted to continuous angles. For Top/Bottom the in-plane orientation is searched automatically unless azimuth is given."
+                },
+                "azimuth": {
+                  "type": "number",
+                  "minimum": -360,
+                  "maximum": 360,
+                  "description": "Degrees around the vertical axis: 0 = camera in front of the object, 90 = camera on the object's right side, 180 = behind. Overrides label."
+                },
+                "elevation": {
+                  "type": "number",
+                  "minimum": -90,
+                  "maximum": 90,
+                  "description": "Degrees above (+) or below (-) the horizontal plane."
+                },
+                "roll": {
+                  "type": "number",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Camera roll in degrees, 0 when the horizon is level."
+                },
+                "fov": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 120,
+                  "description": "Field of view of the FULL picture along its longest side, in degrees. 0 = orthographic drawing. Default 35."
+                },
+                "weight": {
+                  "type": "number",
+                  "minimum": 0.05,
+                  "maximum": 1,
+                  "description": "Confidence weight of this real view (default 1.0)."
+                },
+                "mask": {
+                  "type": "string",
+                  "x-cy-kind": "File",
+                  "description": "Optional object mask (white = object). Replaces automatic segmentation for this picture."
+                },
+                "box": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "minItems": 4,
+                  "maxItems": 4,
+                  "description": "Optional SAM prompt box [x0, y0, x1, y1] normalised to the picture, when the object is not the salient central subject."
+                }
+              }
+            },
+            "description": "One to twelve real pictures of the SAME object. Real pictures always win over synthetic data."
+          },
+          "generated_views": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "image",
+                "relative_azimuth",
+                "elevation"
+              ],
+              "properties": {
+                "image": {
+                  "type": "string",
+                  "x-cy-kind": "File",
+                  "description": "Synthetic view produced by a novel-view model (Zero123++, SyncDreamer, Wonder3D...). Never trusted like a photograph."
+                },
+                "source": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 0,
+                  "description": "Index in `images` of the real picture the view was generated from."
+                },
+                "relative_azimuth": {
+                  "type": "number",
+                  "minimum": -360,
+                  "maximum": 360,
+                  "description": "Requested azimuth relative to the source picture, degrees."
+                },
+                "elevation": {
+                  "type": "number",
+                  "minimum": -90,
+                  "maximum": 90,
+                  "description": "Requested absolute elevation, degrees."
+                },
+                "fov": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 120,
+                  "default": 30,
+                  "description": "Field of view of the generator camera (Zero123++ v1.2: 30)."
+                },
+                "weight": {
+                  "type": "number",
+                  "minimum": 0.05,
+                  "maximum": 0.9,
+                  "description": "Weight of this synthetic view (default generated_view_weight)."
+                },
+                "mask": {
+                  "type": "string",
+                  "x-cy-kind": "File",
+                  "description": "Optional mask of the synthetic view."
+                }
+              }
+            },
+            "default": [],
+            "description": "Optional synthetic views with their requested poses. They only vote with a reduced weight and can never carve away what a real picture shows."
+          },
+          "segmentation_model": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "none",
+              "sam2.1-hiera-tiny",
+              "sam2.1-hiera-small",
+              "sam2.1-hiera-base-plus",
+              "sam2.1-hiera-large"
+            ],
+            "default": "auto",
+            "description": "SAM 2.1 checkpoint for the object mask. auto = preferred installed model, else classical segmentation (alpha / plain background / GrabCut). none = classical only."
+          },
+          "depth_model": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "none",
+              "depth-anything-v2-small",
+              "depth-anything-v2-base",
+              "depth-anything-v2-large"
+            ],
+            "default": "auto",
+            "description": "Depth Anything V2 checkpoint (relative depth, low-confidence cue). Base and Large are CC-BY-NC-4.0 and require a personal licence acceptance."
+          },
+          "camera_model": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "none",
+              "perspective-fields-paramnet-360cities"
+            ],
+            "default": "auto",
+            "description": "Perspective Fields (Paramnet-360Cities-edina-centered): roll, pitch (elevation = -pitch) and field of view of each real picture. Applied only to values the user did not give and only when the picture shows a scene; on a cut-out object the cue is reported but not used. Adobe Research License, non-commercial: personal acceptance required."
+          },
+          "device": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "cuda",
+              "cpu"
+            ],
+            "default": "auto",
+            "description": "Device of the AI understanding stage. auto = CUDA when PyTorch sees it, else CPU. The fitting engine always runs on the CPU."
+          },
+          "view_synthesis": {
+            "type": "string",
+            "enum": [
+              "off",
+              "auto",
+              "always"
+            ],
+            "default": "auto",
+            "description": "Missing-view generation with Zero123++ v1.2 (six views at known poses from one real picture, CUDA only). auto = only when the Real Coverage Score is below synthesis_coverage_threshold and the model is installed; always = generate or fail; off = never. Generated views vote with generated_view_weight and never override a real picture."
+          },
+          "view_synthesis_model": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "zero123plus-v1.2",
+              "wonder3d-v1.0",
+              "syncdreamer"
+            ],
+            "default": "auto",
+            "description": "Missing-view generator. auto = first installed of Zero123++ v1.2 (6 views, absolute elevations +20/-10, FOV 30), Wonder3D v1.0 (6 orthographic views in the frame of the input picture, colour + normals) and SyncDreamer (16 views at a fixed elevation of 30 degrees). Wonder3D and SyncDreamer run in their own environment and pinned source checkout (Installation tab). All need a CUDA GPU."
+          },
+          "synthesis_source": {
+            "type": "integer",
+            "minimum": -1,
+            "maximum": 11,
+            "default": -1,
+            "description": "Index in `images` of the picture given to Zero123++. -1 = first picture that is not a top/bottom view."
+          },
+          "synthesis_steps": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 200,
+            "description": "Diffusion steps of the generator. Omitted = its own default (Zero123++ 36, Wonder3D 50, SyncDreamer 50)."
+          },
+          "synthesis_seed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "default": 0,
+            "description": "Zero123++ random seed. The same seed, weights and runtime give the same views; bit-exact reproduction across GPUs is not promised."
+          },
+          "synthesis_guidance": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "Classifier-free guidance scale. Omitted = the generator default (Zero123++ 4.0, Wonder3D 3.0, SyncDreamer 2.0)."
+          },
+          "synthesis_coverage_threshold": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.6,
+            "description": "view_synthesis = auto generates views when the Real Coverage Score is below this value."
+          },
+          "symmetry": {
+            "type": "string",
+            "enum": [
+              "Off",
+              "Auto",
+              "Force X",
+              "Force Y",
+              "Force Z"
+            ],
+            "default": "Auto",
+            "description": "Mirror plane normal. Auto measures bilateral symmetry (normal = Z, left/right) from several views, or assumes it for a single picture. Force X = front/back, Force Y = top/bottom, Force Z = left/right."
+          },
+          "use_depth": {
+            "type": "boolean",
+            "default": true,
+            "description": "Use the depth maps for pose estimation and concavity carving."
+          },
+          "register_views": {
+            "type": "boolean",
+            "default": true,
+            "description": "Classical registration of real views (OpenCV SIFT + essential matrix) for pictures without a pose."
+          },
+          "refine_poses": {
+            "type": "boolean",
+            "default": true,
+            "description": "Refine unposed views by silhouette coherence."
+          },
+          "default_azimuth": {
+            "type": "number",
+            "minimum": -360,
+            "maximum": 360,
+            "default": 35,
+            "description": "Azimuth assumed when nothing else is known (degrees)."
+          },
+          "default_elevation": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "default": 12,
+            "description": "Elevation assumed when nothing else is known (degrees)."
+          },
+          "default_fov": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 120,
+            "default": 35,
+            "description": "Field of view assumed for pictures without one (degrees, 0 = orthographic)."
+          },
+          "real_view_weight": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 1,
+            "default": 1.0,
+            "description": "Weight of real pictures."
+          },
+          "generated_view_weight": {
+            "type": "number",
+            "minimum": 0.05,
+            "maximum": 0.9,
+            "default": 0.45,
+            "description": "Weight of synthetic views (recommended 0.3 to 0.6)."
+          },
+          "mirrored_view_weight": {
+            "type": "number",
+            "minimum": 0.05,
+            "maximum": 1,
+            "default": 0.8,
+            "description": "Weight of mirrored real views, multiplied by the symmetry confidence."
+          },
+          "single_view_symmetry_confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.5,
+            "description": "Confidence of the assumed symmetry when it cannot be measured."
+          },
+          "symmetry_threshold": {
+            "type": "number",
+            "minimum": 0.5,
+            "maximum": 1,
+            "default": 0.93,
+            "description": "Auto symmetry: minimal ratio of silhouette coherence with/without mirrored views."
+          },
+          "depth_margin": {
+            "type": "number",
+            "minimum": 0.02,
+            "maximum": 0.5,
+            "default": 0.12,
+            "description": "Depth carving safety margin, fraction of the object size."
+          },
+          "complexity": {
+            "type": "string",
+            "enum": [
+              "UltraSimple",
+              "Simple",
+              "Medium"
+            ],
+            "default": "Simple",
+            "description": "Budget preset. UltraSimple: 2-4 sections, about 20-100 triangles. Simple: 4-8 sections, 100-500. Medium: 8-16 sections, 500-2000. Targets, not hard limits."
+          },
+          "main_axis": {
+            "type": "string",
+            "enum": [
+              "Auto",
+              "X",
+              "Y",
+              "Z"
+            ],
+            "default": "Auto",
+            "description": "Axis of the main loft. X = front/back, Y = up, Z = left/right."
+          },
+          "max_sections": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 32,
+            "description": "Override: maximum cross-sections of the main loft."
+          },
+          "section_vertices": {
+            "type": "integer",
+            "enum": [
+              4,
+              6,
+              8,
+              12,
+              16
+            ],
+            "description": "Override: vertices per rounded cross-section (box sections always use 4)."
+          },
+          "max_primitives": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 40,
+            "description": "Override: maximum fitted components besides the main body (a mirrored pair counts once)."
+          },
+          "max_polygon_vertices": {
+            "type": "integer",
+            "minimum": 3,
+            "maximum": 12,
+            "description": "Override: maximum outline vertices of an extruded polygon."
+          },
+          "grid_resolution": {
+            "type": "integer",
+            "minimum": 48,
+            "maximum": 192,
+            "description": "Override: support volume resolution per axis (RAM grows with the cube)."
+          },
+          "min_part_volume": {
+            "type": "number",
+            "minimum": 0.0005,
+            "maximum": 0.2,
+            "description": "Override: smallest component kept, as a fraction of the support volume."
+          },
+          "unobserved_extent_ratio": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 4,
+            "default": 1.0,
+            "description": "When no picture limits the object along an axis (single front view, two opposite views), its extent on that axis is assumed to be this ratio times the largest observed dimension. The report lists every assumed axis."
+          },
+          "body_window": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 0.8,
+            "default": 0.35,
+            "description": "Appendages shorter than this fraction of the main axis are separated from the body."
+          },
+          "min_gain": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 0.2,
+            "default": 0.004,
+            "description": "Progressive optimisation: a section or component is kept only if FitScore improves by more than this."
+          },
+          "split_below": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.5,
+            "description": "A component fitted below this volumetric IoU is split (plate peeling) and refitted."
+          },
+          "snap_angle": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 30,
+            "default": 8,
+            "description": "Hard-surface snapping: directions and outline edges closer than this to an axis become exactly parallel/perpendicular (degrees). 0 disables."
+          },
+          "thin_as_planes": {
+            "type": "boolean",
+            "default": false,
+            "description": "Represent one-voxel-thin surfaces as zero-thickness double-sided Plane primitives."
+          },
+          "min_thickness_ratio": {
+            "type": "number",
+            "minimum": 0.005,
+            "maximum": 0.5,
+            "default": 0.04,
+            "description": "Thinnest allowed plate, relative to its largest outline span."
+          },
+          "refine_passes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6,
+            "default": 2,
+            "description": "Coordinate-descent passes of the final silhouette refinement."
+          },
+          "part_triangle_penalty": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 0.02,
+            "default": 0.0015,
+            "description": "Per-triangle penalty when choosing the primitive type of a component."
+          },
+          "fit_weights": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "FitScore weights. Defaults: silhouette 1.0, depth 0.25, edge 0.35, multiview 0.4, symmetry 0.15, complexity_primitive 0.004, complexity_triangle 0.002 (per 100 triangles).",
+            "properties": {
+              "silhouette": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10
+              },
+              "depth": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10
+              },
+              "edge": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10
+              },
+              "multiview": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10
+              },
+              "symmetry": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10
+              },
+              "complexity_primitive": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10
+              },
+              "complexity_triangle": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10
+              }
+            }
+          },
+          "texture_resolution": {
+            "type": "integer",
+            "enum": [
+              256,
+              512,
+              1024,
+              2048,
+              4096
+            ],
+            "default": 1024,
+            "description": "BaseColor atlas size in pixels (square)."
+          },
+          "texture_padding": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 16,
+            "default": 4,
+            "description": "xatlas chart padding in pixels."
+          },
+          "texture_blend": {
+            "type": "string",
+            "enum": [
+              "best",
+              "blend"
+            ],
+            "default": "best",
+            "description": "best = best camera per face. blend = weighted multi-view blend of the best cameras."
+          },
+          "blend_views": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 6,
+            "default": 3,
+            "description": "Cameras mixed per face when texture_blend = blend."
+          },
+          "visibility_resolution": {
+            "type": "integer",
+            "enum": [
+              256,
+              384,
+              512,
+              768
+            ],
+            "default": 384,
+            "description": "Depth-buffer size of the occlusion test."
+          },
+          "min_facing": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 0.9,
+            "default": 0.12,
+            "description": "A camera may texture a face only when cos(angle) exceeds this."
+          },
+          "real_view_bonus": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 1,
+            "default": 1.0,
+            "description": "TextureViewScore factor of real pictures."
+          },
+          "mirrored_view_bonus": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.55,
+            "description": "TextureViewScore factor of mirrored real pictures."
+          },
+          "generated_view_bonus": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.3,
+            "description": "TextureViewScore factor of synthetic views."
+          },
+          "target_size": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 10000,
+            "default": 1.0,
+            "description": "Largest dimension of the exported mesh, in glTF units (metres). Relative proportions only: no absolute scale is recovered from pictures."
+          },
+          "weld_tolerance": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 0.01,
+            "default": 0.0001,
+            "description": "Vertex welding distance of proxy_geometry.obj, relative to target_size."
+          }
+        },
+        "required": [
+          "images"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "mesh_file": {
+            "type": "string",
+            "x-cy-kind": "File",
+            "description": "Merged textured proxy (binary glTF, front +Z, up +Y). Internal faces removed. Input of any mesh Tool.",
+            "contentMediaType": "model/gltf-binary"
+          },
+          "parts_file": {
+            "type": "string",
+            "x-cy-kind": "File",
+            "description": "Separated parts: one named node per primitive, same atlas.",
+            "contentMediaType": "model/gltf-binary"
+          },
+          "geometry_file": {
+            "type": "string",
+            "x-cy-kind": "File",
+            "description": "Welded geometry only (OBJ, no UV).",
+            "contentMediaType": "model/obj"
+          },
+          "texture_file": {
+            "type": "string",
+            "x-cy-kind": "File",
+            "description": "BaseColor atlas (PNG).",
+            "contentMediaType": "image/png"
+          },
+          "triangles": {
+            "type": "integer"
+          },
+          "components": {
+            "type": "integer"
+          },
+          "fit_score": {
+            "type": "number"
+          },
+          "silhouette_agreement": {
+            "type": "number",
+            "description": "Weighted silhouette IoU over all views."
+          },
+          "report_file": {
+            "type": "string",
+            "x-cy-kind": "File",
+            "description": "JSON report: views, poses, coverage, scores, primitives, optimisation trace, texture sources.",
+            "contentMediaType": "application/json"
+          },
+          "preview_file": {
+            "type": "string",
+            "x-cy-kind": "File",
+            "description": "PNG contact sheet: mask (green), support volume (yellow), proxy outline (red) for every view.",
+            "contentMediaType": "image/png"
+          },
+          "real_view_count": {
+            "type": "integer"
+          },
+          "generated_view_count": {
+            "type": "integer"
+          },
+          "real_coverage_score": {
+            "type": "number",
+            "description": "Real Coverage Score, 0..1 over the view sphere."
+          },
+          "expected_reconstruction_confidence": {
+            "type": "number",
+            "description": "0..1; capped at 0.5 for a single picture."
+          },
+          "symmetry_axis": {
+            "type": "string"
+          },
+          "is_hypothesis": {
+            "type": "boolean",
+            "description": "True when only one real picture was available."
+          },
+          "missing_views": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "understanding": {
+            "type": "object",
+            "description": "Models and device actually used, measured peak VRAM."
+          }
+        },
+        "required": [
+          "mesh_file",
+          "parts_file",
+          "geometry_file",
+          "texture_file",
+          "report_file",
+          "preview_file",
+          "triangles",
+          "components"
+        ],
+        "additionalProperties": false
+      },
+      "resourceRequirements": {
+        "ramBytes": 6442450944,
+        "diskBytes": 536870912,
+        "cpuThreads": 4
+      },
+      "supportedBackends": [],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true
+    },
+    {
+      "id": "analyze_views",
+      "name": "Analyse views and coverage",
+      "description": "Fast pre-flight: segmentation, view poses (azimuth, elevation, roll, FOV, label, confidence), same-object checks, coverage map, Real Coverage Score and Expected Reconstruction Confidence. No mesh is produced.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 12,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "image"
+              ],
+              "properties": {
+                "image": {
+                  "type": "string",
+                  "x-cy-kind": "File",
+                  "description": "Picture of the object (PNG, JPEG, WebP, BMP, TIFF; 64 MiB max). An absolute path on the Tool host is accepted and imported automatically into the private job workspace; an alpha channel is used as the object mask."
+                },
+                "label": {
+                  "type": "string",
+                  "enum": [
+                    "Front",
+                    "FrontRight",
+                    "Right",
+                    "RearRight",
+                    "Back",
+                    "RearLeft",
+                    "Left",
+                    "FrontLeft",
+                    "Top",
+                    "Bottom"
+                  ],
+                  "description": "Optional human view label. Internally converted to continuous angles. For Top/Bottom the in-plane orientation is searched automatically unless azimuth is given."
+                },
+                "azimuth": {
+                  "type": "number",
+                  "minimum": -360,
+                  "maximum": 360,
+                  "description": "Degrees around the vertical axis: 0 = camera in front of the object, 90 = camera on the object's right side, 180 = behind. Overrides label."
+                },
+                "elevation": {
+                  "type": "number",
+                  "minimum": -90,
+                  "maximum": 90,
+                  "description": "Degrees above (+) or below (-) the horizontal plane."
+                },
+                "roll": {
+                  "type": "number",
+                  "minimum": -180,
+                  "maximum": 180,
+                  "description": "Camera roll in degrees, 0 when the horizon is level."
+                },
+                "fov": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 120,
+                  "description": "Field of view of the FULL picture along its longest side, in degrees. 0 = orthographic drawing. Default 35."
+                },
+                "weight": {
+                  "type": "number",
+                  "minimum": 0.05,
+                  "maximum": 1,
+                  "description": "Confidence weight of this real view (default 1.0)."
+                },
+                "mask": {
+                  "type": "string",
+                  "x-cy-kind": "File",
+                  "description": "Optional object mask (white = object). Replaces automatic segmentation for this picture."
+                },
+                "box": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "minItems": 4,
+                  "maxItems": 4,
+                  "description": "Optional SAM prompt box [x0, y0, x1, y1] normalised to the picture, when the object is not the salient central subject."
+                }
+              }
+            },
+            "description": "One to twelve real pictures of the SAME object. Real pictures always win over synthetic data."
+          },
+          "generated_views": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "image",
+                "relative_azimuth",
+                "elevation"
+              ],
+              "properties": {
+                "image": {
+                  "type": "string",
+                  "x-cy-kind": "File",
+                  "description": "Synthetic view produced by a novel-view model (Zero123++, SyncDreamer, Wonder3D...). Never trusted like a photograph."
+                },
+                "source": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 0,
+                  "description": "Index in `images` of the real picture the view was generated from."
+                },
+                "relative_azimuth": {
+                  "type": "number",
+                  "minimum": -360,
+                  "maximum": 360,
+                  "description": "Requested azimuth relative to the source picture, degrees."
+                },
+                "elevation": {
+                  "type": "number",
+                  "minimum": -90,
+                  "maximum": 90,
+                  "description": "Requested absolute elevation, degrees."
+                },
+                "fov": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 120,
+                  "default": 30,
+                  "description": "Field of view of the generator camera (Zero123++ v1.2: 30)."
+                },
+                "weight": {
+                  "type": "number",
+                  "minimum": 0.05,
+                  "maximum": 0.9,
+                  "description": "Weight of this synthetic view (default generated_view_weight)."
+                },
+                "mask": {
+                  "type": "string",
+                  "x-cy-kind": "File",
+                  "description": "Optional mask of the synthetic view."
+                }
+              }
+            },
+            "default": [],
+            "description": "Optional synthetic views with their requested poses. They only vote with a reduced weight and can never carve away what a real picture shows."
+          },
+          "segmentation_model": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "none",
+              "sam2.1-hiera-tiny",
+              "sam2.1-hiera-small",
+              "sam2.1-hiera-base-plus",
+              "sam2.1-hiera-large"
+            ],
+            "default": "auto",
+            "description": "SAM 2.1 checkpoint for the object mask. auto = preferred installed model, else classical segmentation (alpha / plain background / GrabCut). none = classical only."
+          },
+          "depth_model": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "none",
+              "depth-anything-v2-small",
+              "depth-anything-v2-base",
+              "depth-anything-v2-large"
+            ],
+            "default": "auto",
+            "description": "Depth Anything V2 checkpoint (relative depth, low-confidence cue). Base and Large are CC-BY-NC-4.0 and require a personal licence acceptance."
+          },
+          "camera_model": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "none",
+              "perspective-fields-paramnet-360cities"
+            ],
+            "default": "auto",
+            "description": "Perspective Fields (Paramnet-360Cities-edina-centered): roll, pitch (elevation = -pitch) and field of view of each real picture. Applied only to values the user did not give and only when the picture shows a scene; on a cut-out object the cue is reported but not used. Adobe Research License, non-commercial: personal acceptance required."
+          },
+          "device": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "cuda",
+              "cpu"
+            ],
+            "default": "auto",
+            "description": "Device of the AI understanding stage. auto = CUDA when PyTorch sees it, else CPU. The fitting engine always runs on the CPU."
+          },
+          "view_synthesis": {
+            "type": "string",
+            "enum": [
+              "off",
+              "auto",
+              "always"
+            ],
+            "default": "auto",
+            "description": "Missing-view generation with Zero123++ v1.2 (six views at known poses from one real picture, CUDA only). auto = only when the Real Coverage Score is below synthesis_coverage_threshold and the model is installed; always = generate or fail; off = never. Generated views vote with generated_view_weight and never override a real picture."
+          },
+          "view_synthesis_model": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "zero123plus-v1.2",
+              "wonder3d-v1.0",
+              "syncdreamer"
+            ],
+            "default": "auto",
+            "description": "Missing-view generator. auto = first installed of Zero123++ v1.2 (6 views, absolute elevations +20/-10, FOV 30), Wonder3D v1.0 (6 orthographic views in the frame of the input picture, colour + normals) and SyncDreamer (16 views at a fixed elevation of 30 degrees). Wonder3D and SyncDreamer run in their own environment and pinned source checkout (Installation tab). All need a CUDA GPU."
+          },
+          "synthesis_source": {
+            "type": "integer",
+            "minimum": -1,
+            "maximum": 11,
+            "default": -1,
+            "description": "Index in `images` of the picture given to Zero123++. -1 = first picture that is not a top/bottom view."
+          },
+          "synthesis_steps": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 200,
+            "description": "Diffusion steps of the generator. Omitted = its own default (Zero123++ 36, Wonder3D 50, SyncDreamer 50)."
+          },
+          "synthesis_seed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "default": 0,
+            "description": "Zero123++ random seed. The same seed, weights and runtime give the same views; bit-exact reproduction across GPUs is not promised."
+          },
+          "synthesis_guidance": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "Classifier-free guidance scale. Omitted = the generator default (Zero123++ 4.0, Wonder3D 3.0, SyncDreamer 2.0)."
+          },
+          "synthesis_coverage_threshold": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.6,
+            "description": "view_synthesis = auto generates views when the Real Coverage Score is below this value."
+          },
+          "symmetry": {
+            "type": "string",
+            "enum": [
+              "Off",
+              "Auto",
+              "Force X",
+              "Force Y",
+              "Force Z"
+            ],
+            "default": "Auto",
+            "description": "Mirror plane normal. Auto measures bilateral symmetry (normal = Z, left/right) from several views, or assumes it for a single picture. Force X = front/back, Force Y = top/bottom, Force Z = left/right."
+          },
+          "use_depth": {
+            "type": "boolean",
+            "default": true,
+            "description": "Use the depth maps for pose estimation and concavity carving."
+          },
+          "register_views": {
+            "type": "boolean",
+            "default": true,
+            "description": "Classical registration of real views (OpenCV SIFT + essential matrix) for pictures without a pose."
+          },
+          "refine_poses": {
+            "type": "boolean",
+            "default": true,
+            "description": "Refine unposed views by silhouette coherence."
+          },
+          "default_azimuth": {
+            "type": "number",
+            "minimum": -360,
+            "maximum": 360,
+            "default": 35,
+            "description": "Azimuth assumed when nothing else is known (degrees)."
+          },
+          "default_elevation": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "default": 12,
+            "description": "Elevation assumed when nothing else is known (degrees)."
+          },
+          "default_fov": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 120,
+            "default": 35,
+            "description": "Field of view assumed for pictures without one (degrees, 0 = orthographic)."
+          },
+          "real_view_weight": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 1,
+            "default": 1.0,
+            "description": "Weight of real pictures."
+          },
+          "generated_view_weight": {
+            "type": "number",
+            "minimum": 0.05,
+            "maximum": 0.9,
+            "default": 0.45,
+            "description": "Weight of synthetic views (recommended 0.3 to 0.6)."
+          },
+          "mirrored_view_weight": {
+            "type": "number",
+            "minimum": 0.05,
+            "maximum": 1,
+            "default": 0.8,
+            "description": "Weight of mirrored real views, multiplied by the symmetry confidence."
+          },
+          "single_view_symmetry_confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.5,
+            "description": "Confidence of the assumed symmetry when it cannot be measured."
+          },
+          "symmetry_threshold": {
+            "type": "number",
+            "minimum": 0.5,
+            "maximum": 1,
+            "default": 0.93,
+            "description": "Auto symmetry: minimal ratio of silhouette coherence with/without mirrored views."
+          },
+          "depth_margin": {
+            "type": "number",
+            "minimum": 0.02,
+            "maximum": 0.5,
+            "default": 0.12,
+            "description": "Depth carving safety margin, fraction of the object size."
+          },
+          "complexity": {
+            "type": "string",
+            "enum": [
+              "UltraSimple",
+              "Simple",
+              "Medium"
+            ],
+            "default": "Simple",
+            "description": "Budget preset. UltraSimple: 2-4 sections, about 20-100 triangles. Simple: 4-8 sections, 100-500. Medium: 8-16 sections, 500-2000. Targets, not hard limits."
+          }
+        },
+        "required": [
+          "images"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "report_file": {
+            "type": "string",
+            "x-cy-kind": "File",
+            "description": "JSON report: views, poses, coverage, scores, primitives, optimisation trace, texture sources.",
+            "contentMediaType": "application/json"
+          },
+          "preview_file": {
+            "type": "string",
+            "x-cy-kind": "File",
+            "description": "PNG contact sheet: mask (green), support volume (yellow), proxy outline (red) for every view.",
+            "contentMediaType": "image/png"
+          },
+          "real_view_count": {
+            "type": "integer"
+          },
+          "generated_view_count": {
+            "type": "integer"
+          },
+          "real_coverage_score": {
+            "type": "number",
+            "description": "Real Coverage Score, 0..1 over the view sphere."
+          },
+          "expected_reconstruction_confidence": {
+            "type": "number",
+            "description": "0..1; capped at 0.5 for a single picture."
+          },
+          "symmetry_axis": {
+            "type": "string"
+          },
+          "is_hypothesis": {
+            "type": "boolean",
+            "description": "True when only one real picture was available."
+          },
+          "missing_views": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "understanding": {
+            "type": "object",
+            "description": "Models and device actually used, measured peak VRAM."
+          }
+        },
+        "required": [
+          "report_file",
+          "preview_file",
+          "real_coverage_score",
+          "expected_reconstruction_confidence"
+        ],
+        "additionalProperties": false
+      },
+      "resourceRequirements": {
+        "ramBytes": 6442450944,
+        "diskBytes": 268435456,
+        "cpuThreads": 4
+      },
+      "supportedBackends": [],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": true
+    },
+    {
+      "id": "diagnose",
+      "name": "Diagnose installation",
+      "description": "Structured state of the fitting engine, the separate AI environment and every catalogue model (NotInstalled, Incomplete, Corrupt, Installed, licence acceptance required) with the action to take. Installs nothing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "deep": {
+            "type": "boolean",
+            "default": false,
+            "description": "Also recompute the SHA256 of installed weights."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "resourceRequirements": {
+        "ramBytes": 536870912
+      },
+      "supportedBackends": [],
+      "permissions": [],
+      "canRunAsync": true,
+      "canCancel": true,
+      "supportsProgress": false
+    }
+  ],
+  "standaloneExecutable": "CyTools_MeshConstruct.exe",
+  "distributionStatus": "See app/VALIDATION.md for what was executed on which platform"
+}

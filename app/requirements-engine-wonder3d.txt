@@ -1,0 +1,18 @@
+# Wonder3D engine, from the install steps CyTools_MeshConstruct validated.
+#
+# It keeps its own environment even though SyncDreamer also runs on torch 2.1.2+cu121: one
+# needs diffusers 0.19.3 with transformers 4.35.2, the other pytorch-lightning 1.9 with
+# transformers 4.37.2 and taming-transformers. Merging them was attempted and reverted here
+# before it was built, on the evidence of these two lists.
+numpy==1.26.4
+diffusers==0.19.3
+transformers==4.35.2
+huggingface_hub==0.19.4
+accelerate==0.24.1
+safetensors==0.4.5
+tokenizers==0.15.2
+einops==0.7.0
+omegaconf==2.3.0
+opencv-python-headless==4.9.0.80
+Pillow==10.4.0
+truststore==0.10.0

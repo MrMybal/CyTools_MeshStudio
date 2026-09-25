@@ -1,0 +1,19 @@
+# Geometry engine: CPU only, no model weight, no torch.
+# Pinned to the versions the absorbed Tools were validated with, except trimesh: CyTools_Xatlas
+# and CyTools_QuadWild used 5.1.0 while CyTools_Trellis2Texture asked for <5, so the PBR bake
+# has to be re-tested here on 5.1.0 before it is declared supported.
+numpy==2.4.6
+trimesh==5.1.0
+xatlas==0.0.11
+pillow==11.3.0
+scipy==1.16.2
+psutil==7.1.3
+# trimesh 5 delegates quadric decimation to this package; without it mesh_edit cannot decimate.
+fast-simplification==0.1.12
+# The proxy fitting engine ported from CyTools_MeshConstruct rasterises and registers views
+# with OpenCV; it runs here on the CPU, next to the other geometry backends.
+opencv-python-headless==5.0.0.93
+# trimesh needs networkx for everything that walks the mesh graph: split, fill_holes, fix_normals,
+# and so remove_floaters and keep_largest. It is optional for trimesh, not for this engine: without
+# it, mesh_edit failed on the first open mesh it was given (a LocalMesh result).
+networkx==3.4.2

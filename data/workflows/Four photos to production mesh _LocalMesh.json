@@ -1,0 +1,159 @@
+{
+  "format": "cytools-meshstudio-workflow",
+  "schemaVersion": 1,
+  "name": "Four photos to production mesh (LocalMesh+)",
+  "description": "Real photographs of the four sides, which beat generated views. Put the photographs of ONE subject in a folder, named after their side: front, right, left, back (or face, droite, gauche, dos), for example statue-front.jpg. The folder is taken as one subject (input mode \"together\"); a photograph without a side becomes the front if there is none. The four are cut out at one common scale and their angles measured, LocalMesh fuses them (High tier), the model is lightened to 60 000 faces, QuadWild rebuilds it as quads, and the texture is generated from the four photographs with a normal map from the detailed model. Optional step \"refine\" off by default.",
+  "input_mode": "together",
+  "createdAt": "2026-09-24T14:02:46.633990+00:00",
+  "updatedAt": "2026-09-24T14:02:46.633990+00:00",
+  "steps": [
+    {
+      "id": "subject",
+      "operation": "prepare_subject",
+      "backend": "birefnet",
+      "parameters": {
+        "common_framing": true,
+        "measure_camera": true,
+        "contact_sheet": true
+      },
+      "input_from": "",
+      "input_field": "",
+      "input_to": "images",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "shape",
+      "operation": "photos_to_mesh",
+      "backend": "trellis",
+      "parameters": {
+        "mode": "four",
+        "tier": "high",
+        "seed": -1,
+        "gpu": 0,
+        "sampler": "recipe",
+        "transparency": "auto",
+        "up_axis": "y",
+        "texture_size": 0,
+        "target_faces": 0,
+        "real_size_mm": 0,
+        "fidelity": 0,
+        "tex_guidance": 0,
+        "steps_structure": 0,
+        "steps_shape": 0,
+        "steps_texture": 0,
+        "bake_normal_map": true,
+        "origin_at_base": true,
+        "remove_floaters": true,
+        "fill_holes": true
+      },
+      "input_from": "subject",
+      "input_field": "subject_set",
+      "input_to": "subject_set",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "refine",
+      "operation": "refine_mesh",
+      "backend": "trellis",
+      "parameters": {
+        "resolution": 1536,
+        "target_faces": 0,
+        "use_all_views": false,
+        "steps": 16,
+        "guidance": 0,
+        "seed": -1,
+        "up_axis": "y",
+        "gpu": 0
+      },
+      "input_from": "shape",
+      "input_field": "file",
+      "input_to": "mesh_file",
+      "extra_inputs": [
+        {
+          "from": "subject",
+          "field": "subject_set",
+          "to": "subject_set"
+        }
+      ],
+      "enabled": false,
+      "continue_on_error": false
+    },
+    {
+      "id": "light",
+      "operation": "mesh_edit",
+      "backend": "meshedit",
+      "parameters": {
+        "steps": [
+          {
+            "action": "decimate",
+            "targetFaces": 60000
+          }
+        ],
+        "output_format": "obj",
+        "keep_materials": false
+      },
+      "input_from": "refine",
+      "input_field": "file",
+      "input_to": "",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "quads",
+      "operation": "remesh_field",
+      "backend": "quadwild",
+      "parameters": {
+        "preRemesh": true,
+        "featureAngle": 35,
+        "scale": 1,
+        "align": true,
+        "solverSeconds": 300
+      },
+      "input_from": "light",
+      "input_field": "mesh_file",
+      "input_to": "",
+      "extra_inputs": [],
+      "enabled": true,
+      "continue_on_error": false
+    },
+    {
+      "id": "texture",
+      "operation": "texture_mesh",
+      "backend": "trellis",
+      "parameters": {
+        "texture_source": "generate",
+        "texture_size": 4096,
+        "multiview_texture": true,
+        "resolution": 1024,
+        "steps": 16,
+        "guidance": 5.0,
+        "seed": -1,
+        "up_axis": "y",
+        "uv_padding": 4,
+        "gpu": 0
+      },
+      "input_from": "quads",
+      "input_field": "file",
+      "input_to": "mesh_file",
+      "extra_inputs": [
+        {
+          "from": "refine",
+          "field": "file",
+          "to": "detail_mesh"
+        },
+        {
+          "from": "subject",
+          "field": "subject_set",
+          "to": "subject_set"
+        }
+      ],
+      "enabled": true,
+      "continue_on_error": false
+    }
+  ]
+}

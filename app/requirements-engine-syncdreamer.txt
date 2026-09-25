@@ -1,0 +1,16 @@
+# SyncDreamer engine, from the install steps CyTools_MeshConstruct validated.
+numpy==1.26.4
+Pillow==10.0.0
+pytorch-lightning==1.9.0
+omegaconf==2.3.0
+einops==0.7.0
+kornia==0.7.2
+transformers==4.37.2
+taming-transformers-rom1504==0.0.6
+opencv-python-headless==4.9.0.80
+scikit-image==0.22.0
+matplotlib==3.8.4
+tqdm==4.66.4
+ftfy==6.2.0
+regex==2024.5.15
+packaging==24.0

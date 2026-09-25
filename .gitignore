@@ -1,0 +1,48 @@
+# CyTools_MeshStudio — what a clone does not carry.
+# Everything below is rebuilt or produced on the machine: see README.md, "From a clone".
+
+# The private Python of the application, the engine environments, the pinned upstream
+# checkouts, the native programs, staged updates, backups, download caches and the
+# archived code of the absorbed Tools.
+runtime/
+
+# Model weights (about 61 GiB here), installed from app/models/install.json.
+data/models/
+
+# What the application produces or keeps for this machine: jobs and their workspaces,
+# logs, test reports and screenshots, settings (the CLI token lives there), test runs,
+# the user's library and presets, and the pictures dropped into data/inputs — except
+# the small fixtures the tests read.
+data/jobs/
+data/logs/
+data/reports/
+data/settings/
+data/test-runs/
+data/library/
+data/presets/
+data/inputs/*
+!data/inputs/test-*
+!data/inputs/figure-*
+
+# The launcher is compiled from app/launcher.cpp by app/build_launcher.ps1 and attached
+# to each release.
+/CyTools_MeshStudio.exe
+
+# Development-only instruction files of the SDK, kept locally.
+app/AGENTS.md
+app/CyToolsGuide.md
+app/Docs/AgentGuide.md
+app/Docs/AgentPrompt.md
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.cytools/
+.pytest_cache/
+
+# Editors and operating systems
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
