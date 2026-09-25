@@ -4,9 +4,10 @@
 
 Two archives land in runtime/build/release/, with their SHA-256 in SHA256SUMS.txt:
 
-* ``CyTools_MeshStudio-<version>-app.zip`` — ``git archive`` of the commit: the application
-  alone, in the layout the Updates tab stages (the updater prefers the asset whose name
-  says "app", so this is what an installed Tool downloads to update itself).
+* ``CyTools_MeshStudio-<version>-app.zip`` — ``git archive`` of the commit restricted to the
+  application folder and the guides, without ``data/``: the layout the Updates tab stages
+  (the updater prefers the asset whose name says "app", so this is what an installed Tool
+  downloads to update itself, and it refuses any archive that carries a data folder).
 * ``CyTools_MeshStudio-<version>-windows-x64.zip`` — the same tree under one top folder, plus
   what makes it start on a Windows machine with nothing installed: the launcher compiled from
   app/launcher.cpp, an embeddable CPython carrying the application's packages
@@ -186,11 +187,17 @@ def main():
     stage = stage_root / NAME
     stage.mkdir(parents=True)
 
-    # 1. the application: exactly the committed tree
-    app_zip = OUT / f'{NAME}-{version}-app.zip'
-    run(['git', 'archive', '--format=zip', '-o', app_zip, args.ref], cwd=ROOT)
-    with zipfile.ZipFile(app_zip) as bundle:
+    # 1. the committed tree, into the stage; and the update asset, which carries the app
+    #    folder and the guides but no data/ — the updater refuses an archive holding one,
+    #    since an update never replaces the user's data.
+    tree_zip = OUT / 'tree.zip'
+    run(['git', 'archive', '--format=zip', '-o', tree_zip, args.ref], cwd=ROOT)
+    with zipfile.ZipFile(tree_zip) as bundle:
         bundle.extractall(stage)
+    tree_zip.unlink()
+    app_zip = OUT / f'{NAME}-{version}-app.zip'
+    run(['git', 'archive', '--format=zip', '-o', app_zip, args.ref,
+         'app', 'LISEZ-MOI.md', 'README.md', 'LICENSE', f'{NAME}.sh'], cwd=ROOT)
     log(f'  {app_zip.name}: {app_zip.stat().st_size // 1024} KiB')
 
     # 2. the launcher

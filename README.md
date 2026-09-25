@@ -45,8 +45,9 @@ of gigabytes in all, from PyPI, GitHub and Hugging Face. What the archive is mad
 part with its URL and SHA-256 — is in `runtime/RELEASE.json` inside it; the archives are built
 by `app/scripts/build_release.py` from the tagged commit.
 
-The lighter `CyTools_MeshStudio-<version>-app.zip` is the committed tree alone: what an
-installed Tool downloads from its Updates tab.
+The lighter `CyTools_MeshStudio-<version>-app.zip` holds the `app/` folder and the guides of
+the commit, without `data/`: what an installed Tool downloads from its Updates tab, which
+replaces its `app/` folder and nothing else.
 
 ## From a clone
 

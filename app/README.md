@@ -36,9 +36,9 @@ tests/                forms, interactions, MCP, cancellation, updates
 ## Release archives
 
 `runtime\python\Scripts\python.exe app\scripts\build_release.py` builds, from a committed tree
-(`--ref`, default `HEAD`), the two archives a GitHub release carries: `-app.zip`, exactly
-`git archive` of the commit, which the Updates tab stages; and `-windows-x64.zip`, the same
-under a top folder plus the launcher compiled with MSVC, an embeddable CPython with the
+(`--ref`, default `HEAD`), the two archives a GitHub release carries: `-app.zip`, `git archive` of the commit restricted
+to `app/` and the guides (an archive holding `data/` is refused by the updater), which the
+Updates tab stages; and `-windows-x64.zip`, the whole committed tree under a top folder plus the launcher compiled with MSVC, an embeddable CPython with the
 application's packages, `uv` and the native programs, each pinned by URL and SHA-256 in the
 script and recorded in `runtime/RELEASE.json` inside the archive. Nothing from this machine's
 `runtime/` goes into them, and neither the engines nor the weights: what `.gitignore` keeps out
