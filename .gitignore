@@ -34,6 +34,9 @@ app/CyToolsGuide.md
 app/Docs/AgentGuide.md
 app/Docs/AgentPrompt.md
 
+# The SDK wheel a release carries: built by app/scripts/build_release.py, never committed.
+app/wheels/
+
 # Python
 __pycache__/
 *.py[cod]

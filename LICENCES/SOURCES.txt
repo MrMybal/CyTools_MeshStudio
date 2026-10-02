@@ -24,7 +24,8 @@ Guides  : in that repository, README.md, Docs/CreatingYourFirstCyTool.md,
           Docs/Licensing.md and Docs/UpdateExistingProducts.md. The documents under
           app/Docs that describe the SDK are copies of its own.
 Install : app/requirements.txt installs it from the repository, pinned to commit
-          a8d200f2d0baaade1633e0683663b4506c595f74.
+          a8d200f2d0baaade1633e0683663b4506c595f74. The release archives carry the wheel
+          built from that commit in app/wheels; its own copy of the licence is inside it.
 The MIT licence of the SDK does not change the licence of CyTools_MeshStudio itself.
 
 

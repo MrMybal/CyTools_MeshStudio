@@ -113,16 +113,20 @@ the `LICENCES` folder. The operations, the manifest schema, the protocol and `da
 unchanged, and 0.1.1 runs on either SDK.
 
 - **A fresh installation**: the 0.1.1 binary archive carries the SDK 0.10.1 and `LICENCES`.
-- **An existing binary installation**: the Updates tab replaces `app/` only. To move its
-  SDK too, run `runtime\python\python.exe -m pip install -r app\requirements.txt` from the
-  folder of the Tool. The `LICENCES` folder comes with the full archive; an update brings
-  the SDK's own notice as `app/LICENSE-CyToolsCore.txt`. Engine environments are not
-  relocatable: keep the folder rather than moving `runtime/engines` to a new one.
+- **An existing binary installation**: the Updates tab replaces `app/` only, and the Tool
+  keeps running on the SDK it was shipped with. To move its SDK too, install the wheel the
+  update brings, from the folder of the Tool:
+  `runtime\python\python.exe -m pip install --no-index --find-links app\wheels "cytools-core==0.10.1"`.
+  The embedded Python cannot build a package from source, which is why the wheel is shipped
+  and why `pip install -r app\requirements.txt` is for clones only. The `LICENCES` folder
+  comes with the full archive; an update brings the SDK's own notice as
+  `app/LICENSE-CyToolsCore.txt`. Engine environments are not relocatable: keep the folder
+  rather than moving `runtime/engines` to a new one.
 - **A clone**: `git pull`, then `runtime\python\Scripts\python.exe -m pip install -r app\requirements.txt`.
 - **Going back**: the Updates tab rolls `app/` back to the copy it kept under
-  `runtime/backups`; `pip install "cytools-core[mcp] @ https://github.com/MrMybal/CyToolsCore/archive/442f53740fc65f092e4abd6b4d8ccf70d391116a.zip"`
-  with the same interpreter restores the SDK 0.9.0; a clone goes back with `git checkout v0.1.0`.
-  Copies received under the earlier licence keep their terms.
+  `runtime/backups`; 0.1.0 runs on the SDK 0.10.1 too, so the SDK can stay. A clone goes back
+  with `git checkout v0.1.0` and the same `pip install -r`. Copies received under the earlier
+  licence keep their terms.
 
 ## Tests
 

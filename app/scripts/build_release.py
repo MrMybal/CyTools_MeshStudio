@@ -5,7 +5,8 @@
 Two archives land in runtime/build/release/, with their SHA-256 in SHA256SUMS.txt:
 
 * ``CyTools_MeshStudio-<version>-app.zip`` — ``git archive`` of the commit restricted to the
-  application folder and the guides, without ``data/``: the layout the Updates tab stages
+  application folder, the licence texts and the guides, without ``data/``, plus the SDK wheel
+  built from the source ``requirements.txt`` pins (``app/wheels``): the layout the Updates tab stages
   (the updater prefers the asset whose name says "app", so this is what an installed Tool
   downloads to update itself, and it refuses any archive that carries a data folder).
 * ``CyTools_MeshStudio-<version>-windows-x64.zip`` — the same tree under one top folder, plus
@@ -124,7 +125,35 @@ def build_launcher():
     return launcher
 
 
-def embed_python(stage, archive):
+def sdk_requirement(stage):
+    """The cytools-core line of the staged requirements: (extras, url of the pinned source)."""
+    for line in (stage / 'app' / 'requirements.txt').read_text('utf-8').splitlines():
+        if line.strip().lower().startswith('cytools-core'):
+            spec, _, url = line.partition('@')
+            extras = spec[spec.index('['):].strip() if '[' in spec else ''
+            return extras, url.strip()
+    raise SystemExit('app/requirements.txt names no cytools-core requirement.')
+
+
+def build_sdk_wheel(stage):
+    """The SDK wheel, built from the pinned source by the full interpreter running this script.
+
+    It goes into ``app/wheels`` of both archives: the embeddable distribution cannot build a
+    package from source, so neither the release nor an installation updated in place could
+    install the SDK from the source reference of ``requirements.txt``.
+    """
+    extras, url = sdk_requirement(stage)
+    folder = OUT / 'wheels'
+    shutil.rmtree(folder, ignore_errors=True)
+    folder.mkdir(parents=True)
+    run([sys.executable, '-m', 'pip', 'wheel', '--quiet', '--no-deps', '-w', folder, f'cytools-core @ {url}'])
+    wheels = sorted(folder.glob('cytools_core-*.whl'))
+    if len(wheels) != 1:
+        raise SystemExit(f'Expected one cytools-core wheel, found {[item.name for item in wheels]}.')
+    return wheels[0], extras
+
+
+def embed_python(stage, archive, wheel, extras):
     """The embeddable distribution, with pip and the application's packages."""
     target = stage / 'runtime' / 'python'
     with zipfile.ZipFile(archive) as bundle:
@@ -138,8 +167,16 @@ def embed_python(stage, archive):
     run([sys.executable, '-m', 'pip', 'install', '--quiet', '--no-warn-script-location',
          '--target', site_packages, f'pip=={PIP_VERSION}'])
     python = target / 'python.exe'
-    run([python, '-m', 'pip', 'install', '--quiet', '--no-warn-script-location',
-         '-r', stage / 'app' / 'requirements.txt'])
+    # The embeddable distribution cannot build from source: its ._pth file makes it ignore the
+    # PYTHONPATH pip's build environment relies on ("Cannot import setuptools.build_meta"). The
+    # SDK comes from the wheel built above; the other requirements are all published as wheels.
+    run([python, '-m', 'pip', 'install', '--quiet', '--no-warn-script-location', f'{wheel}{extras}'])
+    others = OUT / 'requirements-without-sdk.txt'
+    others.write_text('\n'.join(line for line in (stage / 'app' / 'requirements.txt').read_text('utf-8').splitlines()
+                                if not line.strip().lower().startswith('cytools-core')) + '\n', encoding='utf-8')
+    run([python, '-m', 'pip', 'install', '--quiet', '--no-warn-script-location', '--only-binary', ':all:',
+         '-r', others])
+    others.unlink()
     for cache in list(target.rglob('__pycache__')):
         shutil.rmtree(cache, ignore_errors=True)
     # The packages import, and the SDK inside the archive is the MIT one: changing a licence
@@ -154,7 +191,8 @@ def embed_python(stage, archive):
     if sdk_licence != 'MIT':
         raise SystemExit(f'The embedded cytools-core {sdk_version} does not declare the MIT licence '
                          f'({sdk_licence}); the archive would ship an older package.')
-    return {'name': 'cytools-core', 'version': sdk_version, 'license': sdk_licence}
+    return {'name': 'cytools-core', 'version': sdk_version, 'license': sdk_licence,
+            'wheel': f'app/wheels/{Path(wheel).name}'}
 
 
 def extract_into(archive, target, only=None):
@@ -212,7 +250,16 @@ def main():
     app_zip = OUT / f'{NAME}-{version}-app.zip'
     run(['git', 'archive', '--format=zip', '-o', app_zip, args.ref,
          'app', 'LICENCES', 'LISEZ-MOI.md', 'README.md', 'LICENSE', f'{NAME}.sh'], cwd=ROOT)
-    log(f'  {app_zip.name}: {app_zip.stat().st_size // 1024} KiB')
+    # The SDK wheel travels in app/wheels of both archives, so that an installation whose
+    # app/ folder is replaced by the Updates tab can install it without building or network.
+    built, extras = build_sdk_wheel(stage)
+    wheel = stage / 'app' / 'wheels' / built.name
+    wheel.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(built, wheel)
+    with zipfile.ZipFile(app_zip, 'a', zipfile.ZIP_DEFLATED) as bundle:
+        bundle.write(wheel, f'app/wheels/{wheel.name}')
+    shutil.rmtree(built.parent, ignore_errors=True)
+    log(f'  {app_zip.name}: {app_zip.stat().st_size // 1024} KiB, with {wheel.name}')
 
     # 2. the launcher
     launcher = (ROOT / f'{NAME}.exe') if args.skip_launcher else build_launcher()
@@ -220,7 +267,7 @@ def main():
 
     # 3. the third-party parts, pinned
     parts = {part['id']: fetch(part) for part in PARTS}
-    sdk = embed_python(stage, parts['python-embed'])
+    sdk = embed_python(stage, parts['python-embed'], wheel, extras)
     for part in PARTS:
         if part['id'] == 'python-embed':
             continue
