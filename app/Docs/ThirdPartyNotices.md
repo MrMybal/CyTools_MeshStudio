@@ -58,7 +58,8 @@ acceptance is shown by the Installation tab for the model concerned.
 
 Downloaded from their release pages by `app/scripts/build_release.py`, pinned by URL
 and SHA-256, and shipped in the `-windows-x64.zip` archive so that it starts on a
-machine with nothing installed. Not in the repository.
+machine with nothing installed. Not in the repository; their full licence texts are in
+the `LICENCES` folder, with their sources in `LICENCES/SOURCES.txt`.
 
 | Part | Origin | Licence |
 |---|---|---|
@@ -70,8 +71,10 @@ machine with nothing installed. Not in the repository.
 
 ## SDK and Python packages
 
-The Tool is built on the CyToolsCore SDK 0.9.0 (GPL-3.0-only,
+The Tool is built on the CyToolsCore SDK 0.10.1 (MIT,
 https://github.com/MrMybal/CyToolsCore), installed by `app/requirements.txt` from its
-repository. The application environment and each engine environment
+repository; its full licence text is `LICENCES/CyToolsCore-MIT.txt`, and the notice the
+scaffold writes is kept as `app/LICENSE-CyToolsCore.txt`. The application environment
+and each engine environment
 (`app/requirements-engine-*.txt`) are installed from PyPI and the PyTorch index; every
 package carries the licence declared on its own page.

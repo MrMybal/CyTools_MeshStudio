@@ -3,7 +3,7 @@
   "protocolVersion": "1.0",
   "id": "cy.tool.meshstudio",
   "name": "CyTools_MeshStudio",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Mesh studio: specialised operations (reconstruction, views, remesh, UV, PBR, rig, motion, editing) and complete workflows that chain them, in one standalone application usable through its interface, the CLI and MCP.",
   "vendor": "Cyberalien",
   "author": "Cyberalien",

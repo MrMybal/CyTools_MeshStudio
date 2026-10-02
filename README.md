@@ -18,7 +18,8 @@ never been run.
 ## What this repository contains, and what it does not
 
 The repository carries the application (`app/`), the shipped workflows and the small test
-fixtures (`data/workflows/`, `data/inputs/`), the user guide and the Linux launcher.
+fixtures (`data/workflows/`, `data/inputs/`), the user guide, the Linux launcher and the
+licence texts (`LICENSE`, `LICENCES/`).
 
 It does **not** carry:
 
@@ -58,8 +59,8 @@ that environment); steps 2 to 5 are the commands that were run here, not yet rep
 fresh clone on another machine.
 
 1. The application environment — CPython 3.12. `app/requirements.txt` installs the
-   [CyToolsCore](https://github.com/MrMybal/CyToolsCore) SDK (GPL-3.0) from its repository,
-   pinned to the commit its version 0.9.0 was built from, so `git` must be on the PATH:
+   [CyToolsCore](https://github.com/MrMybal/CyToolsCore) SDK 0.10.1 (MIT) from the archive of
+   a pinned commit of its repository; neither `git` nor a published wheel is needed:
 
 ```powershell
 py -3.12 -m venv runtime\python
@@ -105,6 +106,24 @@ The Updates tab reads the releases of this repository — `MrMybal/CyTools_MeshS
 in the manifest and changeable in the tab — stages one, activates it at the next start and can
 roll it back; `data/` is never replaced. No release is published yet.
 
+## Updating from 0.1.0, and going back
+
+0.1.1 moves the SDK from CyToolsCore 0.9.0 to 0.10.1, now under the MIT licence, and adds
+the `LICENCES` folder. The operations, the manifest schema, the protocol and `data/` are
+unchanged, and 0.1.1 runs on either SDK.
+
+- **A fresh installation**: the 0.1.1 binary archive carries the SDK 0.10.1 and `LICENCES`.
+- **An existing binary installation**: the Updates tab replaces `app/` only. To move its
+  SDK too, run `runtime\python\python.exe -m pip install -r app\requirements.txt` from the
+  folder of the Tool. The `LICENCES` folder comes with the full archive; an update brings
+  the SDK's own notice as `app/LICENSE-CyToolsCore.txt`. Engine environments are not
+  relocatable: keep the folder rather than moving `runtime/engines` to a new one.
+- **A clone**: `git pull`, then `runtime\python\Scripts\python.exe -m pip install -r app\requirements.txt`.
+- **Going back**: the Updates tab rolls `app/` back to the copy it kept under
+  `runtime/backups`; `pip install "cytools-core[mcp] @ https://github.com/MrMybal/CyToolsCore/archive/442f53740fc65f092e4abd6b4d8ccf70d391116a.zip"`
+  with the same interpreter restores the SDK 0.9.0; a clone goes back with `git checkout v0.1.0`.
+  Copies received under the earlier licence keep their terms.
+
 ## Tests
 
 ```powershell
@@ -125,9 +144,14 @@ Copyright (C) 2026 Cyberalien.
 
 CyTools_MeshStudio is distributed under the **GNU General Public License, version 3 only**
 (`GPL-3.0-only`); the full text is in [LICENSE](LICENSE). It is built on the
-[CyToolsCore](https://github.com/MrMybal/CyToolsCore) SDK, under the same licence.
+[CyToolsCore](https://github.com/MrMybal/CyToolsCore) SDK 0.10.1, which is under the MIT
+licence; the licence of the SDK does not change the licence of this program.
 
-You may redistribute and modify this program under the terms of that licence. It comes
+The [LICENCES](LICENCES) folder holds the full licence texts of what is shipped — the SDK
+and, for the Windows binary archive, Python, pip, uv, AutoRemesher and QuadWild — and
+[LICENCES/SOURCES.txt](LICENCES/SOURCES.txt) gives the source of each.
+
+You may redistribute and modify this program under the terms of its licence. It comes
 without any warranty, including the implied warranties of merchantability and fitness for a
 particular purpose.
 

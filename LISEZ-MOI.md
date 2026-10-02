@@ -175,6 +175,8 @@ runtime/python/Scripts/python.exe app/tool.py invoke install_model --params "{\"
 - `data/` : entrées, modèles, jobs, réglages, journaux, workflows, rapports.
 - `runtime/` : Python privé, moteurs, sources amont, binaires natifs, mises à jour préparées,
   sauvegardes, archives.
+- `LICENCES/` : textes complets des licences des composants livrés, et `SOURCES.txt` qui
+  donne la source de chacun.
 
 Les modèles occupent 60,7 Gio dans `data/models`. Aucune mise à jour ne remplace `data/`.
 Plusieurs poids sont sous licence non commerciale (Zero123++, Wonder3D, SyncDreamer,
@@ -207,14 +209,19 @@ Guide technique : `app/README.md`, `app/Docs/Architecture.md` et `app/Docs/Workf
 
 ## Licence
 
-Copyright (C) 2026 Cyberalien.
+Copyright (c) 2026 Cyberalien.
 
-CyTools_MeshStudio est distribué sous la **GNU General Public License, version 3 uniquement**
-(`GPL-3.0-only`). Voir le texte complet dans [LICENSE](LICENSE). Il repose sur le SDK
-[CyToolsCore](https://github.com/MrMybal/CyToolsCore), sous la même licence.
+CyTools_MeshStudio is distributed under the **GNU General Public License, version 3 only**
+(`GPL-3.0-only`); the full text is in [LICENSE](LICENSE). It is built on the
+[CyToolsCore](https://github.com/MrMybal/CyToolsCore) SDK 0.10.1, which is under the MIT
+licence; the licence of the SDK does not change the licence of this program.
 
-Vous pouvez redistribuer et modifier ce programme selon les termes de cette licence. Il est
-fourni sans aucune garantie, notamment sans garantie de qualité marchande ou d'adéquation à
-un usage particulier. Les moteurs, programmes natifs, dépendances et poids de modèles
-installés par l'application conservent leurs licences respectives, dont plusieurs sont non
-commerciales : la liste est dans `app/Docs/ThirdPartyNotices.md` et dans l'onglet Options.
+The `LICENCES` folder holds the full licence texts of what is shipped — the SDK and, in the
+Windows binary archive, Python, pip, uv, AutoRemesher and QuadWild — and
+`LICENCES/SOURCES.txt` gives the source of each.
+
+You may redistribute and modify this program under the terms of its licence. It comes
+without any warranty, including the implied warranties of merchantability and fitness for a
+particular purpose. The engines, the upstream sources and the model weights installed by the
+application keep their own licences, several of them non-commercial: they are listed in
+`app/Docs/ThirdPartyNotices.md` and in the Options tab.

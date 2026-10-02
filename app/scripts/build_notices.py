@@ -59,18 +59,22 @@ def main():
                      f'{_cell(model.get("license") or model.get("licence"))} | {"yes" if gated else "no"} |')
 
     try:
-        from importlib.metadata import version
-        sdk_version = version('cytools-core')
+        # The licence is read from the package actually installed, not written here: a
+        # notice must describe the SDK the Tool runs on, whatever a document says.
+        from importlib.metadata import metadata
+        sdk = metadata('cytools-core')
+        sdk_version, sdk_licence = sdk['Version'], sdk.get('License-Expression') or 'see its LICENSE'
     except Exception:  # noqa: BLE001 - the notices must build without the SDK installed
-        sdk_version = ''
-    records.insert(0, {'kind': 'SDK', 'name': f'CyToolsCore {sdk_version}'.strip(), 'license': 'GPL-3.0-only',
+        sdk_version, sdk_licence = '', 'see its LICENSE'
+    records.insert(0, {'kind': 'SDK', 'name': f'CyToolsCore {sdk_version}'.strip(), 'license': sdk_licence,
                        'url': 'https://github.com/MrMybal/CyToolsCore'})
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from build_release import PARTS, PIP_VERSION  # noqa: E402 - the pins live in one place
     lines += ['', '## Runtime of the Windows binary release', '',
               'Downloaded from their release pages by `app/scripts/build_release.py`, pinned by URL',
               'and SHA-256, and shipped in the `-windows-x64.zip` archive so that it starts on a',
-              'machine with nothing installed. Not in the repository.', '',
+              'machine with nothing installed. Not in the repository; their full licence texts are in',
+              'the `LICENCES` folder, with their sources in `LICENCES/SOURCES.txt`.', '',
               '| Part | Origin | Licence |', '|---|---|---|']
     for part in PARTS:
         lines.append(f'| {_cell(part["label"])} | {_cell(part["homepage"])} | {_cell(part["license"])} |')
@@ -78,9 +82,11 @@ def main():
                         'url': part['homepage']})
     lines.append(f'| pip {PIP_VERSION} | https://pip.pypa.io | MIT |')
     lines += ['', '## SDK and Python packages', '',
-              f'The Tool is built on the CyToolsCore SDK {sdk_version} (GPL-3.0-only,',
+              f'The Tool is built on the CyToolsCore SDK {sdk_version} ({sdk_licence},',
               'https://github.com/MrMybal/CyToolsCore), installed by `app/requirements.txt` from its',
-              'repository. The application environment and each engine environment',
+              'repository; its full licence text is `LICENCES/CyToolsCore-MIT.txt`, and the notice the',
+              'scaffold writes is kept as `app/LICENSE-CyToolsCore.txt`. The application environment',
+              'and each engine environment',
               '(`app/requirements-engine-*.txt`) are installed from PyPI and the PyTorch index; every',
               'package carries the licence declared on its own page.', '']
     OUT.write_text('\n'.join(lines), encoding='utf-8')

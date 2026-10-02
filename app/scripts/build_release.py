@@ -142,10 +142,19 @@ def embed_python(stage, archive):
          '-r', stage / 'app' / 'requirements.txt'])
     for cache in list(target.rglob('__pycache__')):
         shutil.rmtree(cache, ignore_errors=True)
+    # The packages import, and the SDK inside the archive is the MIT one: changing a licence
+    # file does not turn an older wheel into the new package, so the installed metadata is read.
     check = ('import cytools_core, imgui_bundle, moderngl, trimesh, numpy, PIL, mcp, gdown; '
-             'from importlib.metadata import version; print("cytools-core", version("cytools-core"))')
-    run([python, '-c', check])
-    return target
+             'from importlib.metadata import metadata; m = metadata("cytools-core"); '
+             'print(m["Version"] + "|" + str(m.get("License-Expression")))')
+    answer = subprocess.run([str(python), '-c', check], capture_output=True, text=True,
+                            check=True).stdout.strip()
+    sdk_version, sdk_licence = answer.split('|')
+    log(f'  embedded cytools-core {sdk_version}, License-Expression {sdk_licence}')
+    if sdk_licence != 'MIT':
+        raise SystemExit(f'The embedded cytools-core {sdk_version} does not declare the MIT licence '
+                         f'({sdk_licence}); the archive would ship an older package.')
+    return {'name': 'cytools-core', 'version': sdk_version, 'license': sdk_licence}
 
 
 def extract_into(archive, target, only=None):
@@ -196,9 +205,13 @@ def main():
     with zipfile.ZipFile(tree_zip) as bundle:
         bundle.extractall(stage)
     tree_zip.unlink()
+    for notice in ('LICENSE', 'LICENCES/SOURCES.txt', 'LICENCES/CyToolsCore-MIT.txt',
+                   'app/LICENSE-CyToolsCore.txt'):
+        if not (stage / notice).is_file():
+            raise SystemExit(f'{notice} is missing from the committed tree; a release ships its licences.')
     app_zip = OUT / f'{NAME}-{version}-app.zip'
     run(['git', 'archive', '--format=zip', '-o', app_zip, args.ref,
-         'app', 'LISEZ-MOI.md', 'README.md', 'LICENSE', f'{NAME}.sh'], cwd=ROOT)
+         'app', 'LICENCES', 'LISEZ-MOI.md', 'README.md', 'LICENSE', f'{NAME}.sh'], cwd=ROOT)
     log(f'  {app_zip.name}: {app_zip.stat().st_size // 1024} KiB')
 
     # 2. the launcher
@@ -207,7 +220,7 @@ def main():
 
     # 3. the third-party parts, pinned
     parts = {part['id']: fetch(part) for part in PARTS}
-    embed_python(stage, parts['python-embed'])
+    sdk = embed_python(stage, parts['python-embed'])
     for part in PARTS:
         if part['id'] == 'python-embed':
             continue
@@ -220,7 +233,8 @@ def main():
 
     # 4. what the archive is made of, kept inside it
     (stage / 'runtime' / 'RELEASE.json').write_text(json.dumps({
-        'name': NAME, 'version': version, 'commit': commit, 'pip': PIP_VERSION,
+        'name': NAME, 'version': version, 'commit': commit, 'pip': PIP_VERSION, 'sdk': sdk,
+        'licences': 'LICENCES/SOURCES.txt',
         'parts': [{key: part[key] for key in ('id', 'label', 'url', 'sha256', 'license', 'homepage')}
                   for part in PARTS]}, indent=2) + '\n', encoding='utf-8')
 

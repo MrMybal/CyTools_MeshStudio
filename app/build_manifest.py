@@ -28,7 +28,7 @@ TESTED = APP / 'platform-tested.json'
 
 TOOL_ID = 'cy.tool.meshstudio'
 TOOL_NAME = 'CyTools_MeshStudio'
-VERSION = '0.1.0'
+VERSION = '0.1.1'
 GiB = 1024 ** 3
 MiB = 1024 ** 2
 

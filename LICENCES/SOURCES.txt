@@ -1,0 +1,78 @@
+CyTools_MeshStudio - sources and licences of what is distributed
+================================================================
+
+This folder holds the full licence texts of the components shipped with the product.
+A link or a licence name does not replace a text: each one below is in this folder.
+
+
+CyTools_MeshStudio
+------------------
+Licence : GNU General Public License, version 3 only (GPL-3.0-only).
+Text    : LICENSE, at the root of the product.
+Source  : https://github.com/MrMybal/CyTools_MeshStudio
+Copyright (c) 2026 Cyberalien.
+
+
+CyToolsCore SDK 0.10.1
+----------------------
+The runtime, the scheduler, the transports (CLI, MCP) and the scaffold files in app/.
+Licence : MIT. Copyright (c) 2026 Cyberalien.
+Text    : LICENCES/CyToolsCore-MIT.txt (the same notice is kept as
+          app/LICENSE-CyToolsCore.txt, where the scaffold writes it).
+Source  : https://github.com/MrMybal/CyToolsCore
+Guides  : in that repository, README.md, Docs/CreatingYourFirstCyTool.md,
+          Docs/Licensing.md and Docs/UpdateExistingProducts.md. The documents under
+          app/Docs that describe the SDK are copies of its own.
+Install : app/requirements.txt installs it from the repository, pinned to commit
+          a8d200f2d0baaade1633e0683663b4506c595f74.
+The MIT licence of the SDK does not change the licence of CyTools_MeshStudio itself.
+
+
+Parts shipped only in the Windows binary archive
+------------------------------------------------
+CyTools_MeshStudio-<version>-windows-x64.zip adds the parts below to the application.
+Their exact download URLs and SHA-256 are in runtime/RELEASE.json inside the archive.
+
+CPython 3.12.10, embeddable distribution
+  Licence : PSF-2.0.
+  Text    : LICENCES/Python-3.12-PSF.txt (also runtime/python/LICENSE.txt).
+  Source  : https://www.python.org/downloads/release/python-31210/
+
+pip 26.2.1
+  Licence : MIT.
+  Text    : LICENCES/pip-MIT.txt
+  Source  : https://github.com/pypa/pip
+
+Python packages of the application (runtime/python/Lib/site-packages)
+  Each package keeps its own licence in its *.dist-info folder; the Options tab of the
+  application lists them with their licence.
+
+uv 0.12.19
+  Licence : MIT OR Apache-2.0.
+  Texts   : LICENCES/uv-MIT.txt and LICENCES/uv-Apache-2.0.txt
+  Source  : https://github.com/astral-sh/uv
+
+AutoRemesher 1.2.0
+  Licence : MIT.
+  Text    : LICENCES/AutoRemesher-MIT.txt
+  Source  : https://github.com/huxingyi/autoremesher
+  The upstream Windows archive is redistributed unmodified. It bundles third-party
+  libraries as its author packaged them: Qt 5, ANGLE, Intel TBB, the software OpenGL
+  library shipped with Qt, and Microsoft runtime libraries, each under its own terms.
+  Qt is distributed under the GNU Lesser General Public License, version 3
+  (LICENCES/Qt-LGPL-3.0.txt, which refers to the GPL text in LICENSE); its sources are
+  at https://download.qt.io/archive/qt/
+
+QuadWild Bi-MDF v0.0.2
+  Licence : GPL-3.0.
+  Text    : LICENCES/QuadWild-BiMDF-GPL-3.0.txt
+  Source  : https://github.com/cgg-bern/quadwild-bimdf (tag v0.0.2)
+  The upstream Windows binaries are redistributed unmodified.
+
+
+Not distributed with the product
+--------------------------------
+The engine environments, the upstream sources they run and the model weights are fetched
+by the application at installation, each under its own licence, several of them
+non-commercial or subject to a personal acceptance. They are listed in
+app/Docs/ThirdPartyNotices.md and shown in the Installation and Options tabs.

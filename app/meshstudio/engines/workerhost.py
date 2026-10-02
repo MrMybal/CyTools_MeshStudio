@@ -289,13 +289,24 @@ class WorkerHost:
                     try:
                         progress(message)
                     except CyToolError:
+                        # Reporting on a cancelled job raises (JobContext.progress checks the
+                        # cancellation first). The worker is still computing: leaving this loop
+                        # without stopping it let the native program run on behind a job already
+                        # marked Cancelled, its reservation released under it.
+                        self.kill()
                         raise
                     except Exception:
                         pass
                 continue
             if event == 'log':
                 if log:
-                    log(message.get('message', ''), message.get('level', 'Info'))
+                    try:
+                        log(message.get('message', ''), message.get('level', 'Info'))
+                    except CyToolError:
+                        self.kill()             # same hazard as above
+                        raise
+                    except Exception:
+                        pass
                 continue
             if event == 'resident':
                 self.resident = message.get('resident') or {}

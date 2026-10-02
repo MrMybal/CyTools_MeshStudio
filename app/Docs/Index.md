@@ -3,6 +3,7 @@
 ## Pour créer un Tool
 
 - [Premier CyTool](CreatingYourFirstCyTool.md) : installation et commandes.
+- [Licence MIT et redistribution](Licensing.md).
 
 ## Standard et architecture
 

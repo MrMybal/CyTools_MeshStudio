@@ -7,8 +7,9 @@ What the repository carries and how to rebuild `runtime/` from a clone is in `..
 `data/reports/` is not versioned. The licences of everything fetched at installation are in
 `Docs/ThirdPartyNotices.md` (`scripts/build_notices.py`).
 
-Built on the [CyToolsCore](https://github.com/MrMybal/CyToolsCore) SDK 0.9.0 (GPL-3.0),
-installed by `requirements.txt` from its repository. The application process only validates, schedules and
+Built on the [CyToolsCore](https://github.com/MrMybal/CyToolsCore) SDK 0.10.1 (MIT),
+installed by `requirements.txt` from a pinned commit of its repository; its licence text is
+`../LICENCES/CyToolsCore-MIT.txt` and the scaffold's notice `LICENSE-CyToolsCore.txt`. The application process only validates, schedules and
 reports: every model and every native program runs in a worker started with the interpreter of
 its engine (`engines.json`). There is one `Runtime` behind the interface, the CLI and MCP.
 
