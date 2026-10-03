@@ -91,3 +91,8 @@ operations: the CLI defaults to 300 s, while the interface submits without a dea
   when a licence must be accepted in person. No operation pretends.
 * `data/` is never replaced by an update, and weights are never deleted to tidy up.
 * The Core is not modified: what is missing from the SDK is implemented here, in the Tool.
+
+
+## Application icon
+
+The logo source is assets/branding/logo.png. build_icon.ps1 derives the 16-256 px Windows ICO and assets/app_settings/icon.png for Hello ImGui. build_launcher.ps1 embeds the ICO in the launcher. branding.py selects assets independently of the working directory and assigns this Tool its own Windows taskbar identity.

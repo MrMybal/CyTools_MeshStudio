@@ -15,3 +15,4 @@
 # Git's own files are not part of a release archive.
 .gitignore export-ignore
 .gitattributes export-ignore
+*.ico binary

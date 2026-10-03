@@ -1,5 +1,9 @@
 # CyTools_MeshStudio
 
+<p align="center">
+  <img src="app/assets/branding/logo.png" alt="CyTools MeshStudio logo" width="160">
+</p>
+
 Maintenance: **Cyberalien**.
 
 One desktop Tool for meshes: reconstruction from pictures (LocalMesh / TRELLIS.2, Hi3DGen,

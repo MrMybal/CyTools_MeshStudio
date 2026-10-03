@@ -163,6 +163,8 @@ class App:
 def main():
     paths.ensure_data_layout()
     manifest = load_manifest(APP / 'CyTool.json')
+    from branding import configure as configure_branding
+    configure_branding('Cyberalien.CyTools_MeshStudio')
     runner = hello_imgui.RunnerParams()
     runner.app_window_params.window_title = 'CyTools_MeshStudio'
     runner.app_window_params.window_geometry.size = (1280, 840)
