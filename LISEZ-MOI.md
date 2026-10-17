@@ -24,7 +24,12 @@ l'onglet **Installation** (plusieurs dizaines de Go au total).
 Sous Linux, `CyTools_MeshStudio.sh` lance la même interface, mais rien n'a été exécuté sur
 Linux ici : voir les limites en fin de fichier.
 
-## Les onglets
+## Les pages
+
+Depuis la 0.1.2, les pages s'ouvrent depuis la barre latérale, en deux groupes : « Espace de
+travail » (Outils, Workflows, Vue 3D) et « Système » (Installation, Mises à jour, Journal,
+Opérations avancées, Options). La barre d'état, en bas, montre la tâche en cours ou la
+dernière erreur. Les listes d'outils, de workflows et de modèles ont un champ de recherche.
 
 - **Outils** : les 40 opérations, rangées par usage (Reconstruction, Vues, Topologie, UV,
   Texturation, Édition, Inspection, Rig, Mouvement, Workflow, Maintenance). Chaque opération a
@@ -44,8 +49,9 @@ Linux ici : voir les limites en fin de fichier.
   jamais touché.
 - **Vue 3D** : le résultat s'y ouvre automatiquement ; caméra orbitale ou libre, scènes et
   éclairages.
-- **Journal de l'application**, **Opérations avancées** et **Options** (langue, thème,
-  taille du texte, licences, sauvegarde et rechargement de la configuration).
+- **Journal de l'application**, **Opérations avancées** et **Options** (langue, thème parmi
+  les cinq de CyUI, densité compacte ou confortable, taille du texte, licences, sauvegarde et
+  rechargement de la configuration).
 
 ## Ce qui a été réellement exécuté ici
 

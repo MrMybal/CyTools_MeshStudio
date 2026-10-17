@@ -108,7 +108,16 @@ Then double-click `CyTools_MeshStudio.exe`, or run `runtime\python\Scripts\pytho
 
 The Updates tab reads the releases of this repository — `MrMybal/CyTools_MeshStudio`, declared
 in the manifest and changeable in the tab — stages one, activates it at the next start and can
-roll it back; `data/` is never replaced. No release is published yet.
+roll it back; `data/` is never replaced.
+
+## 0.1.2: the interface
+
+0.1.2 redraws the desktop interface with CyUI, Cyberalien's Dear ImGui library: a sidebar
+replaces the tabs, the tool and workflow lists have a search field, forms are property tables
+with one primary action, and Options offer five themes and two densities. The operations, the
+manifest schema, the CLI, MCP and `data/` are unchanged, and so is the SDK (CyToolsCore 0.10.1):
+an installation in 0.1.1 updates from the Updates page with nothing else to install. A former
+theme preference is mapped to the nearest new theme.
 
 ## Updating from 0.1.0, and going back
 
