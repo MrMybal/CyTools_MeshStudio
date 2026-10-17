@@ -244,7 +244,7 @@ def main():
         bundle.extractall(stage)
     tree_zip.unlink()
     for notice in ('LICENSE', 'LICENCES/SOURCES.txt', 'LICENCES/CyToolsCore-MIT.txt',
-                   'app/LICENSE-CyToolsCore.txt'):
+                   'app/LICENSE-CyToolsCore.txt', 'LICENCES/CyUI-MIT.txt'):
         if not (stage / notice).is_file():
             raise SystemExit(f'{notice} is missing from the committed tree; a release ships its licences.')
     app_zip = OUT / f'{NAME}-{version}-app.zip'

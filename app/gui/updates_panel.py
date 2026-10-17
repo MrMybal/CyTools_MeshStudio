@@ -1,8 +1,8 @@
-"""The Updates tab: the three streams, and what can be done with each.
+"""The Updates page: the three streams, and what can be done with each.
 
 The application is a GitHub release of the ``app`` folder: check, stage, verify, activate at the
 next start, roll back. The engines are rebuilt from the revisions pinned in ``app/engines.json``
-by the Installation tab, and the weights follow their own catalogue, so those two streams are
+by the Installation page, and the weights follow their own catalogue, so those two streams are
 reported here but acted on there. No button in this panel touches ``data/``.
 
 Everything goes through the same operations as the CLI and MCP: ``update_status``,
@@ -10,6 +10,7 @@ Everything goes through the same operations as the CLI and MCP: ``update_status`
 """
 from imgui_bundle import imgui
 
+import cyui
 from gui import widgets
 
 
@@ -53,22 +54,24 @@ class UpdatesPanel:
         if not self.loaded:
             self.refresh()
         tr = self.app.tr
-        imgui.text_wrapped(tr(
+        cyui.panel_header(tr('Updates'), tr(
             'The application, the engines and the model weights are three separate streams. '
             'They have their own versions and their own licences, and an update never replaces '
             'the data folder.'))
-        if imgui.button(tr('Refresh')):
+        imgui.same_line()
+        cyui.align_right(cyui.button_width(widgets.action('Refresh', cyui.icon.refresh, tr)))
+        if cyui.button(widgets.action('Refresh', cyui.icon.refresh, tr), 'ghost'):
             self.refresh()
         if self.error:
-            widgets.status_line(self.error, error=True)
+            cyui.callout('error', self.error)
         if self.message:
-            widgets.status_line(self.message)
-        imgui.separator()
+            cyui.callout('success', self.message)
+        cyui.space(6.0)
 
         self._draw_application()
-        imgui.separator()
+        cyui.space(8.0)
         self._draw_engines()
-        imgui.separator()
+        cyui.space(8.0)
         self._draw_models()
 
     # ------------------------------------------------------------ application
@@ -77,93 +80,113 @@ class UpdatesPanel:
         application = self.status.get('application') or {}
         busy = self.app.jobs.is_running('check_update', 'stage_update', 'activate_update',
                                         'rollback_update')
-        imgui.text(f"{tr('Application')}  —  {tr('version')} {application.get('version', '?')}")
-        imgui.indent()
-
-        imgui.set_next_item_width(420.0)
-        changed, value = imgui.input_text(tr('GitHub repository (owner/name)'), self.repository)
-        if changed:
-            self.repository = value
-        changed, value = imgui.checkbox(tr('Check automatically at start'), self.auto_check)
-        if changed:
-            self.auto_check = value
-        imgui.begin_disabled(busy)
-        if imgui.button(tr('Check for an update')):
-            self._submit('check_update',
-                         {'stream': 'application', 'repository': self.repository.strip()},
-                         'check_update')
-        imgui.end_disabled()
-        if not self.repository.strip():
-            imgui.same_line()
-            imgui.text_disabled(tr('No repository configured for this Tool yet.'))
-
         report = (self.check or {}).get('report') or {}
-        if report:
-            latest = report.get('latest') or tr('unknown')
-            if report.get('newer'):
-                imgui.text_colored((0.45, 0.85, 0.55, 1.0),
-                                   f"{tr('Release available')}: {latest}")
-                if report.get('asset') and imgui.small_button(tr('Stage this release')):
+        newer = bool(report.get('newer'))
+        if cyui.begin_card('##application-stream', '', 0.0, 'accent' if newer else 'neutral'):
+            cyui.heading(tr('Application'), 3)
+            imgui.same_line()
+            cyui.badge(f"{tr('version')} {application.get('version', '?')}".upper())
+            if newer:
+                imgui.same_line()
+                cyui.badge(f"{tr('Release available')}: {report.get('latest', '')}".upper(), 'success')
+            cyui.space(4.0)
+            if cyui.begin_properties('##application-source'):
+                cyui.property(tr('GitHub repository (owner/name)'),
+                              tr('Where the releases are read from; the manifest declares it.'))
+                changed, value = imgui.input_text_with_hint('##repository', tr('No repository configured for this Tool yet.'),
+                                                            self.repository)
+                if changed:
+                    self.repository = value
+                cyui.property(tr('Check automatically at start'))
+                changed, value = cyui.toggle_switch('##auto-check', self.auto_check)
+                if changed:
+                    self.auto_check = value
+                cyui.end_properties()
+            imgui.begin_disabled(busy)
+            check = widgets.action('Check for an update', cyui.icon.sync, tr)
+            if (cyui.button(check) if newer else cyui.primary_button(check)):
+                self._submit('check_update',
+                             {'stream': 'application', 'repository': self.repository.strip()},
+                             'check_update')
+            imgui.end_disabled()
+            if report:
+                if newer and report.get('asset'):
+                    imgui.same_line()
+                    imgui.begin_disabled(busy)
+                    if cyui.primary_button(widgets.action('Stage this release', cyui.icon.download, tr)):
+                        self._submit('stage_update',
+                                     {'source': report['asset'], 'version': str(report.get('latest', ''))},
+                                     'stage_update')
+                    imgui.end_disabled()
+                elif not newer:
+                    imgui.same_line()
+                    imgui.align_text_to_frame_padding()
+                    cyui.text_dim(f"{tr('Latest release')}: {report.get('latest') or tr('unknown')}")
+                if report.get('message'):
+                    cyui.space(2.0)
+                    cyui.callout('info' if report.get('configured', True) else 'warning', str(report['message']))
+                if report.get('notes'):
+                    cyui.space(2.0)
+                    imgui.push_text_wrap_pos(0.0)
+                    cyui.text_dim(str(report['notes'])[:600])
+                    imgui.pop_text_wrap_pos()
+
+            for job in self.app.jobs.running('check_update', 'stage_update'):
+                widgets.progress(job, self.app.jobs)
+                imgui.push_id('cancel-update-' + job['jobId'])
+                if cyui.button(widgets.action('Cancel', cyui.icon.stop, tr)):
+                    self.app.jobs.cancel(job['jobId'])
+                imgui.pop_id()
+
+            cyui.space(4.0)
+            if cyui.begin_section(tr('Stage a release by hand') + '###manual-stage', False):
+                cyui.text_faint(tr('Staging only unpacks and verifies; nothing is replaced.'))
+                if cyui.begin_properties('##manual-stage-fields'):
+                    cyui.property(tr('Release archive (URL or local .zip)'))
+                    imgui.set_next_item_width(max(cyui.dp(80.0), imgui.get_content_region_avail().x
+                                                  - imgui.get_frame_height() - cyui.dp(6.0)))
+                    changed, value = imgui.input_text('##archive', self.source)
+                    if changed:
+                        self.source = value
+                    imgui.same_line(0.0, cyui.dp(4.0))
+                    if cyui.icon_button(cyui.icon.folder, tr('Choose a file...')):
+                        self.app.dialogs.open_file('update-archive', tr('Choose the release archive'),
+                                                   filters=['Zip', '*.zip', 'All files', '*'])
+                    cyui.property(tr('Expected SHA-256 (optional)'))
+                    changed, value = imgui.input_text('##sha256', self.sha256)
+                    if changed:
+                        self.sha256 = value
+                    cyui.end_properties()
+                imgui.begin_disabled(busy or not self.source.strip())
+                if cyui.button(widgets.action('Stage', cyui.icon.download, tr)):
                     self._submit('stage_update',
-                                 {'source': report['asset'], 'version': str(latest)},
+                                 {'source': self.source.strip(), 'sha256': self.sha256.strip()},
                                  'stage_update')
-            else:
-                imgui.text_disabled(f"{tr('Latest release')}: {latest}")
-            if report.get('message'):
-                widgets.status_line(str(report['message']), error=not report.get('configured', True))
-            if report.get('notes'):
-                imgui.text_wrapped(str(report['notes'])[:600])
+                imgui.end_disabled()
+                cyui.end_section()
 
-        # Staging by hand: a file someone downloaded, or any direct URL.
-        imgui.set_next_item_width(420.0)
-        changed, value = imgui.input_text(tr('Release archive (URL or local .zip)'), self.source)
-        if changed:
-            self.source = value
-        imgui.same_line()
-        if imgui.button(tr('Choose a file...')):
-            self.app.dialogs.open_file('update-archive', tr('Choose the release archive'),
-                                       filters=['Zip', '*.zip', 'All files', '*'])
-        imgui.set_next_item_width(420.0)
-        changed, value = imgui.input_text(tr('Expected SHA-256 (optional)'), self.sha256)
-        if changed:
-            self.sha256 = value
-        imgui.begin_disabled(busy or not self.source.strip())
-        if imgui.button(tr('Stage')):
-            self._submit('stage_update',
-                         {'source': self.source.strip(), 'sha256': self.sha256.strip()},
-                         'stage_update')
-        imgui.end_disabled()
-        imgui.same_line()
-        imgui.text_disabled(tr('Staging only unpacks and verifies; nothing is replaced.'))
-
-        for job in self.app.jobs.running('check_update', 'stage_update'):
-            progress = job.get('progress') or {}
-            imgui.progress_bar(float(progress.get('percent', 0.0)) / 100.0, (-1, 0),
-                               self.app.jobs.progress_text(job))
-            imgui.push_id('cancel-update-' + job['jobId'])
-            if imgui.button(tr('Cancel')):
-                self.app.jobs.cancel(job['jobId'])
-            imgui.pop_id()
-
-        self._draw_staged(busy)
-        self._draw_pending(busy)
-        self._draw_backups(busy)
-        imgui.unindent()
+            self._draw_staged(busy)
+            self._draw_pending(busy)
+            self._draw_backups(busy)
+        cyui.end_card()
 
     def _draw_staged(self, busy):
         tr = self.app.tr
         staged = self.status.get('staged') or []
         if not staged:
             return
-        imgui.text(tr('Staged, waiting for your decision'))
+        cyui.space(4.0)
+        cyui.section_title(tr('Staged, waiting for your decision'))
         for entry in staged:
             imgui.push_id('staged-' + entry['path'])
-            imgui.bullet_text(f"{entry.get('version', '?')}  ({entry.get('files', 0)} "
-                              f"{tr('files')}, {tr('staged on')} {entry.get('stagedAt', '')})")
-            if imgui.is_item_hovered():
-                imgui.set_tooltip(f"{entry['path']}\nSHA-256 {entry.get('sha256', '')}")
+            imgui.align_text_to_frame_padding()
+            imgui.text_unformatted(f"{entry.get('version', '?')}")
+            imgui.same_line()
+            cyui.text_dim(f"{entry.get('files', 0)} {tr('files')}, {tr('staged on')} {entry.get('stagedAt', '')}")
+            cyui.tooltip(f"{entry['path']}\nSHA-256 {entry.get('sha256', '')}")
+            imgui.same_line()
             imgui.begin_disabled(busy)
-            if imgui.small_button(tr('Activate at next start')):
+            if cyui.primary_button(tr('Activate at next start')):
                 self._submit('activate_update', {'staged': entry['path']}, 'activate_update')
             imgui.end_disabled()
             imgui.pop_id()
@@ -173,11 +196,11 @@ class UpdatesPanel:
         pending = self.status.get('pending')
         if not pending:
             return
-        imgui.text_colored((0.95, 0.75, 0.35, 1.0),
-                           f"{tr('Waiting for a restart')}: {pending.get('mode', '')} "
-                           f"{pending.get('fromVersion', '')} -> {pending.get('version', '')}")
+        cyui.space(4.0)
+        cyui.callout('warning', f"{tr('Waiting for a restart')}: {pending.get('mode', '')} "
+                                f"{pending.get('fromVersion', '')} -> {pending.get('version', '')}")
         imgui.begin_disabled(busy)
-        if imgui.small_button(tr('Cancel this change')):
+        if cyui.button(tr('Cancel this change'), 'ghost'):
             self._submit('rollback_update', {'cancel': True}, 'cancel pending update')
         imgui.end_disabled()
 
@@ -186,18 +209,23 @@ class UpdatesPanel:
         backups = self.status.get('backups') or []
         applied = self.status.get('lastApplied')
         if applied:
-            imgui.text_disabled(f"{tr('Last applied')}: {applied.get('fromVersion', '')} -> "
-                                f"{applied.get('newVersion', '')} ({applied.get('appliedAt', '')})")
+            cyui.space(4.0)
+            cyui.text_faint(f"{tr('Last applied')}: {applied.get('fromVersion', '')} -> "
+                            f"{applied.get('newVersion', '')} ({applied.get('appliedAt', '')})")
         if not backups:
             return
-        imgui.text(tr('Backups kept'))
+        cyui.space(4.0)
+        cyui.section_title(tr('Backups kept'))
         for entry in backups:
             imgui.push_id('backup-' + entry['path'])
-            imgui.bullet_text(f"{entry.get('version', '?')}  ({entry.get('savedAt', '')})")
-            if imgui.is_item_hovered():
-                imgui.set_tooltip(entry['path'])
+            imgui.align_text_to_frame_padding()
+            imgui.text_unformatted(f"{entry.get('version', '?')}")
+            imgui.same_line()
+            cyui.text_dim(entry.get('savedAt', ''))
+            cyui.tooltip(entry['path'])
+            imgui.same_line()
             imgui.begin_disabled(busy)
-            if imgui.small_button(tr('Restore this one at next start')):
+            if cyui.button(tr('Restore this one at next start'), 'ghost', small=True):
                 self._submit('rollback_update', {'backup': entry['path']}, 'rollback_update')
             imgui.end_disabled()
             imgui.pop_id()
@@ -205,35 +233,50 @@ class UpdatesPanel:
     # ---------------------------------------------------------------- engines
     def _draw_engines(self):
         tr = self.app.tr
-        imgui.text(tr('Engines'))
-        imgui.indent()
-        imgui.text_wrapped(tr(
-            'Each engine pins the upstream revision it was built against, in app/engines.json. '
-            'Reinstalling an engine from the Installation tab checks out that exact revision.'))
-        for entry in self.status.get('engines') or []:
-            state = tr('installed') if entry.get('installed') else tr('not installed')
-            imgui.bullet_text(f"{entry.get('engine', '')} — {state}")
-            sources = entry.get('sources') or {}
-            if sources and imgui.is_item_hovered():
-                imgui.set_tooltip('\n'.join(f'{key}: {value}' for key, value in sources.items()))
-        if imgui.button(tr('Open the Installation tab')):
-            self.app.select_tab('Installation')
-        imgui.unindent()
+        engines = self.status.get('engines') or []
+        installed = sum(1 for entry in engines if entry.get('installed'))
+        if cyui.begin_card('##engine-stream'):
+            cyui.heading(tr('Engines'), 3)
+            imgui.same_line()
+            cyui.badge(f"{installed}/{len(engines)} {tr('installed')}".upper())
+            imgui.push_text_wrap_pos(0.0)
+            cyui.text_dim(tr(
+                'Each engine pins the upstream revision it was built against, in app/engines.json. '
+                'Reinstalling an engine from the Installation tab checks out that exact revision.'))
+            imgui.pop_text_wrap_pos()
+            cyui.space(2.0)
+            for entry in engines:
+                cyui.status_dot(cyui.palette().success if entry.get('installed') else cyui.palette().textFaint)
+                imgui.same_line(0.0, cyui.dp(4.0))
+                imgui.text_unformatted(entry.get('engine', ''))
+                sources = entry.get('sources') or {}
+                if sources:
+                    cyui.tooltip('\n'.join(f'{key}: {value}' for key, value in sources.items()))
+            cyui.space(2.0)
+            if cyui.button(widgets.action('Open the Installation tab', cyui.icon.download, tr), 'ghost'):
+                self.app.select_tab('Installation')
+        cyui.end_card()
 
     # ----------------------------------------------------------------- models
     def _draw_models(self):
         tr = self.app.tr
         models = self.status.get('models') or []
         installed = sum(1 for item in models if item.get('installed'))
-        imgui.text(f"{tr('Model weights')}  —  {installed}/{len(models)} {tr('installed')}")
-        imgui.indent()
-        imgui.text_wrapped(tr(
-            'Weights follow their own catalogue (app/models/catalog.json) with their revision and '
-            'their licence; see the Installation tab.'))
-        pending = [item for item in models if not item.get('installed') and item.get('installable')]
-        for item in pending:
-            imgui.bullet_text(f"{item['id']}: {tr('can be installed')}")
-        imgui.unindent()
+        if cyui.begin_card('##model-stream'):
+            cyui.heading(tr('Model weights'), 3)
+            imgui.same_line()
+            cyui.badge(f"{installed}/{len(models)} {tr('installed')}".upper())
+            imgui.push_text_wrap_pos(0.0)
+            cyui.text_dim(tr(
+                'Weights follow their own catalogue (app/models/catalog.json) with their revision and '
+                'their licence; see the Installation tab.'))
+            imgui.pop_text_wrap_pos()
+            pending = [item for item in models if not item.get('installed') and item.get('installable')]
+            for item in pending:
+                cyui.status_dot(cyui.palette().info)
+                imgui.same_line(0.0, cyui.dp(4.0))
+                imgui.text_unformatted(f"{item['id']}: {tr('can be installed')}")
+        cyui.end_card()
 
     # ---------------------------------------------------------------- dialogs
     def accept_dialog(self, purpose, result):

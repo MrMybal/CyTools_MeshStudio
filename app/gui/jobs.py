@@ -16,6 +16,22 @@ class Jobs:
         self.last_poll = 0.0
 
     @staticmethod
+    def _tr(text):
+        try:
+            from ui_common import tr
+            return tr(text)
+        except Exception:  # noqa: BLE001 - outside the interface, English
+            return text
+
+    def _notify(self, text, tone):
+        """A toast for the end of a job the user started, unless it was a quick catalogue call."""
+        try:
+            import cyui
+            cyui.notify(text, tone)
+        except Exception:  # noqa: BLE001 - no interface, no toast
+            pass
+
+    @staticmethod
     def _explain(operation, parameters, exc):
         """The refusal as the user can act on it: the SDK's "Source file unavailable to the Tool
         process" does not say which file, so the paths that do not exist are named."""
@@ -40,7 +56,7 @@ class Jobs:
             return None
         self.active[job['jobId']] = {'operation': operation, 'callback': callback, 'label': label or operation, 'job': job, 'started': time.time()}
         self.error = ''
-        self.message = 'Submitted ' + (label or operation)
+        self.message = self._tr('Submitted') + ' ' + (label or operation)
         return job
 
     def poll(self):
@@ -65,10 +81,13 @@ class Jobs:
                     self.error = self._explain(
                         entry['label'], job.get('parameters'),
                         CyToolError(error.get('code', 'Failed'), error.get('message', '')))
+                    self._notify(f"{entry['label']}: {self._tr('failed')}", 'error')
                 elif job['state'] == 'Cancelled':
-                    self.message = entry['label'] + ' cancelled'
+                    self.message = entry['label'] + ' ' + self._tr('cancelled')
+                    self._notify(self.message, 'warning')
                 else:
-                    self.message = entry['label'] + ' completed'
+                    self.message = entry['label'] + ' ' + self._tr('completed')
+                    self._notify(self.message, 'success')
                 if entry['callback']:
                     try:
                         entry['callback'](job)

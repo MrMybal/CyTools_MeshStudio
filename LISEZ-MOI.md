@@ -214,10 +214,11 @@ Copyright (c) 2026 Cyberalien.
 CyTools_MeshStudio is distributed under the **GNU General Public License, version 3 only**
 (`GPL-3.0-only`); the full text is in [LICENSE](LICENSE). It is built on the
 [CyToolsCore](https://github.com/MrMybal/CyToolsCore) SDK 0.10.1, which is under the MIT
-licence; the licence of the SDK does not change the licence of this program.
+licence, and its interface is drawn with CyUI, Cyberalien's Dear ImGui library, also under
+the MIT licence; neither changes the licence of this program.
 
-The `LICENCES` folder holds the full licence texts of what is shipped — the SDK and, in the
-Windows binary archive, Python, pip, uv, AutoRemesher and QuadWild — and
+The `LICENCES` folder holds the full licence texts of what is shipped — the SDK, CyUI and, in
+the Windows binary archive, Python, pip, uv, AutoRemesher and QuadWild — and
 `LICENCES/SOURCES.txt` gives the source of each.
 
 You may redistribute and modify this program under the terms of its licence. It comes

@@ -863,6 +863,10 @@
   "en": "A version is staged (",
   "fr": "Une version est preparee ("
  },
+ "ACCEPTANCE": {
+  "en": "ACCEPTANCE",
+  "fr": "ACCEPTATION"
+ },
  "ACE-Step engine": {
   "en": "ACE-Step engine",
   "fr": "Moteur ACE-Step"
@@ -1031,6 +1035,10 @@
   "en": "Additional views of the same subject.",
   "fr": "Vues supplémentaires du même sujet."
  },
+ "Address copied to the clipboard": {
+  "en": "Address copied to the clipboard",
+  "fr": "Adresse copiée dans le presse-papiers"
+ },
  "Adherence au texte": {
   "en": "Text adherence",
   "fr": "Adherence au texte"
@@ -1107,6 +1115,10 @@
   "en": "All declared parameters are available here. This JSON takes precedence over the simplified form and model preferences.",
   "fr": "Tous les paramètres déclarés sont disponibles ici. Ce JSON est prioritaire sur le formulaire simplifié et les préférences de modèle."
  },
+ "All families": {
+  "en": "All families",
+  "fr": "Toutes les familles"
+ },
  "All files together, as the views of one subject": {
   "en": "All files together, as the views of one subject",
   "fr": "Tous les fichiers ensemble, comme les vues d'un même sujet"
@@ -1146,6 +1158,10 @@
  "Also write lossless PNG frames": {
   "en": "Also write lossless PNG frames",
   "fr": "Ecrire aussi les images PNG sans perte"
+ },
+ "Amber night (CyDAW)": {
+  "en": "Amber night (CyDAW)",
+  "fr": "Nuit ambrée (CyDAW)"
  },
  "Ameliorer le prompt automatiquement": {
   "en": "Automatically enhance the prompt",
@@ -1835,6 +1851,10 @@
   "en": "Build and activate a new environment",
   "fr": "Construire et activer un nouvel environnement"
  },
+ "Build one on the right, then save it.": {
+  "en": "Build one on the right, then save it.",
+  "fr": "Composez-en un à droite, puis enregistrez-le."
+ },
  "Build the CUDA variant or the CPU variant when the engine offers one.": {
   "en": "Build the CUDA variant or the CPU variant when the engine offers one.",
   "fr": "Construire la variante CUDA ou la variante CPU quand le moteur en propose une."
@@ -2034,6 +2054,10 @@
  "Centre roughness": {
   "en": "Roughness midpoint",
   "fr": "Centre roughness"
+ },
+ "Change or clear the search.": {
+  "en": "Change or clear the search.",
+  "fr": "Modifier ou vider la recherche."
  },
  "Chanson complete": {
   "en": "Full song",
@@ -2275,9 +2299,21 @@
   "en": "Color",
   "fr": "Couleur"
  },
+ "Comfortable": {
+  "en": "Comfortable",
+  "fr": "Confortable"
+ },
  "Common framing": {
   "en": "Common framing",
   "fr": "Cadrage commun"
+ },
+ "Compact": {
+  "en": "Compact",
+  "fr": "Compacte"
+ },
+ "Compact fits more on screen; comfortable gives every control more room.": {
+  "en": "Compact fits more on screen; comfortable gives every control more room.",
+  "fr": "Compacte affiche plus de choses à l'écran ; confortable donne plus de place à chaque contrôle."
  },
  "Compare with upstream catalog": {
   "en": "Compare with upstream catalog",
@@ -2514,6 +2550,10 @@
  "Coordonnees monde (DPVO)": {
   "en": "World coordinates (DPVO)",
   "fr": "Coordonnees monde (DPVO)"
+ },
+ "Copied to the clipboard": {
+  "en": "Copied to the clipboard",
+  "fr": "Copié dans le presse-papiers"
  },
  "Copier ces paroles vers la chanson complete": {
   "en": "Copy these lyrics to Full song",
@@ -2790,6 +2830,10 @@
  "Densite temporelle": {
   "en": "Temporal density",
   "fr": "Densite temporelle"
+ },
+ "Density": {
+  "en": "Density",
+  "fr": "Densité"
  },
  "Density threshold": {
   "en": "Density threshold",
@@ -3554,6 +3598,14 @@
  "Etat global : ": {
   "en": "Overall status: ",
   "fr": "Etat global : "
+ },
+ "Every matching file of a folder, instead of one file.": {
+  "en": "Every matching file of a folder, instead of one file.",
+  "fr": "Tous les fichiers correspondants d'un dossier, au lieu d'un seul fichier."
+ },
+ "Every parameter back to its default": {
+  "en": "Every parameter back to its default",
+  "fr": "Remettre chaque paramètre à sa valeur par défaut"
  },
  "Exact transcript": {
   "en": "Exact transcript",
@@ -5019,6 +5071,10 @@
   "en": "Intensity",
   "fr": "Intensité"
  },
+ "Interface": {
+  "en": "Interface",
+  "fr": "Interface"
+ },
  "Interface mockup": {
   "en": "Interface mockup",
   "fr": "Maquette d'interface"
@@ -5042,6 +5098,10 @@
  "Iterations for smooth and subdivide.": {
   "en": "Iterations for smooth and subdivide.",
   "fr": "Itérations pour lisser et subdiviser."
+ },
+ "Its licence is accepted in person on its official page.": {
+  "en": "Its licence is accepted in person on its official page.",
+  "fr": "Sa licence s'accepte en personne sur sa page officielle."
  },
  "J accepte personnellement la licence Apache-2.0": {
   "en": "I personally accept the Apache-2.0 license",
@@ -5527,6 +5587,10 @@
   "en": "Light",
   "fr": "Clair"
  },
+ "Light grey (CyDAW)": {
+  "en": "Light grey (CyDAW)",
+  "fr": "Gris clair (CyDAW)"
+ },
  "Light studio": {
   "en": "Light studio",
   "fr": "Studio clair"
@@ -5654,6 +5718,10 @@
  "Locuteur ": {
   "en": "Speaker ",
   "fr": "Locuteur "
+ },
+ "Log copied to the clipboard": {
+  "en": "Log copied to the clipboard",
+  "fr": "Journal copié dans le presse-papiers"
  },
  "Log file": {
   "en": "Log file",
@@ -5890,6 +5958,10 @@
  "Mettre en forme mes paroles": {
   "en": "Format my lyrics",
   "fr": "Mettre en forme mes paroles"
+ },
+ "Mid grey (CyDAW)": {
+  "en": "Mid grey (CyDAW)",
+  "fr": "Gris moyen (CyDAW)"
  },
  "Min facing": {
   "en": "Min facing",
@@ -6243,6 +6315,14 @@
   "en": "Motion",
   "fr": "Mouvement"
  },
+ "Move down": {
+  "en": "Move down",
+  "fr": "Descendre"
+ },
+ "Move up": {
+  "en": "Move up",
+  "fr": "Monter"
+ },
  "Multiview": {
   "en": "Multiview",
   "fr": "Multivue"
@@ -6254,6 +6334,14 @@
  "Mémoire GPU": {
   "en": "GPU memory",
   "fr": "Mémoire GPU"
+ },
+ "NEW": {
+  "en": "NEW",
+  "fr": "NOUVEAU"
+ },
+ "NON-COMMERCIAL": {
+  "en": "NON-COMMERCIAL",
+  "fr": "NON COMMERCIAL"
  },
  "NVIDIA device index, ignored when device is cpu.": {
   "en": "NVIDIA device index, ignored when device is cpu.",
@@ -6283,6 +6371,10 @@
   "en": "Navigation",
   "fr": "Navigation"
  },
+ "Navy (CyEngineHub)": {
+  "en": "Navy (CyEngineHub)",
+  "fr": "Bleu marine (CyEngineHub)"
+ },
  "Ne charge rien et ne telecharge rien : lit les poids declares, l interpreteur du moteur, ffmpeg, les GPU vus par le runtime et les budgets reserves.": {
   "en": "Loads and downloads nothing: reads declared weights, engine interpreter, ffmpeg, GPUs seen by the runtime and reserved budgets.",
   "fr": "Ne charge rien et ne telecharge rien : lit les poids declares, l interpreteur du moteur, ffmpeg, les GPU vus par le runtime et les budgets reserves."
@@ -6298,6 +6390,14 @@
  "New conversation": {
   "en": "New conversation",
   "fr": "Nouvelle conversation"
+ },
+ "New workflow": {
+  "en": "New workflow",
+  "fr": "Nouveau workflow"
+ },
+ "No 3D view in this build": {
+  "en": "No 3D view in this build",
+  "fr": "Pas de vue 3D dans cette version"
  },
  "No AI model or weights to install.": {
   "en": "No AI model or weights to install.",
@@ -6327,9 +6427,17 @@
   "en": "No diagnostics run in this session.",
   "fr": "Aucun diagnostic execute dans cette session."
  },
+ "No file chosen": {
+  "en": "No file chosen",
+  "fr": "Aucun fichier choisi"
+ },
  "No files in data/inputs: use Browse.": {
   "en": "No files in data/inputs: use Browse.",
   "fr": "Aucun fichier dans data/inputs : utiliser Parcourir."
+ },
+ "No folder chosen": {
+  "en": "No folder chosen",
+  "fr": "Aucun dossier choisi"
  },
  "No known GitHub repository for this Tool. Enter it below when available; no repository is invented for you.": {
   "en": "No known GitHub repository for this Tool. Enter it below when available; no repository is invented for you.",
@@ -6347,13 +6455,25 @@
   "en": "No matching voice",
   "fr": "Aucune voix correspondante"
  },
+ "No mesh open": {
+  "en": "No mesh open",
+  "fr": "Aucun maillage ouvert"
+ },
  "No model installed for this task. Open Models, accept the license and download a variant.": {
   "en": "No model installed for this task. Open Models, accept the license and download a variant.",
   "fr": "Aucun modele installe pour cette tache. Ouvrez l onglet Modeles, acceptez la licence puis telechargez une variante."
  },
+ "No model matches this family and search.": {
+  "en": "No model matches this family and search.",
+  "fr": "Aucun modèle ne correspond à cette famille et à cette recherche."
+ },
  "No operation available.": {
   "en": "No operation available.",
   "fr": "Aucune opération disponible."
+ },
+ "No operation matches": {
+  "en": "No operation matches",
+  "fr": "Aucune opération ne correspond"
  },
  "No public Tool repository supplied. Configure a trusted source publishing the documented app/ format.": {
   "en": "No public Tool repository supplied. Configure a trusted source publishing the documented app/ format.",
@@ -6379,6 +6499,10 @@
   "en": "No results yet.",
   "fr": "Aucun resultat pour le moment."
  },
+ "No step yet: choose an operation above and press Add step.": {
+  "en": "No step yet: choose an operation above and press Add step.",
+  "fr": "Aucune étape : choisissez une opération ci-dessus et appuyez sur Ajouter une étape."
+ },
  "No style added": {
   "en": "No style added",
   "fr": "Aucun style ajouté"
@@ -6386,6 +6510,14 @@
  "No voice installed: open Voices.": {
   "en": "No voice installed: open Voices.",
   "fr": "Aucune voix installee : ouvrir l onglet Voix."
+ },
+ "No workflow found": {
+  "en": "No workflow found",
+  "fr": "Aucun workflow trouvé"
+ },
+ "No workflow saved yet": {
+  "en": "No workflow saved yet",
+  "fr": "Aucun workflow enregistré"
  },
  "Nom de configuration": {
   "en": "Configuration name",
@@ -6450,6 +6582,10 @@
  "Not implemented yet: checking a release, staging it under runtime/updates, verifying it, activating it at restart and rolling back. Until it is, update the Tool by replacing the app folder yourself; data/ is never part of a replacement.": {
   "en": "Not implemented yet: checking a release, staging it under runtime/updates, verifying it, activating it at restart and rolling back. Until it is, update the Tool by replacing the app folder yourself; data/ is never part of a replacement.",
   "fr": "Pas encore implémenté : vérifier une release, la préparer dans runtime/updates, la contrôler, l'activer au redémarrage et la restaurer. En attendant, mettre l'outil à jour en remplaçant soi-même le dossier app ; data/ n'est jamais remplacé."
+ },
+ "Not installed": {
+  "en": "Not installed",
+  "fr": "Non installé"
  },
  "Nouvelle conversation": {
   "en": "New conversation",
@@ -6530,6 +6666,10 @@
  "One MCP server to register, describe and call Tools. Direct operations are built on connection; reconnect after catalog changes. invoke_tool also works for a Tool added later.": {
   "en": "One MCP server to register, describe and call Tools. Direct operations are built on connection; reconnect after catalog changes. invoke_tool also works for a Tool added later.",
   "fr": "Un seul serveur MCP pour referencer, decrire et appeler les Tools. Les operations directes sont construites a la connexion ; reconnecter le client apres changement du catalogue. invoke_tool fonctionne aussi pour un Tool ajoute ensuite."
+ },
+ "One file to run the workflow on.": {
+  "en": "One file to run the workflow on.",
+  "fr": "Un fichier sur lequel exécuter le workflow."
  },
  "One image input. A GLB with materials and a point cloud output.": {
   "en": "One image input. A GLB with materials and a point cloud output.",
@@ -7106,6 +7246,10 @@
  "Partial files are kept when cancelled; Resume reuses them. Sizes and hashes are checked before installation.": {
   "en": "Partial files are kept when cancelled; Resume reuses them. Sizes and hashes are checked before installation.",
   "fr": "Fichiers partiels conserves en cas d annulation ; Reprendre les reutilise. Taille et empreintes controlees avant installation."
+ },
+ "Partially installed": {
+  "en": "Partially installed",
+  "fr": "Installé en partie"
  },
  "Partiel ": {
   "en": "Partial ",
@@ -8447,6 +8591,10 @@
   "en": "Runtime",
   "fr": "Exécution"
  },
+ "Runtime unavailable": {
+  "en": "Runtime unavailable",
+  "fr": "Runtime indisponible"
+ },
  "Runtime worker : ": {
   "en": "Worker runtime: ",
   "fr": "Runtime worker : "
@@ -8474,6 +8622,14 @@
  "SAM 2.1 checkpoint for the object mask. auto = preferred installed model, else classical segmentation (alpha / plain background / GrabCut). none = classical only.": {
   "en": "SAM 2.1 checkpoint for the object mask. auto = preferred installed model, else classical segmentation (alpha / plain background / GrabCut). none = classical only.",
   "fr": "Modèle SAM 2.1 pour le masque de l'objet. auto = le modèle installé préféré, sinon la segmentation classique (alpha / fond uni / GrabCut). none = classique seulement."
+ },
+ "SAVED WORKFLOWS": {
+  "en": "SAVED WORKFLOWS",
+  "fr": "WORKFLOWS ENREGISTRÉS"
+ },
+ "SKIPPED": {
+  "en": "SKIPPED",
+  "fr": "IGNORÉE"
  },
  "SMPL file": {
   "en": "SMPL file",
@@ -8506,6 +8662,10 @@
  "SPAR3D weights installed": {
   "en": "SPAR3D weights installed",
   "fr": "Poids SPAR3D installes"
+ },
+ "SYSTEM": {
+  "en": "SYSTEM",
+  "fr": "SYSTÈME"
  },
  "Same-object verification reports suspicious images and refuses to generate from them. Enable this to proceed anyway.": {
   "en": "Same-object verification reports suspicious images and refuses to generate from them. Enable this to proceed anyway.",
@@ -8650,6 +8810,18 @@
  "Search folder": {
   "en": "Search folder",
   "fr": "Dossier de recherche"
+ },
+ "Search models": {
+  "en": "Search models",
+  "fr": "Rechercher un modèle"
+ },
+ "Search operations": {
+  "en": "Search operations",
+  "fr": "Rechercher une opération"
+ },
+ "Search workflows": {
+  "en": "Search workflows",
+  "fr": "Rechercher un workflow"
  },
  "Section inpainting": {
   "en": "Section inpainting",
@@ -8963,6 +9135,10 @@
   "en": "Stage",
   "fr": "Préparer"
  },
+ "Stage a release by hand": {
+  "en": "Stage a release by hand",
+  "fr": "Préparer une release à la main"
+ },
  "Stage an update": {
   "en": "Stage an update",
   "fr": "Préparer une mise à jour"
@@ -9146,6 +9322,10 @@
  "Subject set": {
   "en": "Subject set",
   "fr": "Sujet préparé"
+ },
+ "Submitted": {
+  "en": "Submitted",
+  "fr": "Envoyé :"
  },
  "Sun": {
   "en": "Sun",
@@ -9547,6 +9727,10 @@
   "en": "The 5Hz language model alone: writes structured lyrics and musical metadata, without producing audio.",
   "fr": "Le modele de langage 5Hz seul : il ecrit des paroles structurees et les metadonnees musicales, sans produire d audio."
  },
+ "The CyUI look: one palette for every panel, one accent for what is active.": {
+  "en": "The CyUI look: one palette for every panel, one accent for what is active.",
+  "fr": "L'apparence CyUI : une palette pour tous les panneaux, une couleur d'accent pour ce qui est actif."
+ },
  "The application, the engines and the model weights are three separate streams. They have their own versions and their own licences, and an update never replaces the data folder.": {
   "en": "The application, the engines and the model weights are three separate streams. They have their own versions and their own licences, and an update never replaces the data folder.",
   "fr": "L'application, les moteurs et les poids des modèles sont trois flux distincts. Ils ont leurs propres versions et leurs propres licences, et une mise à jour ne remplace jamais le dossier data."
@@ -9579,6 +9763,10 @@
   "en": "The engine is installed and tested in a separate environment before activation. Verified Tool releases activate on next launch. Close and restart after installation or rollback.",
   "fr": "Le moteur est installe et teste dans un environnement separe avant activation. Les releases du Tool verifiees sont activees au prochain lancement. Fermer puis relancer apres installation ou restauration."
  },
+ "The engine that runs this operation; each has its own models.": {
+  "en": "The engine that runs this operation; each has its own models.",
+  "fr": "Le moteur qui exécute cette opération ; chacun a ses propres modèles."
+ },
  "The file downloaded from the official page (.pkl, or the .zip holding it).": {
   "en": "The file downloaded from the official page (.pkl, or the .zip holding it).",
   "fr": "Le fichier téléchargé depuis la page officielle (.pkl, ou le .zip qui le contient)."
@@ -9590,6 +9778,10 @@
  "The op_t_... names are stable; descriptions identify the Tool and operation. Calls return a job: use cy_get_job and cy_cancel_job.": {
   "en": "The op_t_... names are stable; descriptions identify the Tool and operation. Calls return a job: use cy_get_job and cy_cancel_job.",
   "fr": "Les noms op_t_... sont stables ; leur description indique le Tool et son operation. Les appels retournent un job : utiliser cy_get_job et cy_cancel_job."
+ },
+ "The operation the new step runs": {
+  "en": "The operation the new step runs",
+  "fr": "L'opération exécutée par la nouvelle étape"
  },
  "The procedural engine recognizes words, not sentences. This list is exactly what it can produce; AudioLDM engines accept free text.": {
   "en": "The procedural engine recognizes words, not sentences. This list is exactly what it can produce; AudioLDM engines accept free text.",
@@ -9619,6 +9811,10 @@
   "en": "The staged application activates on next launch. Close other instances. Data remains preserved. A new ABI requires a full installation.",
   "fr": "L application preparee est activee au prochain lancement. Fermer les autres instances. Les donnees restent preservees. Une nouvelle ABI exige une installation complete."
  },
+ "The step whose output this one reads.": {
+  "en": "The step whose output this one reads.",
+  "fr": "L'étape dont celle-ci lit la sortie."
+ },
  "The target version is installed in runtime/environments, tested with real generation, then activated. The old version remains available for rollback. Incompatibility with pinned dependencies is rejected during preparation without changing the active engine.": {
   "en": "The target version is installed in runtime/environments, tested with real generation, then activated. The old version remains available for rollback. Incompatibility with pinned dependencies is rejected during preparation without changing the active engine.",
   "fr": "La version visee est installee dans runtime/environments, testee par une generation reelle, puis activee. L ancienne reste disponible pour un retour arriere. Une version incompatible avec les dependances epinglees est refusee au moment de la preparation, sans toucher au moteur actif."
@@ -9626,6 +9822,10 @@
  "The token goes through stdin into the provider cache. It does not appear in command arguments, jobs or logs.": {
   "en": "The token goes through stdin into the provider cache. It does not appear in command arguments, jobs or logs.",
   "fr": "Le jeton passe par stdin vers le cache du fournisseur. Il n apparait ni dans la ligne de commande, ni dans les jobs, ni dans les journaux."
+ },
+ "The viewport reopens when the job ends.": {
+  "en": "The viewport reopens when the job ends.",
+  "fr": "La vue se rouvre à la fin de la tâche."
  },
  "The worker must stop before resources are released.": {
   "en": "The worker must stop before resources are released.",
@@ -9682,6 +9882,10 @@
  "This model is public: no token needed. A read token is only useful if your network or private mirror requires it, or for rate limits. It stays in the system credential store, never jobs, manifests, command arguments or this log.": {
   "en": "This model is public: no token needed. A read token is only useful if your network or private mirror requires it, or for rate limits. It stays in the system credential store, never jobs, manifests, command arguments or this log.",
   "fr": "Ce modele est public : aucun jeton n est necessaire. Un jeton de lecture sert uniquement si votre reseau ou un miroir prive l exige, ou en cas de limitation de debit. Il est place dans le magasin d identifiants du systeme, jamais dans un job, le manifeste, les arguments de commande ou ce journal."
+ },
+ "This operation takes no parameter.": {
+  "en": "This operation takes no parameter.",
+  "fr": "Cette opération ne prend aucun paramètre."
  },
  "Three numbers for translate, scale or rotate per axis.": {
   "en": "Three numbers for translate, scale or rotate per axis.",
@@ -10339,6 +10543,10 @@
   "en": "Views to validate",
   "fr": "Vues à valider"
  },
+ "Violet (Shaderixel)": {
+  "en": "Violet (Shaderixel)",
+  "fr": "Violet (Shaderixel)"
+ },
  "Visibility resolution": {
   "en": "Visibility resolution",
   "fr": "Résolution de visibilité"
@@ -10439,6 +10647,10 @@
   "en": "WHAM sources and licenses",
   "fr": "Sources et licences WHAM"
  },
+ "WORKSPACE": {
+  "en": "WORKSPACE",
+  "fr": "ESPACE DE TRAVAIL"
+ },
  "Waiting for a restart": {
   "en": "Waiting for a restart",
   "fr": "En attente d'un redémarrage"
@@ -10523,9 +10735,17 @@
   "en": "When no picture limits the object along an axis (single front view, two opposite views), its extent on that axis is assumed to be this ratio times the largest observed dimension. The report lists every assumed axis.",
   "fr": "Quand aucune photo ne borne l'objet selon un axe (vue de face unique, deux vues opposées), son étendue sur cet axe est supposée valoir ce rapport multiplié par la plus grande dimension observée. Le rapport liste chaque axe supposé."
  },
+ "Where the releases are read from; the manifest declares it.": {
+  "en": "Where the releases are read from; the manifest declares it.",
+  "fr": "D'où les releases sont lues ; le manifeste le déclare."
+ },
  "Where the three streams stand: the application version and its repository, what is staged, what is pending for the next start, the backups kept, the engines and their pinned revisions, and the model catalogue. Reads local files only.": {
   "en": "Where the three streams stand: the application version and its repository, what is staged, what is pending for the next start, the backups kept, the engines and their pinned revisions, and the model catalogue. Reads local files only.",
   "fr": "Où en sont les trois flux : la version de l'application et son dépôt, ce qui est préparé, ce qui attend le prochain démarrage, les sauvegardes conservées, les moteurs avec leurs révisions épinglées, et le catalogue des modèles. Ne lit que des fichiers locaux."
+ },
+ "Which PyTorch build an engine gets: auto picks CUDA when an NVIDIA card is present.": {
+  "en": "Which PyTorch build an engine gets: auto picks CUDA when an NVIDIA card is present.",
+  "fr": "La version de PyTorch installée pour un moteur : auto choisit CUDA quand une carte NVIDIA est présente."
  },
  "Which declared file this is, when the model expects several.": {
   "en": "Which declared file this is, when the model expects several.",
@@ -10635,6 +10855,10 @@
   "en": "Workflow name",
   "fr": "Nom du workflow"
  },
+ "Workflow saved": {
+  "en": "Workflow saved",
+  "fr": "Workflow enregistré"
+ },
  "Workflows": {
   "en": "Workflows",
   "fr": "Workflows"
@@ -10707,6 +10931,10 @@
   "en": "can be installed",
   "fr": "peut être installé"
  },
+ "cancelled": {
+  "en": "cancelled",
+  "fr": "annulé"
+ },
  "candidat disponible (test requis)": {
   "en": "candidate available (test required)",
   "fr": "candidat disponible (test requis)"
@@ -10771,9 +10999,21 @@
   "en": "engine",
   "fr": "moteur"
  },
+ "engines installed": {
+  "en": "engines installed",
+  "fr": "moteurs installés"
+ },
+ "entries": {
+  "en": "entries",
+  "fr": "entrées"
+ },
  "estimate applies the documented detail heuristic; constant writes roughness_value; source resamples the mesh metallic-roughness texture.": {
   "en": "estimate applies the documented detail heuristic; constant writes roughness_value; source resamples the mesh metallic-roughness texture.",
   "fr": "estimate applique l'heuristique de détail documentée ; constant écrit roughness_value ; source rééchantillonne la texture métallicité-rugosité du maillage."
+ },
+ "failed": {
+  "en": "failed",
+  "fr": "a échoué"
  },
  "failed / cancelled": {
   "en": "failed / cancelled",
@@ -10782,6 +11022,10 @@
  "failed, see log": {
   "en": "failed, see log",
   "fr": "echec, voir journal"
+ },
+ "file(s)": {
+  "en": "file(s)",
+  "fr": "fichier(s)"
  },
  "files": {
   "en": "files",
@@ -10874,6 +11118,10 @@
  "models": {
   "en": "models",
   "fr": "modeles"
+ },
+ "models installed": {
+  "en": "models installed",
+  "fr": "modèles installés"
  },
  "necessite ffmpeg": {
   "en": "requires ffmpeg",
@@ -10970,6 +11218,10 @@
  "staged on": {
   "en": "staged on",
   "fr": "préparé le"
+ },
+ "step(s)": {
+  "en": "step(s)",
+  "fr": "étape(s)"
  },
  "terminee": {
   "en": "completed",

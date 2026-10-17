@@ -29,6 +29,17 @@ Install : app/requirements.txt installs it from the repository, pinned to commit
 The MIT licence of the SDK does not change the licence of CyTools_MeshStudio itself.
 
 
+CyUI (Cyberalien's Dear ImGui interface library), Python port
+-------------------------------------------------------------
+The look of the desktop interface: palette, themes, fonts and widgets.
+Licence : MIT. Copyright (c) 2026 Cyberalien.
+Text    : LICENCES/CyUI-MIT.txt.
+Source  : app/cyui.py is an unmodified copy of the library's python/cyui.py;
+          app/cyui.json records its SHA-256 and the date of the copy, and
+          app/scripts/sync_cyui.py refreshes both.
+The MIT licence of CyUI does not change the licence of CyTools_MeshStudio itself.
+
+
 Parts shipped only in the Windows binary archive
 ------------------------------------------------
 CyTools_MeshStudio-<version>-windows-x64.zip adds the parts below to the application.

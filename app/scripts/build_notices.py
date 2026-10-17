@@ -68,6 +68,14 @@ def main():
         sdk_version, sdk_licence = '', 'see its LICENSE'
     records.insert(0, {'kind': 'SDK', 'name': f'CyToolsCore {sdk_version}'.strip(), 'license': sdk_licence,
                        'url': 'https://github.com/MrMybal/CyToolsCore'})
+    # The interface library is vendored: its origin record says which copy is shipped.
+    try:
+        cyui = json.loads((APP / 'cyui.json').read_text('utf-8'))
+    except (OSError, ValueError):
+        cyui = {}
+    if cyui:
+        records.insert(1, {'kind': 'Interface library', 'name': f"CyUI ({cyui.get('sourceModified', '')})",
+                           'license': cyui.get('licence', 'MIT'), 'url': ''})
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from build_release import PARTS, PIP_VERSION  # noqa: E402 - the pins live in one place
     lines += ['', '## Runtime of the Windows binary release', '',
@@ -88,7 +96,11 @@ def main():
               'scaffold writes is kept as `app/LICENSE-CyToolsCore.txt`. The application environment',
               'and each engine environment',
               '(`app/requirements-engine-*.txt`) are installed from PyPI and the PyTorch index; every',
-              'package carries the licence declared on its own page.', '']
+              'package carries the licence declared on its own page.', '',
+              '## Interface library', '',
+              'The desktop interface is drawn with CyUI, Cyberalien\'s Dear ImGui library (MIT).',
+              '`app/cyui.py` is an unmodified copy of its Python port, recorded with its SHA-256 in',
+              '`app/cyui.json`; its licence text is `LICENCES/CyUI-MIT.txt`.', '']
     OUT.write_text('\n'.join(lines), encoding='utf-8')
     OPTIONS.write_text(json.dumps(records, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
     print(f'{OUT}: {sum(1 for line in lines if line.startswith("| ") and not line.startswith("| Engine") and not line.startswith("| Model"))} rows')

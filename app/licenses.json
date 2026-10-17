@@ -6,6 +6,12 @@
     "url": "https://github.com/MrMybal/CyToolsCore"
   },
   {
+    "kind": "Interface library",
+    "name": "CyUI (2026-10-17T15:13:31)",
+    "license": "MIT",
+    "url": ""
+  },
+  {
     "kind": "Native program",
     "name": "AutoRemesher 1.2.0 (huxingyi)",
     "license": "MIT",

@@ -106,29 +106,44 @@ class Journal:
         from ui_common import raw,label,tr
         ui=raw();opened,_=ui.begin_tab_item(label('Application log'),flags=ui.TabItemFlags_.set_selected if self.test else 0)
         if not opened:return
-        try:
-            choices=sorted(set((self.root/'data/logs').glob('*.log*'))|self.files,key=str)
-            if self.selected not in choices:choices.insert(0,self.selected)
-            changed,index=ui.combo(label('Log file'),choices.index(self.selected),[str(p.relative_to(self.root)) if p.is_relative_to(self.root) else str(p) for p in choices])
+        try:self.draw_content()
+        finally:ui.end_tab_item()
+    def draw_content(self):
+        """The page itself, for an interface that draws its own navigation."""
+        from ui_common import raw,label,tr
+        import cyui
+        ui=raw()
+        cyui.panel_header(tr('Application log'),tr('Select text and press Ctrl+C. Ctrl+A selects all. Refresh pauses while selecting.'))
+        cyui.space(4.0)
+        choices=sorted(set((self.root/'data/logs').glob('*.log*'))|self.files,key=str)
+        if self.selected not in choices:choices.insert(0,self.selected)
+        if cyui.begin_toolbar('##log-toolbar'):
+            ui.set_next_item_width(cyui.dp(320.0))
+            changed,index=ui.combo('##log-file',choices.index(self.selected),[str(p.relative_to(self.root)) if p.is_relative_to(self.root) else str(p) for p in choices])
             if changed:self.selected=choices[index];self.text=self.read()
-            _,self.paused=ui.checkbox(label('Pause log refresh'),self.paused);ui.same_line()
-            if ui.button(label('Refresh log')):self.text=self.read()
-            ui.same_line()
-            if ui.button(label('Copy entire log')) and not (self.copy_thread and self.copy_thread.is_alive()):
+            cyui.tooltip(tr('Log file'))
+            cyui.toolbar_separator()
+            _,self.paused=cyui.toggle_switch(label('Pause log refresh'),self.paused)
+            cyui.toolbar_separator()
+            if cyui.icon_button(cyui.icon.refresh,tr('Refresh log')):self.text=self.read()
+            ui.same_line(0.0,cyui.dp(2.0))
+            if cyui.icon_button(cyui.icon.copy,tr('Copy entire log')) and not (self.copy_thread and self.copy_thread.is_alive()):
                 selected=self.selected
                 def copy():self.copy_result=self.read(selected,full=True)
                 self.copy_thread=threading.Thread(target=copy,daemon=True);self.copy_thread.start()
-            if self.copy_result is not None:ui.set_clipboard_text(self.copy_result);self.copy_result=None
-            ui.text_wrapped(tr('Select text and press Ctrl+C. Ctrl+A selects all. Refresh pauses while selecting.'))
-            if not self.paused and not self.focus:self.text=self.read()
-            ui.input_text_multiline('##standalone-log',self.text,ui.ImVec2(-1,max(180,ui.get_content_region_avail().y-20)),flags=ui.InputTextFlags_.read_only)
-            self.focus=ui.is_item_active()
-            if self.test:
-                self.frames+=1
-                if self.frames==3:
-                    # Exercise native clipboard, restoring the user's previous value.
-                    text=self.read(full=True);old=ui.get_clipboard_text();ui.set_clipboard_text(text);assert ui.get_clipboard_text()==text;ui.set_clipboard_text(old)
-        finally:ui.end_tab_item()
+        cyui.end_toolbar()
+        if self.copy_result is not None:
+            ui.set_clipboard_text(self.copy_result);self.copy_result=None
+            cyui.notify(tr('Log copied to the clipboard'),'success')
+        if not self.paused and not self.focus:self.text=self.read()
+        with cyui.scoped_font(cyui.mono_font(),0.95),cyui.scoped_color(ui.Col_.frame_bg,cyui.palette().bg0):
+            ui.input_text_multiline('##standalone-log',self.text,ui.ImVec2(-1,max(180,ui.get_content_region_avail().y-4)),flags=ui.InputTextFlags_.read_only)
+        self.focus=ui.is_item_active()
+        if self.test:
+            self.frames+=1
+            if self.frames==3:
+                # Exercise native clipboard, restoring the user's previous value.
+                text=self.read(full=True);old=ui.get_clipboard_text();ui.set_clipboard_text(text);assert ui.get_clipboard_text()==text;ui.set_clipboard_text(old)
 
 _journal=None
 def install(root):

@@ -195,6 +195,86 @@ INTERFACE = {
         "jour en remplaçant soi-même le dossier app ; data/ n'est jamais remplacé.",
 }
 
+# The CyUI pages: navigation, search fields, empty states, badges and toasts.
+INTERFACE.update({
+    'WORKSPACE': 'ESPACE DE TRAVAIL',
+    'SYSTEM': 'SYSTÈME',
+    'Navigation': 'Navigation',
+    'Options': 'Options',
+    'Interface': 'Interface',
+    'Density': 'Densité',
+    'Compact': 'Compacte',
+    'Comfortable': 'Confortable',
+    'Compact fits more on screen; comfortable gives every control more room.':
+        "Compacte affiche plus de choses à l'écran ; confortable donne plus de place à chaque contrôle.",
+    'The CyUI look: one palette for every panel, one accent for what is active.':
+        "L'apparence CyUI : une palette pour tous les panneaux, une couleur d'accent pour ce qui est actif.",
+    'Mid grey (CyDAW)': 'Gris moyen (CyDAW)',
+    'Light grey (CyDAW)': 'Gris clair (CyDAW)',
+    'Amber night (CyDAW)': 'Nuit ambrée (CyDAW)',
+    'Violet (Shaderixel)': 'Violet (Shaderixel)',
+    'Navy (CyEngineHub)': 'Bleu marine (CyEngineHub)',
+    'Search operations': 'Rechercher une opération',
+    'Search workflows': 'Rechercher un workflow',
+    'Search models': 'Rechercher un modèle',
+    'No operation matches': 'Aucune opération ne correspond',
+    'Change or clear the search.': 'Modifier ou vider la recherche.',
+    'This operation takes no parameter.': "Cette opération ne prend aucun paramètre.",
+    'The engine that runs this operation; each has its own models.':
+        'Le moteur qui exécute cette opération ; chacun a ses propres modèles.',
+    'Every parameter back to its default': 'Remettre chaque paramètre à sa valeur par défaut',
+    'No file chosen': 'Aucun fichier choisi',
+    'No folder chosen': 'Aucun dossier choisi',
+    'Copied to the clipboard': 'Copié dans le presse-papiers',
+    'Log copied to the clipboard': 'Journal copié dans le presse-papiers',
+    'Address copied to the clipboard': 'Adresse copiée dans le presse-papiers',
+    'Runtime unavailable': 'Runtime indisponible',
+    'Submitted': 'Envoyé :',
+    'failed': 'a échoué',
+    'cancelled': 'annulé',
+    'entries': 'entrées',
+    'file(s)': 'fichier(s)',
+    'step(s)': 'étape(s)',
+    # workflows
+    'SAVED WORKFLOWS': 'WORKFLOWS ENREGISTRÉS',
+    'New workflow': 'Nouveau workflow',
+    'No workflow saved yet': 'Aucun workflow enregistré',
+    'No workflow found': 'Aucun workflow trouvé',
+    'Build one on the right, then save it.': "Composez-en un à droite, puis enregistrez-le.",
+    'No step yet: choose an operation above and press Add step.':
+        'Aucune étape : choisissez une opération ci-dessus et appuyez sur Ajouter une étape.',
+    'The operation the new step runs': "L'opération exécutée par la nouvelle étape",
+    'The step whose output this one reads.': "L'étape dont celle-ci lit la sortie.",
+    'Move up': 'Monter',
+    'Move down': 'Descendre',
+    'SKIPPED': 'IGNORÉE',
+    'One file to run the workflow on.': 'Un fichier sur lequel exécuter le workflow.',
+    'Every matching file of a folder, instead of one file.':
+        "Tous les fichiers correspondants d'un dossier, au lieu d'un seul fichier.",
+    'Workflow saved': 'Workflow enregistré',
+    # installation and updates
+    'engines installed': 'moteurs installés',
+    'models installed': 'modèles installés',
+    'All families': 'Toutes les familles',
+    'No model matches this family and search.': 'Aucun modèle ne correspond à cette famille et à cette recherche.',
+    'NEW': 'NOUVEAU',
+    'NON-COMMERCIAL': 'NON COMMERCIAL',
+    'ACCEPTANCE': 'ACCEPTATION',
+    'Its licence is accepted in person on its official page.':
+        "Sa licence s'accepte en personne sur sa page officielle.",
+    'Which PyTorch build an engine gets: auto picks CUDA when an NVIDIA card is present.':
+        "La version de PyTorch installée pour un moteur : auto choisit CUDA quand une carte NVIDIA est présente.",
+    'Stage a release by hand': 'Préparer une release à la main',
+    'Where the releases are read from; the manifest declares it.':
+        "D'où les releases sont lues ; le manifeste le déclare.",
+    # 3D view
+    'Not installed': 'Non installé',
+    'Partially installed': 'Installé en partie',
+    'No mesh open': 'Aucun maillage ouvert',
+    'No 3D view in this build': 'Pas de vue 3D dans cette version',
+    'The viewport reopens when the job ends.': "La vue se rouvre à la fin de la tâche.",
+})
+
 # ------------------------------------------------------------------------- field labels
 FIELDS = {
     'Adaptivity': 'Adaptativité', 'Align': 'Aligner', 'Allow mirror': 'Autoriser le miroir',
@@ -484,10 +564,24 @@ def collect():
             strings.add(schema.get('title') or name.replace('_', ' ').capitalize())
             if schema.get('description'):
                 strings.add(schema['description'])
-    for source in sorted((APP / 'gui').glob('*.py')):
+    # The pages of the façade (options, log, advanced, 3D view) translate their own strings too,
+    # and the action buttons pass their English label to widgets.action, which translates it.
+    sources = sorted((APP / 'gui').glob('*.py')) + [
+        APP / name for name in ('ui_common.py', 'standalone_log.py', 'advanced_ui.py',
+                                'mesh_viewer_ui.py', 'installation_ui.py') if (APP / name).exists()]
+    pattern = re.compile(r"""\b_?(?:tr|action)\(\s*(?:'([^'\n]{2,200})'|"([^"\n]{2,200})")\s*[,)]""")
+    for source in sources:
         text = source.read_text('utf-8')
-        for match in re.finditer(r"tr\(\s*'([^']{2,200})'\s*\)", text):
-            strings.add(match.group(1))
+        for match in pattern.finditer(text):
+            strings.add(match.group(1) or match.group(2))
+    # Labels translated through a variable: the navigation groups and the theme names.
+    strings |= {'WORKSPACE', 'SYSTEM', 'Interface', 'Installed', 'Partially installed', 'Not installed'}
+    try:
+        sys.path.insert(0, str(APP))
+        import cyui
+        strings |= {name for _key, name, _values, _light in cyui.THEMES}
+    except Exception:  # noqa: BLE001 - imgui missing: the themes are then not checked
+        pass
     return strings
 
 
@@ -520,10 +614,11 @@ def main(argv=None):
     print(f'{len(current)} entries in the catalogue, {added} written, '
           f'{len(wanted)} strings collected, {len(missing)} without a French translation '
           f'({len(identical & wanted)} are identical in both languages)')
-    for text in missing[:40]:
+    shown = len(missing) if args.check else 40
+    for text in missing[:shown]:
         print('  -', text[:110])
-    if len(missing) > 40:
-        print(f'  ... and {len(missing) - 40} more')
+    if len(missing) > shown:
+        print(f'  ... and {len(missing) - shown} more')
     return 0
 
 

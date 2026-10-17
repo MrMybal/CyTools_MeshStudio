@@ -1,14 +1,20 @@
 """Shared widgets: file dialogs, layout helpers, and the parameter editor.
 
 The parameter editor draws an operation's ``inputSchema`` as real controls — a file picker
-for a file, a slider for a bounded number, a combo for an enum — instead of a JSON box. It is
-driven by the manifest, so an operation ported from an absorbed Tool keeps every one of its
-parameters without a line of UI written for it.
+for a file, a value bar for a bounded number, a combo for an enum, a switch for an on/off
+setting — instead of a JSON box. It is driven by the manifest, so an operation ported from an
+absorbed Tool keeps every one of its parameters without a line of UI written for it.
+
+Everything is drawn with CyUI (app/cyui.py, the Python port of the CyUI library): labels in
+the left column of a property table, the explanation of each field behind its (i), colours
+and sizes from the theme only.
 """
 import json
 from pathlib import Path
 
 from imgui_bundle import imgui, portable_file_dialogs as pfd
+
+import cyui
 
 MESH_FILTER = ['Meshes', '*.glb *.gltf *.obj *.ply *.stl *.off', 'All files', '*']
 IMAGE_FILTER = ['Images', '*.png *.jpg *.jpeg *.webp *.bmp *.tif *.tiff', 'All files', '*']
@@ -18,14 +24,32 @@ ANY_FILTER = ['All files', '*']
 IMAGE_FIELDS = ('image_file', 'front', 'right', 'left', 'back', 'images', 'generated_views',
                 'candidates', 'reference')
 VIDEO_FIELDS = ('video',)
-#: label -> (frame, id) of every combo drawn, for the interaction tests: the test engine
-#: does not find a combo by its label in this build (0 of 75 were), only by its id.
+#: key -> (frame, id) of combos and custom-drawn items, for the interaction tests: the test
+#: engine does not find a combo, nor an item drawn over an invisible button, by its label in
+#: this build (0 of 75 combos were) — only by its id.
 COMBO_IDS = {}
+ITEM_IDS = COMBO_IDS
+_FLT_MIN = 1.17549435e-38
 
 
 def remember_combo(label):
-    """Call right after a combo: records its id under its visible label."""
+    """Call right after a combo (or any item a test must click): records its id by its label."""
     COMBO_IDS[label.split('###')[0].split('##')[0]] = (imgui.get_frame_count(), imgui.get_item_id())
+
+
+remember_item = remember_combo
+
+
+def action(text, glyph, tr):
+    """The label of an action button: its icon, its translated text, and a stable id.
+
+    The id is the English text (``###Run the workflow``), so a test finds the button whatever
+    the language and whether or not the icon font is installed.
+    """
+    shown = tr(text)
+    if glyph and cyui.icons_available():
+        shown = glyph + '  ' + shown
+    return f'{shown}###{text}'
 
 
 def filter_for(field, schema):
@@ -73,23 +97,26 @@ class Dialogs:
         return self.pending is not None
 
 
-def status_line(text, error=False):
-    if error:
-        imgui.text_colored((1.0, 0.45, 0.4, 1.0), text)
+def status_line(text, error=False, tone=''):
+    """A standing condition said where it applies: an error, a warning, or a plain note."""
+    if not text:
+        return
+    if error or tone in ('error', 'warning', 'success', 'info'):
+        cyui.callout(tone or 'error', text)
     else:
-        imgui.text_wrapped(text)
+        imgui.push_text_wrap_pos(0.0)
+        cyui.text_dim(text)
+        imgui.pop_text_wrap_pos()
 
 
 def help_marker(text):
-    imgui.same_line()
-    imgui.text_disabled('(?)')
-    if imgui.is_item_hovered():
-        imgui.set_tooltip(text)
+    cyui.help_marker(text)
 
 
-def section(title, opened=True):
-    flags = imgui.TreeNodeFlags_.default_open if opened else 0
-    return imgui.collapsing_header(title, flags)
+def progress(job, jobs):
+    """A job's progress bar with its step and message on it."""
+    value = float((job.get('progress') or {}).get('percent', 0.0)) / 100.0
+    cyui.progress_bar(value if value > 0 else -1.0, (-1.0, 0.0), jobs.progress_text(job), 'accent')
 
 
 # --------------------------------------------------------------------- parameter editor
@@ -126,7 +153,6 @@ class ParameterEditor:
     def __init__(self, dialogs, tr=lambda text: text):
         self.dialogs = dialogs
         self.tr = tr
-        self.show_advanced = False
         self._object_file_keys = {}   # list field -> key of its entries that holds the file
 
     def accept_path(self, purpose, result, values):
@@ -179,18 +205,26 @@ class ParameterEditor:
         properties = schema.get('properties') or {}
         required = set(schema.get('required') or [])
         owner = owner or operation['id']
-        changed = False
         ordinary = [(name, item) for name, item in properties.items() if not is_advanced(item)]
         advanced = [(name, item) for name, item in properties.items() if is_advanced(item)]
 
-        for name, item in ordinary:
-            changed |= self._field(owner, name, item, values, name in required)
+        changed = self._table(f'##parameters-{owner}', owner, ordinary, values, required)
+        if not ordinary and not advanced:
+            cyui.text_faint(self.tr('This operation takes no parameter.'))
         if advanced:
-            imgui.separator()
-            _, self.show_advanced = imgui.checkbox(self.tr('Advanced settings'), self.show_advanced)
-            if self.show_advanced:
-                for name, item in advanced:
-                    changed |= self._field(owner, name, item, values, name in required)
+            cyui.space(2.0)
+            if cyui.begin_section(self.tr('Advanced settings'), False):
+                changed |= self._table(f'##advanced-{owner}', owner, advanced, values, required)
+                cyui.end_section()
+        return changed
+
+    def _table(self, identifier, owner, fields, values, required):
+        if not fields or not cyui.begin_properties(identifier):
+            return False
+        changed = False
+        for name, item in fields:
+            changed |= self._field(owner, name, item, values, name in required)
+        cyui.end_properties()
         return changed
 
     # ------------------------------------------------------------------ one field
@@ -198,104 +232,99 @@ class ParameterEditor:
         imgui.push_id(f'{owner}#{name}')
         try:
             label = self.tr(schema.get('title') or name.replace('_', ' ').capitalize())
-            if required:
-                label += ' *'
+            shown = label + (' *' if required else '')
+            description = self.tr(schema['description']) if schema.get('description') else ''
+            cyui.property(shown, description)
             current = values.get(name, default_for(schema))
             kind = schema.get('x-cy-kind', '')
             kind_type = schema.get('type')
-            changed = False
+            hidden = '##' + name
 
             if kind in ('File', 'Image', 'Video') or (kind_type == 'string' and kind == 'Directory'):
-                changed = self._path_field(owner, name, schema, values, label, current, kind)
-            elif kind == 'Files' or (kind_type == 'array' and (schema.get('items') or {}).get('type') == 'string'):
-                changed = self._list_field(owner, name, schema, values, label, current)
-            elif kind_type == 'array' and (schema.get('items') or {}).get('type') == 'object':
-                changed = self._object_list_field(owner, name, schema, values, label, current)
-            elif schema.get('enum'):
+                return self._path_field(owner, name, schema, values, current, kind)
+            if kind == 'Files' or (kind_type == 'array' and (schema.get('items') or {}).get('type') == 'string'):
+                return self._list_field(owner, name, schema, values, current)
+            if kind_type == 'array' and (schema.get('items') or {}).get('type') == 'object':
+                return self._object_list_field(owner, name, schema, values, current)
+            if schema.get('enum'):
                 choices = [str(item) for item in schema['enum']]
                 index = choices.index(str(current)) if str(current) in choices else 0
-                modified, index = imgui.combo(label, index, choices)
+                modified, index = imgui.combo(hidden, index, choices)
                 remember_combo(label)
                 if modified:
-                    raw = schema['enum'][index]
-                    values[name] = raw
-                    changed = True
-            elif kind_type == 'boolean':
-                modified, value = imgui.checkbox(label, bool(current))
+                    values[name] = schema['enum'][index]
+                return modified
+            if kind_type == 'boolean':
+                modified, value = cyui.toggle_switch(hidden, bool(current))
                 if modified:
                     values[name] = value
-                    changed = True
-            elif kind_type == 'integer':
-                changed = self._number_field(name, schema, values, label, current, integer=True)
-            elif kind_type == 'number':
-                changed = self._number_field(name, schema, values, label, current, integer=False)
-            elif kind_type == 'object' or kind_type == 'array':
-                text = current if isinstance(current, str) else json.dumps(current, ensure_ascii=False)
-                modified, text = imgui.input_text_multiline(label, text, (-1, 60))
+                return modified
+            if kind_type == 'integer':
+                return self._number_field(name, schema, values, current, integer=True)
+            if kind_type == 'number':
+                return self._number_field(name, schema, values, current, integer=False)
+            if kind_type in ('object', 'array') or kind == 'MultilineString':
+                text = current if isinstance(current, str) else (
+                    json.dumps(current, ensure_ascii=False) if kind_type in ('object', 'array') else str(current or ''))
+                with cyui.scoped_font(cyui.mono_font() if kind_type in ('object', 'array') else None, 1.0):
+                    modified, text = imgui.input_text_multiline(hidden, text, (-_FLT_MIN, cyui.dp(64.0)))
                 if modified:
                     values[name] = text
-                    changed = True
-            elif kind == 'MultilineString':
-                modified, text = imgui.input_text_multiline(label, str(current or ''), (-1, 60))
-                if modified:
-                    values[name] = text
-                    changed = True
-            else:
-                modified, text = imgui.input_text(label, str(current or ''))
-                if modified:
-                    values[name] = text
-                    changed = True
-
-            if schema.get('description') and imgui.is_item_hovered():
-                imgui.set_tooltip(self.tr(schema['description']))
-            return changed
+                return modified
+            modified, text = imgui.input_text(hidden, str(current or ''))
+            if modified:
+                values[name] = text
+            return modified
         finally:
             imgui.pop_id()
 
-    def _path_field(self, owner, name, schema, values, label, current, kind):
+    def _path_field(self, owner, name, schema, values, current, kind):
         changed = False
-        width = max(160.0, imgui.get_content_region_avail().x - 190.0)
-        imgui.set_next_item_width(width)
-        modified, text = imgui.input_text(label, str(current or ''))
+        buttons = (imgui.get_frame_height() + cyui.dp(2.0)) * (2 if current else 1) + cyui.dp(4.0)
+        imgui.set_next_item_width(max(cyui.dp(80.0), imgui.get_content_region_avail().x - buttons))
+        hint = self.tr('No folder chosen') if kind == 'Directory' else self.tr('No file chosen')
+        modified, text = imgui.input_text_with_hint('##' + name, hint, str(current or ''))
+        if current:
+            cyui.tooltip(str(current))
         if modified:
             values[name] = text
             changed = True
-        imgui.same_line()
-        if imgui.button(self.tr('Browse') + f'###browse-{name}'):
+        imgui.same_line(0.0, cyui.dp(4.0))
+        if cyui.icon_button(cyui.icon.folder, self.tr('Browse')):
             title = self.tr('Choose') + ' ' + name.replace('_', ' ')
             if kind == 'Directory':
                 self.dialogs.select_folder(f'{owner}#{name}', title)
             else:
                 self.dialogs.open_file(f'{owner}#{name}', title, filters=filter_for(name, schema))
         if current:
-            imgui.same_line()
-            if imgui.small_button(self.tr('Clear') + f'###clear-{name}'):
+            imgui.same_line(0.0, cyui.dp(2.0))
+            if cyui.icon_button(cyui.icon.close, self.tr('Clear')):
                 values[name] = ''
                 changed = True
         return changed
 
-    def _list_field(self, owner, name, schema, values, label, current):
+    def _list_field(self, owner, name, schema, values, current):
         changed = False
         items = list(current) if isinstance(current, list) else []
-        imgui.text(label + f' ({len(items)})')
+        cyui.text_dim(f"{len(items)} {self.tr('file(s)')}")
         imgui.same_line()
-        if imgui.small_button(self.tr('Add') + f'###add-{name}'):
+        if cyui.button(action('Add', cyui.icon.add, self.tr) + f'-{name}', 'ghost', small=True):
             self.dialogs.open_file(f'{owner}#{name}', self.tr('Choose files'),
                                    filters=filter_for(name, schema), multiple=True)
         if items:
             imgui.same_line()
-            if imgui.small_button(self.tr('Clear') + f'###clearlist-{name}'):
+            if cyui.button(self.tr('Clear') + f'###clearlist-{name}', 'ghost', small=True):
                 values[name] = []
                 return True
         removed = None
         for index, item in enumerate(items):
             imgui.push_id(index)
-            imgui.bullet_text(Path(str(item)).name)
-            if imgui.is_item_hovered():
-                imgui.set_tooltip(str(item))
-            imgui.same_line()
-            if imgui.small_button('x'):
+            if cyui.icon_button(cyui.icon.close, self.tr('Remove')):
                 removed = index
+            imgui.same_line()
+            imgui.align_text_to_frame_padding()
+            imgui.text_unformatted(Path(str(item)).name)
+            cyui.tooltip(str(item))
             imgui.pop_id()
         if removed is not None:
             del items[removed]
@@ -303,7 +332,7 @@ class ParameterEditor:
             changed = True
         return changed
 
-    def _object_list_field(self, owner, name, schema, values, label, current):
+    def _object_list_field(self, owner, name, schema, values, current):
         """A list whose entries are objects: one sub-form per entry, added and removed here.
 
         Several ported operations take structured lists — a view carries its file, its role and
@@ -320,24 +349,23 @@ class ParameterEditor:
         file_key = next((key for key, value in properties.items()
                          if value.get('x-cy-kind') in ('File', 'Image', 'Video')), '')
 
-        imgui.text(f'{label} ({len(items)})')
+        cyui.text_dim(f"{len(items)} {self.tr('entries')}")
         if maximum is None or len(items) < maximum:
             imgui.same_line()
-            if file_key and imgui.small_button(self.tr('Add files') + f'###addobj-{name}'):
+            if file_key and cyui.button(action('Add files', cyui.icon.add, self.tr) + f'-{name}', 'ghost', small=True):
                 self._object_file_keys[name] = file_key
                 self.dialogs.open_file(f'{owner}#{name}#objects', self.tr('Choose files'),
                                        filters=filter_for(file_key, properties[file_key]),
                                        multiple=True)
-            if file_key:
-                imgui.same_line()
-            if imgui.small_button(self.tr('Add empty') + f'###addempty-{name}'):
+            imgui.same_line()
+            if cyui.button(self.tr('Add empty') + f'###addempty-{name}', 'ghost', small=True):
                 items.append({key: default_for(value) for key, value in properties.items()
                               if key in required or 'default' in value})
                 values[name] = items
                 changed = True
         if items:
             imgui.same_line()
-            if imgui.small_button(self.tr('Clear') + f'###clearobj-{name}'):
+            if cyui.button(self.tr('Clear') + f'###clearobj-{name}', 'ghost', small=True):
                 values[name] = []
                 return True
 
@@ -350,14 +378,12 @@ class ParameterEditor:
             title = Path(title).name if title else self.tr('Entry') + f' {index + 1}'
             opened = imgui.collapsing_header(f'{index + 1}. {title}###entry-{index}',
                                              imgui.TreeNodeFlags_.default_open if len(items) <= 3 else 0)
-            imgui.indent()
-            if imgui.small_button(self.tr('Remove') + f'###rmobj-{index}'):
+            if cyui.button(self.tr('Remove') + f'###rmobj-{index}', 'ghost', small=True):
                 removed = index
-            if opened:
+            if opened and cyui.begin_properties(f'##entry-{index}'):
                 for key, value in properties.items():
-                    changed |= self._field(f'{owner}#{name}#{index}', key, value, entry,
-                                           key in required)
-            imgui.unindent()
+                    changed |= self._field(f'{owner}#{name}#{index}', key, value, entry, key in required)
+                cyui.end_properties()
             imgui.pop_id()
         if removed is not None:
             del items[removed]
@@ -365,7 +391,7 @@ class ParameterEditor:
             changed = True
         return changed
 
-    def _number_field(self, name, schema, values, label, current, integer):
+    def _number_field(self, name, schema, values, current, integer):
         minimum = schema.get('minimum')
         maximum = schema.get('maximum')
         try:
@@ -374,23 +400,24 @@ class ParameterEditor:
             value = int(minimum or 0) if integer else float(minimum or 0.0)
 
         if schema.get('x-cy-kind') == 'Seed':
-            return self._seed_field(name, values, label, value)
+            return self._seed_field(name, values, value)
 
-        # A slider only when the range is small enough to be usable *and* legal: Dear ImGui
-        # asserts on an integer range wider than INT32_MAX/2, which is exactly what a seed
-        # declares. Anything wider gets a typed field with the same clamping.
+        # A value bar only when the range is small enough to be usable: Dear ImGui asserts on
+        # an integer range wider than INT32_MAX/2, which is exactly what a seed declares, and a
+        # bar across a billion steps cannot be aimed. Anything wider gets a typed field.
         usable = (minimum is not None and maximum is not None and maximum > minimum
-                  and float(maximum) - float(minimum) <= (1_000_000 if integer else 1e9))
+                  and float(maximum) - float(minimum) <= (100_000 if integer else 1e6))
         if usable:
-            if integer:
-                modified, value = imgui.slider_int(label, value, int(minimum), int(maximum))
-            else:
-                modified, value = imgui.slider_float(label, value, float(minimum), float(maximum))
+            modified, number = cyui.slider_bar('##' + name, float(value), float(minimum), float(maximum),
+                                               '%d' if integer else '%.3f', -1.0)
+            value = int(round(number)) if integer else float(number)
+            if modified and integer:
+                modified = value != values.get(name, current)
         else:
             if integer:
-                modified, value = imgui.input_int(label, value)
+                modified, value = imgui.input_int('##' + name, int(value))
             else:
-                modified, value = imgui.input_float(label, value)
+                modified, value = imgui.input_float('##' + name, float(value))
             if minimum is not None:
                 value = max(value, int(minimum) if integer else float(minimum))
             if maximum is not None:
@@ -400,13 +427,13 @@ class ParameterEditor:
             return True
         return False
 
-    def _seed_field(self, name, values, label, value):
+    def _seed_field(self, name, values, value):
         """A seed is typed, not dragged, and -1 means "draw one"."""
-        width = max(120.0, imgui.get_content_region_avail().x - 200.0)
-        imgui.set_next_item_width(width)
-        modified, value = imgui.input_int(label, int(value))
-        imgui.same_line()
-        if imgui.small_button(self.tr('Random') + f'###random-{name}'):
+        imgui.set_next_item_width(max(cyui.dp(80.0), imgui.get_content_region_avail().x
+                                      - imgui.get_frame_height() - cyui.dp(6.0)))
+        modified, value = imgui.input_int('##' + name, int(value))
+        imgui.same_line(0.0, cyui.dp(4.0))
+        if cyui.icon_button(cyui.icon.shuffle, self.tr('Random')):
             values[name] = -1
             return True
         if modified:

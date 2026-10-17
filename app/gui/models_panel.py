@@ -1,18 +1,37 @@
-"""The Installation tab: engine environments and the model catalogue.
+"""The Installation page: engine environments and the model catalogue.
 
-Everything shown here comes from ``diagnose`` and ``list_models``, so the interface reports
-the same state as the CLI and MCP. Installing an engine is a job like any other: it streams
-its progress and can be cancelled.
+Everything shown here comes from ``diagnose``, so the interface reports the same state as the
+CLI and MCP. Installing an engine is a job like any other: it streams its progress and can be
+cancelled.
 """
 from imgui_bundle import imgui
 
+import cyui
 from gui import widgets
 
-STATE_COLOURS = {
-    'Installed': (0.45, 0.85, 0.55, 1.0),
-    'Partial': (0.95, 0.75, 0.35, 1.0),
-    'NotInstalled': (0.85, 0.45, 0.42, 1.0),
-}
+STATE_TONES = {'Installed': 'success', 'Partial': 'warning', 'NotInstalled': 'error'}
+DEVICES = ['auto', 'cuda', 'cpu']
+TABLE = imgui.TableFlags_.borders_inner_h | imgui.TableFlags_.row_bg | imgui.TableFlags_.sizing_stretch_prop
+
+
+STATE_LABELS = {'Installed': 'Installed', 'Partial': 'Partially installed', 'NotInstalled': 'Not installed'}
+
+
+def _state(text, tr):
+    """A coloured dot and the state, in a table cell whose rows also hold buttons."""
+    tone = STATE_TONES.get(text, 'neutral')
+    colour = cyui.palette().textFaint if tone == 'neutral' else cyui.tone_colour(tone)
+    # The dot is placed from the text it labels: a table row moves its text down to the
+    # baseline of the buttons beside it, and a dot drawn at the cursor would sit above it.
+    radius = imgui.get_text_line_height() * 0.24
+    gap = radius * 2.0 + cyui.dp(6.0)
+    imgui.set_cursor_pos_x(imgui.get_cursor_pos_x() + gap)
+    imgui.text_unformatted(tr(STATE_LABELS.get(text, text)))
+    top, bottom = imgui.get_item_rect_min(), imgui.get_item_rect_max()
+    centre = imgui.ImVec2(top.x - gap + radius + cyui.dp(1.0), (top.y + bottom.y) * 0.5)
+    draw = imgui.get_window_draw_list()
+    draw.add_circle_filled(centre, radius * 1.8, cyui.alpha(colour, 0.18), 16)
+    draw.add_circle_filled(centre, radius, colour, 16)
 
 
 class ModelsPanel:
@@ -28,6 +47,7 @@ class ModelsPanel:
         self.repair = False
         self.filter_family = 0
         self.families = ['(all)']
+        self.search = ''
 
     def refresh(self):
         try:
@@ -47,214 +67,235 @@ class ModelsPanel:
         if not self.loaded:
             self.refresh()
         tr = self.app.tr
-        if imgui.button(tr('Refresh')):
-            self.refresh()
+        installed = sum(1 for info in self.engines.values() if info.get('installed'))
+        models = sum(1 for item in self.models if item.get('state') == 'Installed')
+        cyui.panel_header(tr('Installation'),
+                          f"{installed}/{len(self.engines)} {tr('engines installed')} · "
+                          f"{models}/{len(self.models)} {tr('models installed')}")
         imgui.same_line()
-        imgui.text_disabled(tr('State comes from diagnose, the same report the CLI prints.'))
+        cyui.align_right(cyui.button_width(widgets.action('Refresh', cyui.icon.refresh, tr)))
+        if cyui.button(widgets.action('Refresh', cyui.icon.refresh, tr), 'ghost'):
+            self.refresh()
+        cyui.tooltip(tr('State comes from diagnose, the same report the CLI prints.'))
         if self.error:
-            widgets.status_line(self.error, error=True)
+            cyui.callout('error', self.error)
+        # What waits for the user comes first: files only they can download.
+        self._draw_manual_files()
+        cyui.space(6.0)
 
-        if imgui.collapsing_header(tr('Engines'), imgui.TreeNodeFlags_.default_open):
+        if cyui.begin_section(tr('Engines') + '###engines-section'):
             self._draw_engines()
-        if imgui.collapsing_header(tr('Backends')):
-            self._draw_backends()
-        if imgui.collapsing_header(tr('Models'), imgui.TreeNodeFlags_.default_open):
+            cyui.end_section()
+        if cyui.begin_section(tr('Models') + '###models-section'):
             self._draw_models()
+            cyui.end_section()
+        if cyui.begin_section(tr('Backends') + '###backends-section', False):
+            self._draw_backends()
+            cyui.end_section()
 
     # --------------------------------------------------------------------- engines
     def _draw_engines(self):
         tr = self.app.tr
         installing = self.app.jobs.running('install_engine')
-        devices = ['auto', 'cuda', 'cpu']
-        imgui.set_next_item_width(120.0)
-        index = devices.index(self.device) if self.device in devices else 0
-        changed, index = imgui.combo(tr('Device'), index, devices)
-        if changed:
-            self.device = devices[index]
+        cyui.text_dim(tr('Device'))
         imgui.same_line()
-        _, self.repair = imgui.checkbox(tr('Reinstall even if installed'), self.repair)
+        index = DEVICES.index(self.device) if self.device in DEVICES else 0
+        changed, index = cyui.segmented('##device', DEVICES, index)
+        if changed:
+            self.device = DEVICES[index]
+        cyui.tooltip(tr('Which PyTorch build an engine gets: auto picks CUDA when an NVIDIA card is present.'))
+        imgui.same_line(0.0, cyui.dp(16.0))
+        _, self.repair = cyui.toggle_switch(tr('Reinstall even if installed') + '###repair', self.repair)
+        cyui.space(4.0)
 
-        if imgui.begin_table('##engines', 5, imgui.TableFlags_.borders | imgui.TableFlags_.row_bg
-                             | imgui.TableFlags_.sizing_stretch_prop):
-            for title, width in ((tr('Engine'), 150.0), (tr('State'), 110.0), (tr('Runtime'), 0.0),
-                                 (tr('Size'), 90.0), ('', 130.0)):
+        if imgui.begin_table('##engines', 5, TABLE):
+            for title, width in ((tr('Engine'), 150.0), (tr('State'), 120.0), (tr('Runtime'), 0.0),
+                                 (tr('Size'), 80.0), ('', 120.0)):
                 if width:
-                    imgui.table_setup_column(title, imgui.TableColumnFlags_.width_fixed, width)
+                    imgui.table_setup_column(title, imgui.TableColumnFlags_.width_fixed, cyui.dp(width))
                 else:
                     imgui.table_setup_column(title)
             imgui.table_headers_row()
             for name, info in self.engines.items():
                 imgui.table_next_row()
                 imgui.table_next_column()
-                imgui.text(name)
-                if imgui.is_item_hovered():
-                    imgui.set_tooltip(info.get('label', ''))
+                imgui.align_text_to_frame_padding()
+                imgui.text_unformatted(name)
+                cyui.tooltip(info.get('label', ''))
                 imgui.table_next_column()
-                state = info.get('state', '')
-                imgui.text_colored(STATE_COLOURS.get(state, (0.8, 0.8, 0.8, 1.0)), state)
+                _state(info.get('state', ''), tr)
                 imgui.table_next_column()
                 report = info.get('report') or {}
                 runtime = f"Python {info.get('pythonVersion', '')}"
                 if report.get('torch'):
-                    runtime += f" | torch {report['torch']}"
+                    runtime += f" · torch {report['torch']}"
                 if report.get('device'):
-                    runtime += f" | {report['device']}"
-                imgui.text(runtime)
-                if info.get('note') and imgui.is_item_hovered():
-                    imgui.set_tooltip(info['note'])
+                    runtime += f" · {report['device']}"
+                cyui.text_dim(runtime)
+                cyui.tooltip(info.get('note', ''))
                 imgui.table_next_column()
-                imgui.text(f"{info.get('estimatedBytes', 0) / 1024 ** 3:.1f} GiB")
+                cyui.text_dim(f"{info.get('estimatedBytes', 0) / 1024 ** 3:.1f} GiB")
                 imgui.table_next_column()
                 busy = any(job.get('parameters', {}).get('engine') == name for job in installing)
                 imgui.push_id(name)
-                imgui.begin_disabled(bool(installing))
-                label = tr('Repair') if info.get('installed') else tr('Install')
-                if imgui.small_button(label):
-                    self.app.jobs.submit('install_engine',
-                                         {'engine': name, 'device': self.device,
-                                          'repair': bool(self.repair or info.get('installed'))},
-                                         callback=lambda job: self.refresh(),
-                                         label=f'install_engine {name}')
-                imgui.end_disabled()
                 if busy:
+                    cyui.spinner('##installing')
                     imgui.same_line()
-                    imgui.text_disabled(tr('installing'))
+                    cyui.text_dim(tr('installing'))
+                else:
+                    imgui.begin_disabled(bool(installing))
+                    label = tr('Repair') if info.get('installed') else tr('Install')
+                    if cyui.button(label, 'secondary' if info.get('installed') else 'primary', small=True):
+                        self.app.jobs.submit('install_engine',
+                                             {'engine': name, 'device': self.device,
+                                              'repair': bool(self.repair or info.get('installed'))},
+                                             callback=lambda job: self.refresh(),
+                                             label=f'install_engine {name}')
+                    imgui.end_disabled()
                 imgui.pop_id()
             imgui.end_table()
 
         for job in installing:
-            progress = job.get('progress') or {}
-            imgui.progress_bar(float(progress.get('percent', 0.0)) / 100.0, (-1, 0),
-                               self.app.jobs.progress_text(job))
-            if imgui.button(self.app.tr('Cancel the installation')):
+            widgets.progress(job, self.app.jobs)
+            imgui.push_id('cancel-engine-' + job['jobId'])
+            if cyui.button(widgets.action('Cancel the installation', cyui.icon.stop, tr)):
                 self.app.jobs.cancel(job['jobId'])
+            imgui.pop_id()
 
     # -------------------------------------------------------------------- backends
     def _draw_backends(self):
         tr = self.app.tr
-        if imgui.begin_table('##backends', 4, imgui.TableFlags_.borders | imgui.TableFlags_.row_bg
-                             | imgui.TableFlags_.sizing_stretch_prop):
+        if imgui.begin_table('##backends', 4, TABLE):
             for title, width in ((tr('Backend'), 150.0), (tr('Engine'), 120.0),
                                  (tr('Ready'), 80.0), (tr('Missing'), 0.0)):
                 if width:
-                    imgui.table_setup_column(title, imgui.TableColumnFlags_.width_fixed, width)
+                    imgui.table_setup_column(title, imgui.TableColumnFlags_.width_fixed, cyui.dp(width))
                 else:
                     imgui.table_setup_column(title)
             imgui.table_headers_row()
             for item in self.backends:
                 imgui.table_next_row()
                 imgui.table_next_column()
-                imgui.text(item.get('id', ''))
-                if imgui.is_item_hovered():
-                    imgui.set_tooltip(item.get('label', '') + ('\n' + item['note'] if item.get('note') else ''))
+                imgui.text_unformatted(item.get('id', ''))
+                cyui.tooltip(item.get('label', '') + ('\n' + item['note'] if item.get('note') else ''))
                 imgui.table_next_column()
-                imgui.text(item.get('engine', ''))
+                cyui.text_dim(item.get('engine', ''))
                 imgui.table_next_column()
                 ready = bool(item.get('ready'))
-                imgui.text_colored((0.45, 0.85, 0.55, 1.0) if ready else (0.85, 0.45, 0.42, 1.0),
-                                   tr('yes') if ready else tr('no'))
+                cyui.status_dot(cyui.palette().success if ready else cyui.palette().error)
+                imgui.same_line(0.0, cyui.dp(4.0))
+                imgui.text_unformatted(tr('yes') if ready else tr('no'))
                 imgui.table_next_column()
                 missing = list(item.get('missingModels') or [])
                 if not item.get('workerPresent'):
                     missing.append(tr('worker not ported'))
                 if item.get('engineState') != 'Installed':
                     missing.append(tr('engine') + ' ' + str(item.get('engineState', '')))
-                imgui.text(', '.join(missing) if missing else '-')
+                cyui.text_dim(', '.join(missing) if missing else '-')
             imgui.end_table()
 
     # ---------------------------------------------------------------------- models
     def _draw_models(self):
         tr = self.app.tr
-        imgui.set_next_item_width(160.0)
-        _, self.filter_family = imgui.combo(tr('Family'), self.filter_family, self.families)
-        family = self.families[self.filter_family] if self.filter_family else ''
-        total = sum(item.get('sizeBytes', 0) for item in self.models
-                    if not family or item.get('family') == family)
+        imgui.set_next_item_width(cyui.dp(160.0))
+        _, self.filter_family = imgui.combo('##family', self.filter_family,
+                                            [tr('All families') if index == 0 else name
+                                             for index, name in enumerate(self.families)])
+        cyui.tooltip(tr('Family'))
         imgui.same_line()
-        imgui.text_disabled(f"{total / 1024 ** 3:.1f} GiB")
+        _, self.search = cyui.search_field('##model-search', self.search, tr('Search models'), cyui.dp(220.0))
+        family = self.families[self.filter_family] if self.filter_family else ''
+        needle = self.search.strip().casefold()
+        visible = [item for item in self.models
+                   if (not family or item.get('family') == family)
+                   and (not needle or needle in (item.get('id', '') + ' ' + item.get('name', '') + ' '
+                                                 + item.get('purpose', '')).casefold())]
+        total = sum(item.get('sizeBytes', 0) for item in visible)
+        imgui.same_line()
+        imgui.align_text_to_frame_padding()
+        cyui.text_faint(f"{len(visible)} · {total / 1024 ** 3:.1f} GiB")
+        cyui.space(4.0)
 
-        if imgui.begin_table('##models', 6, imgui.TableFlags_.borders | imgui.TableFlags_.row_bg
-                             | imgui.TableFlags_.sizing_stretch_prop | imgui.TableFlags_.scroll_y,
-                             (0, 320)):
-            for title, width in ((tr('Model'), 210.0), (tr('State'), 100.0), (tr('Size'), 90.0),
+        if visible and imgui.begin_table('##models', 6, TABLE | imgui.TableFlags_.scroll_y,
+                                         (0, cyui.dp(330.0))):
+            imgui.table_setup_scroll_freeze(0, 1)
+            for title, width in ((tr('Model'), 210.0), (tr('State'), 120.0), (tr('Size'), 80.0),
                                  (tr('Engine'), 110.0), (tr('Licence'), 0.0), ('', 110.0)):
                 if width:
-                    imgui.table_setup_column(title, imgui.TableColumnFlags_.width_fixed, width)
+                    imgui.table_setup_column(title, imgui.TableColumnFlags_.width_fixed, cyui.dp(width))
                 else:
                     imgui.table_setup_column(title)
             imgui.table_headers_row()
-            for item in self.models:
-                if family and item.get('family') != family:
-                    continue
+            for item in visible:
                 imgui.table_next_row()
                 imgui.table_next_column()
-                imgui.text(item.get('id', ''))
-                if imgui.is_item_hovered():
-                    imgui.set_tooltip(f"{item.get('name', '')}\n{item.get('purpose', '')}\n"
-                                      f"{tr('Revision')}: {item.get('revision') or tr('unknown')}\n"
-                                      f"{item.get('source', '')}")
+                imgui.align_text_to_frame_padding()
+                imgui.text_unformatted(item.get('id', ''))
+                cyui.tooltip(f"{item.get('name', '')}\n{item.get('purpose', '')}\n"
+                             f"{tr('Revision')}: {item.get('revision') or tr('unknown')}\n"
+                             f"{item.get('source', '')}")
                 imgui.table_next_column()
                 state = item.get('state', '')
-                imgui.text_colored(STATE_COLOURS.get(state, (0.8, 0.8, 0.8, 1.0)), state)
-                if item.get('missingFiles') and imgui.is_item_hovered():
-                    imgui.set_tooltip('\n'.join(item['missingFiles'][:10]))
+                _state(state, tr)
+                if item.get('missingFiles'):
+                    cyui.tooltip('\n'.join(item['missingFiles'][:10]))
                 imgui.table_next_column()
-                imgui.text(f"{item.get('sizeBytes', 0) / 1024 ** 3:.2f} GiB")
+                cyui.text_dim(f"{item.get('sizeBytes', 0) / 1024 ** 3:.2f} GiB")
                 imgui.table_next_column()
-                imgui.text(item.get('engine', ''))
+                cyui.text_dim(item.get('engine', ''))
                 imgui.table_next_column()
                 licence = item.get('license', '')
                 if item.get('nonCommercial'):
-                    imgui.text_colored((0.95, 0.75, 0.35, 1.0), tr('non-commercial'))
+                    cyui.badge(tr('NON-COMMERCIAL'), 'warning')
                     imgui.same_line()
                 if item.get('gated'):
-                    imgui.text_colored((0.95, 0.65, 0.35, 1.0), tr('gated'))
+                    cyui.badge(tr('ACCEPTANCE'), 'info')
+                    cyui.tooltip(tr('Its licence is accepted in person on its official page.'))
                     imgui.same_line()
-                imgui.text_wrapped(licence if len(licence) < 60 else licence[:57] + '...')
-                if imgui.is_item_hovered():
-                    imgui.set_tooltip(licence)
+                cyui.text_dim(licence if len(licence) < 60 else licence[:57] + '...')
+                cyui.tooltip(licence)
                 imgui.table_next_column()
                 self._model_action(item, state)
             imgui.end_table()
+        elif not visible:
+            cyui.callout('info', tr('No model matches this family and search.'))
 
         self._draw_downloads()
-        self._draw_manual_files()
         for warning in self.warnings[:6]:
-            imgui.bullet_text(str(warning)[:200])
+            cyui.space(2.0)
+            cyui.callout('warning', str(warning)[:300])
 
     def _model_action(self, item, state):
         """Install a declared model, when the application knows where its files come from."""
         tr = self.app.tr
         if not item.get('installable'):
-            imgui.text_disabled('-' if state == 'Installed' else tr('manual'))
-            if imgui.is_item_hovered():
-                imgui.set_tooltip(tr('This model came with the absorbed Tools; '
-                                     'its download is not described here.'))
+            cyui.text_faint('-' if state == 'Installed' else tr('manual'))
+            cyui.tooltip(tr('This model came with the absorbed Tools; its download is not described here.'))
             return
         busy = any(job.get('parameters', {}).get('model') == item['id']
                    for job in self.app.jobs.running('install_model'))
         imgui.push_id('model-' + item['id'])
-        imgui.begin_disabled(busy)
-        label = tr('Repair') if state == 'Installed' else (
-            tr('Resume') if state == 'Partial' else tr('Install'))
-        if imgui.small_button(label):
-            self.app.jobs.submit('install_model',
-                                 {'model': item['id'], 'repair': state == 'Installed'},
-                                 callback=lambda job: self.refresh(),
-                                 label=f"install_model {item['id']}")
-        imgui.end_disabled()
         if busy:
+            cyui.spinner('##downloading')
             imgui.same_line()
-            imgui.text_disabled(tr('downloading'))
+            cyui.text_dim(tr('downloading'))
+        else:
+            label = tr('Repair') if state == 'Installed' else (
+                tr('Resume') if state == 'Partial' else tr('Install'))
+            if cyui.button(label, 'secondary' if state == 'Installed' else 'primary', small=True):
+                self.app.jobs.submit('install_model',
+                                     {'model': item['id'], 'repair': state == 'Installed'},
+                                     callback=lambda job: self.refresh(),
+                                     label=f"install_model {item['id']}")
         imgui.pop_id()
 
     def _draw_downloads(self):
+        tr = self.app.tr
         for job in self.app.jobs.running('install_model'):
-            progress = job.get('progress') or {}
-            imgui.progress_bar(float(progress.get('percent', 0.0)) / 100.0, (-1, 0),
-                               self.app.jobs.progress_text(job))
+            cyui.space(2.0)
+            widgets.progress(job, self.app.jobs)
             imgui.push_id('cancel-' + job['jobId'])
-            if imgui.button(self.app.tr('Cancel the download')):
+            if cyui.button(widgets.action('Cancel the download', cyui.icon.stop, tr)):
                 self.app.jobs.cancel(job['jobId'])
             imgui.pop_id()
 
@@ -265,26 +306,32 @@ class ModelsPanel:
                    for entry in item.get('manualFiles') or [] if not entry.get('present')]
         if not pending:
             return
-        imgui.separator()
-        imgui.text_colored((0.95, 0.75, 0.35, 1.0), tr('Files to accept and download yourself'))
-        for item, entry in pending:
-            imgui.push_id(f"manual-{item['id']}-{entry['target']}")
-            imgui.bullet_text(f"{item['id']}: {entry['label']}")
-            imgui.text_wrapped(entry.get('note') or '')
-            if entry.get('page'):
-                imgui.text_disabled(entry['page'])
-                imgui.same_line()
-                if imgui.small_button(tr('Copy the address')):
-                    imgui.set_clipboard_text(entry['page'])
-                imgui.same_line()
-            if imgui.small_button(tr('Import the file...')):
-                self.app.dialogs.open_file(
-                    f"model-import#{item['id']}#{entry['target']}",
-                    tr('Choose the file downloaded from the official page'),
-                    filters=[tr('Accepted files'),
-                             ' '.join('*' + suffix for suffix in entry.get('accepts', [])) or '*',
-                             'All files', '*'])
-            imgui.pop_id()
+        cyui.space(6.0)
+        if cyui.begin_card('##manual-files', tr('Files to accept and download yourself'), 0.0, 'warning'):
+            for item, entry in pending:
+                imgui.push_id(f"manual-{item['id']}-{entry['target']}")
+                imgui.text_unformatted(f"{item['id']}: {entry['label']}")
+                if entry.get('note'):
+                    imgui.push_text_wrap_pos(0.0)
+                    cyui.text_dim(entry['note'])
+                    imgui.pop_text_wrap_pos()
+                if entry.get('page'):
+                    cyui.text_faint(entry['page'])
+                    imgui.same_line()
+                    if cyui.button(widgets.action('Copy the address', cyui.icon.copy, tr), 'ghost', small=True):
+                        imgui.set_clipboard_text(entry['page'])
+                        cyui.notify(tr('Address copied to the clipboard'), 'success')
+                    imgui.same_line()
+                if cyui.button(widgets.action('Import the file...', cyui.icon.import_file, tr), small=True):
+                    self.app.dialogs.open_file(
+                        f"model-import#{item['id']}#{entry['target']}",
+                        tr('Choose the file downloaded from the official page'),
+                        filters=[tr('Accepted files'),
+                                 ' '.join('*' + suffix for suffix in entry.get('accepts', [])) or '*',
+                                 'All files', '*'])
+                cyui.space(4.0)
+                imgui.pop_id()
+        cyui.end_card()
 
     def accept_dialog(self, purpose, result):
         """Import the file the user picked for a licensed model."""

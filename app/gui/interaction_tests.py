@@ -91,6 +91,10 @@ def _scenario(app, ctx, recorder):
         for operation in app.tools.by_category[category]:
             label = app.tr(operation['name'])
             ref = f'**/{label}'
+            # The list is longer than the window: the search brings the operation into view,
+            # as a user would find it, and exercises the search at the same time.
+            app.tools.search = label
+            wait(ctx, 2)
             if not _exists(ctx, ref):
                 missing.append(operation['id'])
                 continue
@@ -124,6 +128,8 @@ def _scenario(app, ctx, recorder):
                 wait(ctx, 2)
                 opened_combos += 1
     # Advanced fields stay folded, and three combos per form at most are opened.
+    app.tools.search = ''
+    wait(ctx, 2)
     recorder.check('the combos of the tool forms are found and opened',
                    combos_found >= 40, f'{combos_found} opened of {combos_tried} tried')
     recorder.check('every tool of the list was clicked without crashing',
@@ -142,7 +148,7 @@ def _scenario(app, ctx, recorder):
     recorder.check('updates read the application version',
                    bool((app.updates.status.get('application') or {}).get('version')),
                    app.updates.status.get('application'))
-    check_button = f"**/{app.tr('Check for an update')}"
+    check_button = "**/###Check for an update"
     recorder.check('updates offer the check button', _exists(ctx, check_button), check_button)
     recorder.check('updates list the engines and the weights',
                    bool(app.updates.status.get('engines')) and bool(app.updates.status.get('models')),
@@ -165,14 +171,15 @@ def _scenario(app, ctx, recorder):
         recorder.check('the release check is accepted and answered',
                        bool(app.updates.check) and 'lacks operation permissions' not in app.jobs.error,
                        app.jobs.error or report)
+        # What it found: a published release, or a message saying why there is none.
         recorder.check('the release check names the repository and says what it found',
-                       report.get('repository') == 'MrMybal/CyTools_MeshStudio' and bool(report.get('message')),
-                       report)
+                       report.get('repository') == 'MrMybal/CyTools_MeshStudio'
+                       and bool(report.get('latest') or report.get('message')), report)
 
     # --- the workflow editor: add a step, then remove it
     app.select_tab('Workflows')
     wait(ctx, 3)
-    add = f"**/{app.tr('Add step')}"
+    add = "**/###Add step"
     if _exists(ctx, add):
         before = len(app.workflows.document['steps'])
         ctx.item_click(add)
@@ -180,7 +187,7 @@ def _scenario(app, ctx, recorder):
         recorder.check('Add step adds a step',
                        len(app.workflows.document['steps']) == before + 1,
                        len(app.workflows.document['steps']))
-        remove = f"**/{app.tr('Remove')}"
+        remove = "**/###Remove"
         if _exists(ctx, remove):
             ctx.item_click(remove)
             wait(ctx, 3)
@@ -219,7 +226,7 @@ def _scenario(app, ctx, recorder):
                 ctx.item_open(extra)
                 wait(ctx, 4)
             recorder.check('the extra inputs are editable in the step',
-                           _exists(ctx, f"**/{app.tr('Add an input')}"), extra)
+                           _exists(ctx, "**/###Add an input"), extra)
         else:
             recorder.check('the texturing step header exists', False, header)
 
@@ -233,7 +240,7 @@ def _scenario(app, ctx, recorder):
         app.jobs.error = ''
         app.workflows.input_folder = ''
         app.workflows.input_file = 'D:/no-such-folder/no-such-picture.png'
-        run = f"**/{app.tr('Run the workflow')}"
+        run = "**/###Run the workflow"
         if _exists(ctx, run):
             ctx.item_click(run)
             for _ in range(240):
@@ -299,25 +306,23 @@ def _scenario(app, ctx, recorder):
                        app.workflows._document().get('input_mode') == 'together',
                        app.workflows._document().get('input_mode'))
 
-    # --- the tabs the façade owns: they draw their content only when selected, so they had
+    # --- the pages the façade owns: they draw their content only when shown, so they had
     #     never been exercised either. Advanced operations builds a form for every operation.
-    import ui_common
-
-    for name in ('3D Viewer', 'Application log', 'Advanced operations', 'Options'):
-        ref = f'**/{ui_common.label(name)}'
-        if not _exists(ctx, ref):
-            recorder.check(f'facade tab {name} exists', False, ref)
+    #     Each page is reached by a real click on its entry of the navigation.
+    for name in ('3D Viewer', 'Application log', 'Advanced operations', 'Options', 'Tools'):
+        ref = _combo(app.tr(name))
+        if ref is None or not _exists(ctx, ref):
+            recorder.check(f'navigation entry {name} exists', False, name)
             continue
         ctx.item_click(ref)
         wait(ctx, 5)
-        recorder.check(f'facade tab {name} drawn without crashing', True, '')
-    app.select_tab('Tools')
+        recorder.check(f'navigation opens {name}', app.page == name, app.page)
     wait(ctx, 3)
 
     # --- the installation tab reads diagnose
     app.select_tab('Installation')
     wait(ctx, 4)
-    refresh = f"**/{app.tr('Refresh')}"
+    refresh = "**/###Refresh"
     if _exists(ctx, refresh):
         ctx.item_click(refresh)
         wait(ctx, 6)
@@ -333,7 +338,7 @@ def _scenario(app, ctx, recorder):
     manual = [entry for item in app.models.models
               for entry in item.get('manualFiles') or [] if not entry.get('present')]
     if manual:
-        button = f"**/{app.tr('Import the file...')}"
+        button = "**/###Import the file..."
         recorder.check('the licensed file offers its import button', _exists(ctx, button), button)
         recorder.check('the licensed file names its page',
                        all(entry.get('page') for entry in manual),

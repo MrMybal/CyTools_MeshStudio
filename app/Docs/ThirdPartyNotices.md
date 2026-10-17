@@ -78,3 +78,9 @@ scaffold writes is kept as `app/LICENSE-CyToolsCore.txt`. The application enviro
 and each engine environment
 (`app/requirements-engine-*.txt`) are installed from PyPI and the PyTorch index; every
 package carries the licence declared on its own page.
+
+## Interface library
+
+The desktop interface is drawn with CyUI, Cyberalien's Dear ImGui library (MIT).
+`app/cyui.py` is an unmodified copy of its Python port, recorded with its SHA-256 in
+`app/cyui.json`; its licence text is `LICENCES/CyUI-MIT.txt`.

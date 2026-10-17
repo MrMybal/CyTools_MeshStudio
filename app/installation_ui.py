@@ -28,8 +28,6 @@ def panel(native, tr, label):
     global _storage, _draft, _message, _cuda_path, _future, _executor
     from cytools_core.shared_installation import InstallationStorage
     if _storage is None: _storage = InstallationStorage(ROOT)
-    native.separator()
-    native.text(tr('Installation storage'))
     try:
         if _draft is None: _draft = _storage.configuration()
         modes = ('local','shared')

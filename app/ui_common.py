@@ -18,7 +18,10 @@ ROOT = APP.parent
 from standalone_log import install as install_standalone_log
 journal = install_standalone_log(ROOT)
 PREFERENCES = ROOT / 'data/settings/ui-preferences.json'
-DEFAULTS = {'language': 'en', 'theme': 'dark', 'font_scale': 1.0, 'autosave_generation': False}
+DEFAULTS = {'language': 'en', 'theme': 'mid-grey', 'density': 'comfortable', 'font_scale': 1.0, 'autosave_generation': False}
+#: The CyUI themes (app/cyui.py, from the CyUI library); the old stock ImGui themes map onto them.
+THEMES = ('mid-grey', 'light-grey', 'amber-night', 'violet', 'navy')
+_OLD_THEMES = {'dark': 'mid-grey', 'light': 'light-grey', 'classic': 'navy'}
 
 def read(path, default):
     try: return json.loads(path.read_text(encoding='utf-8-sig'))
@@ -30,7 +33,9 @@ class Preferences:
         stored = read(self.path, {})
         self.values = {**DEFAULTS, **(stored if isinstance(stored, dict) else {})}
         if self.values['language'] not in ('en', 'fr'): self.values['language'] = 'en'
-        if self.values['theme'] not in ('dark', 'light', 'classic'): self.values['theme'] = 'dark'
+        self.values['theme'] = _OLD_THEMES.get(self.values['theme'], self.values['theme'])
+        if self.values['theme'] not in THEMES: self.values['theme'] = DEFAULTS['theme']
+        if self.values.get('density') not in ('compact', 'comfortable'): self.values['density'] = DEFAULTS['density']
         if not isinstance(self.values.get('autosave_generation'),bool): self.values['autosave_generation']=False
         try: self.values['font_scale'] = min(1.6, max(.8, float(self.values['font_scale'])))
         except (TypeError, ValueError): self.values['font_scale'] = 1.0
@@ -66,6 +71,8 @@ _recipe_loader = None
 _mesh_panel = None
 _model_panel = None
 _advanced_panel = None
+_test_theme = next((a.split('=',1)[1] for a in sys.argv if a.startswith('--ui-test-theme=')), '')
+_test_density = next((a.split('=',1)[1] for a in sys.argv if a.startswith('--ui-test-density=')), '')
 
 def configure_generation(runtime,getter,loader):
     """Explicit integration for new Tools; getters return operationId/parameters."""
@@ -200,7 +207,7 @@ def bind_runtime(callback):
 def configuration_panel():
     global _configuration_message,_configuration_name,_configuration_path,_restore_widgets,_configuration_operation
     from generation_config import save,load
-    native=raw(); native.separator(); native.text(tr('Generation configurations'))
+    native=raw()
     changed,enabled=native.checkbox(label('Autosave on generation'),bool(preferences.values.get('autosave_generation')))
     if changed: preferences.values['autosave_generation']=enabled; preferences.save()
     native.text_wrapped(tr('Save current settings as versioned JSON. Loading never starts generation. Autosaves contain the exact submitted parameters and can be replayed by an AI.'))
@@ -352,9 +359,16 @@ class ImGuiFacade:
 imgui = ImGuiFacade()
 
 def apply_style():
+    # CyUI sets every size, rounding and colour from the theme and the density; nothing of
+    # ImGui's stock themes remains. The text size stays the user's own factor on top of it.
     native = raw()
-    {'dark': native.style_colors_dark, 'light': native.style_colors_light,
-     'classic': native.style_colors_classic}[preferences.values['theme']]()
+    import cyui
+    from imgui_bundle import hello_imgui
+    try: dpi = hello_imgui.dpi_window_size_factor()
+    except Exception: dpi = 1.0
+    theme = _test_theme or preferences.values['theme']
+    density = _test_density or preferences.values['density']
+    cyui.apply(theme, density, dpi)
     style = native.get_style()
     if hasattr(style, 'font_scale_main'): style.font_scale_main = preferences.values['font_scale']
     else: native.get_io().font_global_scale = preferences.values['font_scale']
@@ -389,43 +403,62 @@ def dependency_records():
 
 def options_panel():
     global _licenses
+    import cyui
     native=raw()
-    native.text(tr('Interface preferences'))
-    changed,index=native.combo(label('Language'),('en','fr').index(preferences.values['language']),['English','Français'])
-    if changed: preferences.values['language']=('en','fr')[index]; preferences.save()
-    changed,index=native.combo(label('Theme'),('dark','light','classic').index(preferences.values['theme']),[tr('Dark'),tr('Light'),tr('Classic')])
-    if changed: preferences.values['theme']=('dark','light','classic')[index]; preferences.save(); apply_style()
-    changed,scale=native.slider_float(label('Text size'),preferences.values['font_scale'],.8,1.6,'%.2fx')
-    if changed: preferences.values['font_scale']=scale; preferences.save(); apply_style()
-    if native.button(label('Reset interface preferences')):
-        preferences.values=dict(DEFAULTS); preferences.save(); apply_style()
-    native.text_wrapped(tr('Preferences are saved for this Tool. Model settings and files are not changed.'))
-    configuration_panel()
-    from installation_ui import panel as installation_panel
-    installation_panel(native, tr, label)
-    native.separator()
-    native.text(tr('Licenses'))
-    native.text_wrapped(tr('Application, engine and model licenses are separate. Missing information does not grant usage rights. See the original license for its exact terms; translated interface labels are not a legal translation.'))
-    if _licenses is None: _licenses=license_records()
-    for index,record in enumerate(_licenses):
-        native.push_id(index)
-        if native.collapsing_header(tr(record.get('kind','Component'))+' / '+str(record.get('name',''))):
-            text=str(record.get('license') or 'Not declared')
-            native.text_wrapped(tr(text) if text=='Not declared' else text)
-            if record.get('notes'): native.text_wrapped(str(record['notes']))
-            url=record.get('url','')
-            if isinstance(url,str) and url.startswith(('https://','http://')) and native.button(label('Open official page / license')): webbrowser.open(url)
-        native.pop_id()
-    if native.collapsing_header(label('Installed dependencies')):
-        global _dependencies
-        if '_dependencies' not in globals(): _dependencies=dependency_records()
-        native.text_wrapped(tr('License information comes from installed package metadata. A missing or incomplete declaration must be checked with the publisher.'))
-        for index,record in enumerate(_dependencies):
-            native.push_id('dependency-'+str(index))
-            if native.collapsing_header(record['name']+' '+record['version']):
-                value=record['license']; native.text_wrapped(tr(value) if value=='Not declared' else value)
-                if record['url'].startswith(('https://','http://')) and native.button(label('Open publisher page')): webbrowser.open(record['url'])
+    cyui.panel_header(tr('Options'), tr('Preferences are saved for this Tool. Model settings and files are not changed.'))
+    cyui.space(6.0)
+    if cyui.begin_section(label('Interface')):
+        if cyui.begin_properties('##interface-preferences'):
+            cyui.property(tr('Language'))
+            changed,index=native.combo('##language',('en','fr').index(preferences.values['language']),['English','Français'])
+            if changed: preferences.values['language']=('en','fr')[index]; preferences.save()
+            cyui.property(tr('Theme'), tr('The CyUI look: one palette for every panel, one accent for what is active.'))
+            names=[tr(name) for key,name,_values,_light in cyui.THEMES]
+            current=THEMES.index(preferences.values['theme']) if preferences.values['theme'] in THEMES else 0
+            changed,index=native.combo('##theme',current,names)
+            if changed: preferences.values['theme']=THEMES[index]; preferences.save(); apply_style()
+            cyui.property(tr('Density'), tr('Compact fits more on screen; comfortable gives every control more room.'))
+            densities=('compact','comfortable')
+            changed,index=cyui.segmented('##density',[tr('Compact'),tr('Comfortable')],densities.index(preferences.values['density']),-1.0)
+            if changed: preferences.values['density']=densities[index]; preferences.save(); apply_style()
+            cyui.property(tr('Text size'))
+            changed,scale=native.slider_float('##text-size',preferences.values['font_scale'],.8,1.6,'%.2fx')
+            if changed: preferences.values['font_scale']=scale; preferences.save(); apply_style()
+            cyui.end_properties()
+        if cyui.button(label('Reset interface preferences')):
+            preferences.values=dict(DEFAULTS); preferences.save(); apply_style()
+        cyui.end_section()
+    if cyui.begin_section(label('Generation configurations'), False):
+        configuration_panel()
+        cyui.end_section()
+    if cyui.begin_section(label('Installation storage'), False):
+        from installation_ui import panel as installation_panel
+        installation_panel(native, tr, label)
+        cyui.end_section()
+    if cyui.begin_section(label('Licenses'), False):
+        cyui.callout('info', tr('Application, engine and model licenses are separate. Missing information does not grant usage rights. See the original license for its exact terms; translated interface labels are not a legal translation.'))
+        cyui.space(4.0)
+        if _licenses is None: _licenses=license_records()
+        for index,record in enumerate(_licenses):
+            native.push_id(index)
+            if native.collapsing_header(tr(record.get('kind','Component'))+' / '+str(record.get('name',''))):
+                text=str(record.get('license') or 'Not declared')
+                native.text_wrapped(tr(text) if text=='Not declared' else text)
+                if record.get('notes'): cyui.text_dim(str(record['notes']))
+                url=record.get('url','')
+                if isinstance(url,str) and url.startswith(('https://','http://')) and cyui.button(label('Open official page / license')): webbrowser.open(url)
             native.pop_id()
+        if native.collapsing_header(label('Installed dependencies')):
+            global _dependencies
+            if '_dependencies' not in globals(): _dependencies=dependency_records()
+            cyui.text_faint(tr('License information comes from installed package metadata. A missing or incomplete declaration must be checked with the publisher.'))
+            for index,record in enumerate(_dependencies):
+                native.push_id('dependency-'+str(index))
+                if native.collapsing_header(record['name']+' '+record['version']):
+                    value=record['license']; native.text_wrapped(tr(value) if value=='Not declared' else value)
+                    if record['url'].startswith(('https://','http://')) and cyui.button(label('Open publisher page')): webbrowser.open(record['url'])
+                native.pop_id()
+        cyui.end_section()
 
 def options_tab():
     global _inside_options
@@ -437,7 +470,8 @@ def options_tab():
         try: options_panel()
         finally: _inside_options=False; native.end_tab_item()
 
-def run(runner):
+def run(runner, own_navigation=False):
+    """own_navigation: the interface draws the facade pages itself (draw_page) instead of tabs."""
     global _mesh_panel,_model_panel,_advanced_panel
     from imgui_bundle import hello_imgui
     original=runner.callbacks.show_gui
@@ -461,7 +495,7 @@ def run(runner):
     if test_language in ('en','fr'): preferences.values['language']=test_language
     runner.app_window_params.window_title=tr(runner.app_window_params.window_title)
     source=Path(sys.modules['__main__'].__file__).read_text(encoding='utf-8-sig')
-    has_tabs='begin_tab_bar(' in source
+    has_tabs=own_navigation or 'begin_tab_bar(' in source
     def draw():
         nonlocal frames
         frames+=1

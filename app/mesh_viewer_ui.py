@@ -101,44 +101,54 @@ class MeshPanel:
 
     def draw(self,ui,tr,label):
         from imgui_bundle import immvision,portable_file_dialogs as pfd
+        import cyui
         immvision.use_rgb_color_order()
-        if ui.button(label('Open mesh')):
-            self.dialog=pfd.open_file(tr('Open mesh'),str(self.root/'data'),[tr('3D meshes'),'*.glb *.gltf *.obj *.ply *.stl *.off'])
-        ui.same_line()
-        if ui.button(label('Frame mesh (F)')) and self.renderer:self.renderer.camera.reset()
-        ui.same_line();_,self.wire=ui.checkbox(label('Wireframe'),self.wire)
-        ui.same_line();_,self.grid=ui.checkbox(label('Ground / grid'),self.grid)
-        ui.set_next_item_width(160);_,self.mode=ui.combo(label('Navigation'),self.mode,[tr('Orbit'),tr('Free camera')])
-        ui.same_line();ui.set_next_item_width(150)
-        changed,self.scene=ui.combo(label('Scene'),self.scene,[tr('Dark studio'),tr('Light studio'),tr('Outdoor')])
-        if changed:self.save()
-        ui.same_line();ui.set_next_item_width(180)
-        changed,self.lighting=ui.combo(label('Lighting'),self.lighting,[tr('Studio: three lights'),tr('Sun'),tr('Camera light'),tr('Unlit')])
-        if changed:self.save()
-        if ui.collapsing_header(label('Lighting and controls')):
+        if cyui.begin_toolbar('##viewer-toolbar'):
+            if cyui.icon_button(cyui.icon.open_file,tr('Open mesh')):
+                self.dialog=pfd.open_file(tr('Open mesh'),str(self.root/'data'),[tr('3D meshes'),'*.glb *.gltf *.obj *.ply *.stl *.off'])
+            ui.same_line(0.0,cyui.dp(2.0))
+            if cyui.icon_button(cyui.icon.full_screen,tr('Frame mesh (F)')) and self.renderer:self.renderer.camera.reset()
+            cyui.toolbar_separator()
+            if cyui.icon_button(cyui.icon.tiles,tr('Wireframe'),self.wire):self.wire=not self.wire
+            ui.same_line(0.0,cyui.dp(2.0))
+            if cyui.icon_button(cyui.icon.grid,tr('Ground / grid'),self.grid):self.grid=not self.grid
+            cyui.toolbar_separator()
+            _,self.mode=cyui.segmented('##navigation',[tr('Orbit'),tr('Free camera')],self.mode)
+            cyui.tooltip(tr('Navigation'))
+            ui.same_line();ui.set_next_item_width(cyui.dp(150.0))
+            changed,self.scene=ui.combo('##scene',self.scene,[tr('Dark studio'),tr('Light studio'),tr('Outdoor')])
+            cyui.tooltip(tr('Scene'))
+            if changed:self.save()
+            ui.same_line();ui.set_next_item_width(cyui.dp(180.0))
+            changed,self.lighting=ui.combo('##lighting',self.lighting,[tr('Studio: three lights'),tr('Sun'),tr('Camera light'),tr('Unlit')])
+            cyui.tooltip(tr('Lighting'))
+            if changed:self.save()
+        cyui.end_toolbar()
+        if cyui.begin_section(label('Lighting and controls'),False):
             ui.set_next_item_width(160)
             changed,self.keyboard=ui.combo(label('Keyboard layout'),self.keyboard,['WASD','ZQSD'])
             if changed:self.save()
             _,self.exposure=ui.slider_float(label('Exposure'),self.exposure,-6.,6.,'%.1f EV')
             if self.renderer:
                 for i in range(1 if self.lighting in (1,2) else 3):
-                    ui.push_id('light'+str(i));ui.text(tr(('Key light','Fill light','Rim light')[i]))
+                    ui.push_id('light'+str(i));cyui.section_title(tr(('Key light','Fill light','Rim light')[i]))
                     _,self.renderer.light_positions[i]=ui.drag_float3(label('Direction' if self.lighting==1 else 'Position'),self.renderer.light_positions[i],.05)
                     _,self.renderer.light_colors[i]=ui.color_edit3(label('Color'),self.renderer.light_colors[i])
                     _,self.renderer.light_energy[i]=ui.slider_float(label('Intensity'),self.renderer.light_energy[i],0.,20.)
                     ui.pop_id()
-            ui.text_wrapped(tr('WASD / ZQSD or arrows: move. Space / Ctrl: up/down. Q/E (A/E on AZERTY): roll. Shift: faster. Alt: precision. F: frame mesh.'))
-        ui.text_wrapped(tr('Left drag: orbit. Right drag: look. Middle drag or Shift+left: pan. Wheel: zoom. Double-click a surface: orbit around that point.'))
+            ui.push_text_wrap_pos(0.0);cyui.text_faint(tr('WASD / ZQSD or arrows: move. Space / Ctrl: up/down. Q/E (A/E on AZERTY): roll. Shift: faster. Alt: precision. F: frame mesh.'));ui.pop_text_wrap_pos()
+            cyui.end_section()
+        ui.push_text_wrap_pos(0.0);cyui.text_faint(tr('Left drag: orbit. Right drag: look. Middle drag or Shift+left: pan. Wheel: zoom. Double-click a surface: orbit around that point.'));ui.pop_text_wrap_pos()
         if self.dialog is not None and self.dialog.ready(0):
             files=self.dialog.result();self.dialog=None
             if files:self.open(files[0])
         if not self.path:
-            ui.text_wrapped(tr('Generate a mesh or open an existing file. Finished meshes open here automatically.'));return
-        ui.text_disabled(Path(self.path).name)
+            cyui.empty_state(tr('No mesh open'),tr('Generate a mesh or open an existing file. Finished meshes open here automatically.'),cyui.icon.view);return
+        cyui.text_dim(Path(self.path).name)
         # Release the preview GPU context while this UI is running a model job.
         if self.tracked:
             if self.renderer:self.renderer.close();self.renderer=None
-            ui.text_wrapped(tr('Preview paused while a job is running.'));return
+            cyui.empty_state(tr('Preview paused while a job is running.'),tr('The viewport reopens when the job ends.'),cyui.icon.clock);return
         if self.renderer is None:
             try:
                 from mesh_viewer import Viewer
@@ -146,9 +156,9 @@ class MeshPanel:
             except Exception as exc:self.error=str(exc)
         viewer=self.renderer
         if self.error or (viewer and viewer.error):
-            ui.text_wrapped(tr('Preview failed: ')+(self.error or viewer.error));return
+            cyui.callout('error',tr('Preview failed: ')+(self.error or viewer.error));return
         if viewer is None or viewer.image is None:
-            ui.text(tr('Loading 3D model...'));return
+            cyui.spinner('##loading');ui.same_line();cyui.text_dim(tr('Loading 3D model...'));return
         avail=ui.get_content_region_avail()
         width=max(240,int(avail.x));height=max(220,int(avail.y)-38)
         scale=min(1.,1600/width,1100/height)
@@ -175,8 +185,8 @@ class MeshPanel:
             viewer.camera.roll((down(roll)-down('e'))*dt)
             if ui.is_key_pressed(keys.f):viewer.camera.reset()
         viewer.request()
-        ui.text(tr('Triangles: ')+str(viewer.triangles));ui.same_line()
-        ui.text_disabled(tr('PBR preview. Mesh files are unchanged.'))
+        cyui.text_dim(tr('Triangles: ')+str(viewer.triangles));ui.same_line()
+        cyui.text_faint(tr('PBR preview. Mesh files are unchanged.'))
         if self.test:self.loaded_test_frames+=1
 
     def check_test(self,runner):
