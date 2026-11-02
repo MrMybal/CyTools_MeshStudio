@@ -83,4 +83,4 @@ package carries the licence declared on its own page.
 
 The desktop interface is drawn with CyUI, Cyberalien's Dear ImGui library (MIT).
 `app/cyui.py` is an unmodified copy of its Python port, recorded with its SHA-256 in
-`app/cyui.json`; its licence text is `LICENCES/CyUI-MIT.txt`.
+`app/cyui-source.json`; its licence text is `LICENCES/CyUI-MIT.txt`.

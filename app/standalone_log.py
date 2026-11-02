@@ -51,6 +51,8 @@ class Journal:
     def __init__(self,root):
         self.root=Path(root);folder=self.root/'data/logs';folder.mkdir(parents=True,exist_ok=True)
         self.path=folder/'standalone.log';self.selected=self.path;self.text='';self.paused=False;self.last=0.;self.focus=False
+        from gui_log_view import LogView
+        self.log_view=LogView()
         self.copy_thread=None;self.copy_result=None
         self.principals={};self.cursors={};self.files=set();self.bound=set();self.discovery={};self.test='--ui-test-logs' in sys.argv;self.frames=0
         self.handler=RotatingFileHandler(self.path,maxBytes=2*1024*1024,backupCount=3,encoding='utf-8',delay=True)
@@ -137,8 +139,7 @@ class Journal:
             cyui.notify(tr('Log copied to the clipboard'),'success')
         if not self.paused and not self.focus:self.text=self.read()
         with cyui.scoped_font(cyui.mono_font(),0.95),cyui.scoped_color(ui.Col_.frame_bg,cyui.palette().bg0):
-            ui.input_text_multiline('##standalone-log',self.text,ui.ImVec2(-1,max(180,ui.get_content_region_avail().y-4)),flags=ui.InputTextFlags_.read_only)
-        self.focus=ui.is_item_active()
+            self.focus=self.log_view.draw(ui,self.text,self.selected.name,tr)
         if self.test:
             self.frames+=1
             if self.frames==3:

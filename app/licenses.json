@@ -7,9 +7,9 @@
   },
   {
     "kind": "Interface library",
-    "name": "CyUI (2026-10-17T15:13:31)",
+    "name": "CyUI (1.2.0 ff023e6)",
     "license": "MIT",
-    "url": ""
+    "url": "https://github.com/MrMybal/CyUI/blob/main/LICENSE"
   },
   {
     "kind": "Native program",

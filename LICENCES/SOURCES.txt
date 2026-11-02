@@ -88,3 +88,13 @@ The engine environments, the upstream sources they run and the model weights are
 by the application at installation, each under its own licence, several of them
 non-commercial or subject to a personal acceptance. They are listed in
 app/Docs/ThirdPartyNotices.md and shown in the Installation and Options tabs.
+
+CyUI 1.2.0 (MIT)
+Repository: https://github.com/MrMybal/CyUI
+Revision: ff023e646c6a3038b3dfbfd53f6d2b4a2f5955e3
+Selected Python modules and SHA-256: app/cyui-source.json
+Full license: LICENCES/CyUI-MIT.txt
+
+CyUI: MIT. Full license: LICENCES/CyUI-MIT.txt.
+Upstream license: https://github.com/MrMybal/CyUI/blob/main/LICENSE
+Repository: https://github.com/MrMybal/CyUI (currently private; no upstream access required to run this application).

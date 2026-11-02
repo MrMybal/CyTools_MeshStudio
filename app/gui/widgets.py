@@ -15,6 +15,9 @@ from pathlib import Path
 from imgui_bundle import imgui, portable_file_dialogs as pfd
 
 import cyui
+from cyui_modules.inspector import Property, InspectorState, inspector
+from hashlib import blake2b
+from copy import deepcopy
 
 MESH_FILTER = ['Meshes', '*.glb *.gltf *.obj *.ply *.stl *.off', 'All files', '*']
 IMAGE_FILTER = ['Images', '*.png *.jpg *.jpeg *.webp *.bmp *.tif *.tiff', 'All files', '*']
@@ -153,6 +156,7 @@ class ParameterEditor:
     def __init__(self, dialogs, tr=lambda text: text):
         self.dialogs = dialogs
         self.tr = tr
+        self._inspectors = {}
         self._object_file_keys = {}   # list field -> key of its entries that holds the file
 
     def accept_path(self, purpose, result, values):
@@ -246,23 +250,23 @@ class ParameterEditor:
                 return self._list_field(owner, name, schema, values, current)
             if kind_type == 'array' and (schema.get('items') or {}).get('type') == 'object':
                 return self._object_list_field(owner, name, schema, values, current)
-            if schema.get('enum'):
-                choices = [str(item) for item in schema['enum']]
-                index = choices.index(str(current)) if str(current) in choices else 0
-                modified, index = imgui.combo(hidden, index, choices)
-                remember_combo(label)
-                if modified:
-                    values[name] = schema['enum'][index]
-                return modified
-            if kind_type == 'boolean':
-                modified, value = cyui.toggle_switch(hidden, bool(current))
-                if modified:
-                    values[name] = value
-                return modified
-            if kind_type == 'integer':
-                return self._number_field(name, schema, values, current, integer=True)
-            if kind_type == 'number':
-                return self._number_field(name, schema, values, current, integer=False)
+            if schema.get('enum') or kind_type in ('boolean', 'integer', 'number'):
+                identity=f'{owner}#{name}'
+                stable=int.from_bytes(blake2b(identity.encode('utf-8'),digest_size=8).digest(),'big') or 1
+                entry=self._inspectors.setdefault(identity,{'state':InspectorState(),'last':deepcopy(current),'revision':0})
+                if entry['last']!=current:
+                    entry['revision']+=1;entry['last']=deepcopy(current)
+                enum=schema.get('enum') or []
+                value=str(current) if enum else bool(current) if kind_type=='boolean' else int(current) if kind_type=='integer' else float(current)
+                prop=Property(stable,'',value,minimum=schema.get('minimum'),maximum=schema.get('maximum'),choices=tuple(map(str,enum)))
+                events=inspector('##scalar',entry['state'],[prop],entry['revision'])
+                if enum:remember_combo(label)
+                for _,event in events:
+                    if event.phase=='commit':
+                        value=enum[list(map(str,enum)).index(event.value)] if enum else event.value
+                        values[name]=value;entry['last']=deepcopy(value)
+                        return True
+                return False
             if kind_type in ('object', 'array') or kind == 'MultilineString':
                 text = current if isinstance(current, str) else (
                     json.dumps(current, ensure_ascii=False) if kind_type in ('object', 'array') else str(current or ''))

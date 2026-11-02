@@ -101,6 +101,8 @@ class MeshPanel:
 
     def draw(self,ui,tr,label):
         from imgui_bundle import immvision,portable_file_dialogs as pfd
+        from cyui_modules.viewport import ViewportState, viewport
+        from cyui_modules.images import ImageData
         import cyui
         immvision.use_rgb_color_order()
         if cyui.begin_toolbar('##viewer-toolbar'):
@@ -164,7 +166,14 @@ class MeshPanel:
         scale=min(1.,1600/width,1100/height)
         viewer.size=(max(1,int(width*scale)),max(1,int(height*scale)))
         viewer.wireframe=self.wire;viewer.grid=self.grid;viewer.scene=self.scene;viewer.lighting=self.lighting;viewer.exposure=self.exposure
-        mouse=immvision.image_display('##cytools-mesh-viewport',viewer.image,image_display_size=(width,height),refresh_image=True)
+        if not hasattr(self,'surface_state'):
+            self.surface_state=ViewportState();self.surface_texture=immvision.GlTexture()
+        self.surface_texture.update_from_image(viewer.image)
+        result=viewport('##cytools-mesh-viewport',self.surface_state,
+                        ImageData(self.surface_texture.texture_id,viewer.image.shape[1],viewer.image.shape[0]),
+                        (width,height),navigation=False)
+        uv=result['uv']
+        mouse=(uv[0]*viewer.image.shape[1],uv[1]*viewer.image.shape[0]) if uv else (-1,-1)
         hovered=mouse[0]>=0;io=ui.get_io()
         if ui.is_mouse_clicked(0) or ui.is_mouse_clicked(1) or ui.is_mouse_clicked(2):self.focused=hovered
         if hovered:
@@ -200,6 +209,7 @@ class MeshPanel:
             runner.app_shall_exit=True
 
     def close(self):
+        if hasattr(self,'surface_texture'):self.surface_texture=None
         if self.dialog:self.dialog.kill()
         if self.renderer:self.renderer.close();self.renderer=None
 

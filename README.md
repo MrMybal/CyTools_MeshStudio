@@ -177,3 +177,13 @@ The engines, upstream sources, native programs and model weights are fetched at
 installation, under their own licences — several of them non-commercial. They are listed in
 [app/Docs/ThirdPartyNotices.md](app/Docs/ThirdPartyNotices.md), generated from
 `app/engines.json` and `app/models/catalog.json`.
+
+## Modular CyUI
+
+The standalone interface uses the pinned, selected CyUI 1.2 modules. See
+[the migration and validation notes](app/Docs/CyUIMigration.md) for replacements, retained host
+adaptations, source hashes and reproducible refresh instructions.
+
+CyUI: MIT. Full license: LICENCES/CyUI-MIT.txt.
+Upstream license: https://github.com/MrMybal/CyUI/blob/main/LICENSE
+Repository: https://github.com/MrMybal/CyUI (currently private; no upstream access required to run this application).

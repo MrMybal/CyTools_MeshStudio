@@ -70,12 +70,12 @@ def main():
                        'url': 'https://github.com/MrMybal/CyToolsCore'})
     # The interface library is vendored: its origin record says which copy is shipped.
     try:
-        cyui = json.loads((APP / 'cyui.json').read_text('utf-8'))
+        cyui = json.loads((APP / 'cyui-source.json').read_text('utf-8'))
     except (OSError, ValueError):
         cyui = {}
     if cyui:
-        records.insert(1, {'kind': 'Interface library', 'name': f"CyUI ({cyui.get('sourceModified', '')})",
-                           'license': cyui.get('licence', 'MIT'), 'url': ''})
+        records.insert(1, {'kind': 'Interface library', 'name': f"CyUI ({cyui.get('version', '')+' '+cyui.get('revision', '')[:7]})",
+                           'license': cyui.get('license', 'MIT'), 'url': 'https://github.com/MrMybal/CyUI/blob/main/LICENSE'})
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from build_release import PARTS, PIP_VERSION  # noqa: E402 - the pins live in one place
     lines += ['', '## Runtime of the Windows binary release', '',
@@ -100,7 +100,7 @@ def main():
               '## Interface library', '',
               'The desktop interface is drawn with CyUI, Cyberalien\'s Dear ImGui library (MIT).',
               '`app/cyui.py` is an unmodified copy of its Python port, recorded with its SHA-256 in',
-              '`app/cyui.json`; its licence text is `LICENCES/CyUI-MIT.txt`.', '']
+              '`app/cyui-source.json`; its licence text is `LICENCES/CyUI-MIT.txt`.', '']
     OUT.write_text('\n'.join(lines), encoding='utf-8')
     OPTIONS.write_text(json.dumps(records, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
     print(f'{OUT}: {sum(1 for line in lines if line.startswith("| ") and not line.startswith("| Engine") and not line.startswith("| Model"))} rows')
