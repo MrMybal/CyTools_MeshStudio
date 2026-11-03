@@ -19,6 +19,25 @@ and [app/Docs/Workflow.md](app/Docs/Workflow.md).
 Only Windows 10 with an NVIDIA card has been executed. The Linux launcher exists and has
 never been run.
 
+## Screenshots
+
+The standalone interface in English (version 0.1.3). Click an image to view it at full size.
+
+**Interactive 3D viewer** — orbit and free-camera navigation, scene presets and studio
+lighting. The mesh shown here is a procedural demonstration object, not an AI reconstruction.
+
+![MeshStudio 3D viewport showing a copper knot on a plinth under studio lighting](docs/screenshots/meshstudio-3d-viewer.png)
+
+**Reconstruction workspace** — browse the mesh operations and configure image inputs,
+quality, seed and GPU selection. Engines and model weights are installed separately.
+
+![MeshStudio reconstruction workspace with the LocalMesh operation and its parameters](docs/screenshots/meshstudio-reconstruction.png)
+
+**PBR baking** — configure texture resolution, UV handling, metallic and roughness
+channels, alpha and GLB export.
+
+![MeshStudio PBR baking form with texture resolution and material channel settings](docs/screenshots/meshstudio-pbr.png)
+
 ## What this repository contains, and what it does not
 
 The repository carries the application (`app/`), the shipped workflows and the small test
