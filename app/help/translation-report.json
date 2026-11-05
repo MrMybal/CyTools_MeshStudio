@@ -50,10 +50,16 @@
       "expectedRevision": "eadd7770aee41528"
     },
     {
+      "id": "guide-app-documentation-publishing",
+      "title": "Publishing the CyDoc reader",
+      "locale": "fr",
+      "expectedRevision": "b562dc61a9c8a861"
+    },
+    {
       "id": "guide-app-documentation-readme",
       "title": "Local documentation (CyDoc)",
       "locale": "fr",
-      "expectedRevision": "7813cec244e6cdf6"
+      "expectedRevision": "426797fcd81b6085"
     },
     {
       "id": "guide-app-documentation-validation",
@@ -65,13 +71,13 @@
       "id": "guide-app-readme",
       "title": "CyTools_MeshStudio — developer notes",
       "locale": "fr",
-      "expectedRevision": "9fae4c796b51edd0"
+      "expectedRevision": "f3ac1567d85d6622"
     },
     {
       "id": "guide-readme",
       "title": "CyTools_MeshStudio",
       "locale": "fr",
-      "expectedRevision": "9b30673d8798f082"
+      "expectedRevision": "8c27db46f35cb2da"
     },
     {
       "id": "licenses",

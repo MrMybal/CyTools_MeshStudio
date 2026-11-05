@@ -40,14 +40,15 @@
     "app/Docs/ToolManifest.md",
     "app/Docs/Transports.md",
     "app/Docs/UnrealIntegration.md",
+    "app/Docs/UpdateExistingProducts.md",
     "app/Docs/Validation.md",
     "app/Docs/Versioning.md",
     "app/Docs/Workers.md",
     "app/Docs/Workflow.md",
     "app/README.md",
+    "app/documentation/PUBLISHING.md",
     "app/documentation/README.md",
-    "app/documentation/VALIDATION.md",
-    "app/Docs/UpdateExistingProducts.md"
+    "app/documentation/VALIDATION.md"
   ],
   "productGuides": [
     "Architecture.md",

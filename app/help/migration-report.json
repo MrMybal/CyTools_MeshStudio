@@ -5,13 +5,13 @@
       "source": "LISEZ-MOI.md",
       "id": "guide-lisez-moi",
       "locale": "fr",
-      "sha256": "cab9f3b3e3b84e564fe835b99d8e5a5e0d866c26888ad8c2a15a72990f7623c9"
+      "sha256": "8dc29a091132b90ff1f8ad91fad8c912a2cbfa2fdd9ab8c722258f16e08628ce"
     },
     {
       "source": "README.md",
       "id": "guide-readme",
       "locale": "en",
-      "sha256": "d4bf2e270805a8777c2c0d2de2ea49283ebd7b73e3f8834008d8d36788ebcfa5"
+      "sha256": "861d349c57b4dfe56880c0b2babf36e9afd0b088d87ff3b0cd09b71e6b626cf6"
     },
     {
       "source": "app/Docs/Architecture.md",
@@ -230,6 +230,12 @@
       "sha256": "1de4fe44fab07b6cb68e4bb1e32fded4eb37c3bc72017ef689d8974d81324592"
     },
     {
+      "source": "app/Docs/UpdateExistingProducts.md",
+      "id": "guide-app-docs-updateexistingproducts",
+      "locale": "fr",
+      "sha256": "e5bc631ad94276f8bb443df98f877707ad4aa0376ac5aca7293586368373266c"
+    },
+    {
       "source": "app/Docs/Validation.md",
       "id": "guide-app-docs-validation",
       "locale": "en",
@@ -257,25 +263,25 @@
       "source": "app/README.md",
       "id": "guide-app-readme",
       "locale": "en",
-      "sha256": "bf3b6ad3c917b046c6944fb4c3b9e9a8caca9cdbe243e72b3f894dbe32a66d74"
+      "sha256": "84cc4572df52a61908442af57e8505758c7c2d46dd96963c327e930c0bd546d6"
+    },
+    {
+      "source": "app/documentation/PUBLISHING.md",
+      "id": "guide-app-documentation-publishing",
+      "locale": "en",
+      "sha256": "025428805a1981da11c8fa78171c0c100269c7d824d29adc661cab0c8775395e"
     },
     {
       "source": "app/documentation/README.md",
       "id": "guide-app-documentation-readme",
       "locale": "en",
-      "sha256": "aebad11f76f73968b71d99a280f47c556fd97038915ae0992b784e5b205616da"
+      "sha256": "1f6a70ebdc73b218a144e754f985147740256fefc1ed4a115d2c0257455a0286"
     },
     {
       "source": "app/documentation/VALIDATION.md",
       "id": "guide-app-documentation-validation",
       "locale": "en",
       "sha256": "1d5321c9d028673aa6de27c8294f14efcd7d54e622121407e1c1a7f022df3fa9"
-    },
-    {
-      "source": "app/Docs/UpdateExistingProducts.md",
-      "id": "guide-app-docs-updateexistingproducts",
-      "locale": "fr",
-      "sha256": "e5bc631ad94276f8bb443df98f877707ad4aa0376ac5aca7293586368373266c"
     }
   ],
   "issues": [],

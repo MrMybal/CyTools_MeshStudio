@@ -1,5 +1,7 @@
 # CyTools_MeshStudio — developer notes
 
+[Documentation](https://mrmybal.github.io/CyTools_MeshStudio/#/en/guide-app-readme) · [Français](https://mrmybal.github.io/CyTools_MeshStudio/#/fr/overview)
+
 The user-facing guide is `../LISEZ-MOI.md`; the design is in `Docs/Architecture.md` and
 `Docs/Workflow.md`; what was actually executed is in `../data/reports/VALIDATION.md`.
 

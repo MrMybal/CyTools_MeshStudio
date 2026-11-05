@@ -1,5 +1,7 @@
 # CyTools_MeshStudio
 
+[Documentation](https://mrmybal.github.io/CyTools_MeshStudio/#/fr/overview) · [English](https://mrmybal.github.io/CyTools_MeshStudio/#/en/overview)
+
 Un seul outil pour les maillages : les opérations spécialisées (reconstruction, vues,
 remaillage, UV, PBR, rig, mouvement, édition) et les workflows qui les enchaînent.
 Il remplace onze Tools, dont les poids ont été **déplacés** ici (49,9 Gio) et le code
@@ -236,4 +238,4 @@ application keep their own licences, several of them non-commercial: they are li
 
 ## Documentation locale
 
-Dans l’application, ouvrir **Options → Ouvrir le manuel local (F1)** ou appuyer sur **F1**. Le lecteur hors ligne complet est livré dans [`app/help/index.html`](app/help/index.html). [Régénérer le manuel](app/documentation/README.md).
+Dans l’application, ouvrir **Options → Ouvrir le manuel local (F1)** ou appuyer sur **F1**. Le lecteur hors ligne complet est livré dans `app/help/index.html`. [Régénérer le manuel](app/documentation/README.md).

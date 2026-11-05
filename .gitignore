@@ -49,3 +49,6 @@ __pycache__/
 .idea/
 Thumbs.db
 .DS_Store
+/_site/
+/_site.previous/
+/_pages-stage-*/
