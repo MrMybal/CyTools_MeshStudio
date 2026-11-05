@@ -112,5 +112,12 @@
     "name": "QuadWild Bi-MDF v0.0.2 (Windows binaries)",
     "license": "GPL-3.0",
     "url": "https://github.com/cgg-bern/quadwild-bimdf"
+  },
+  {
+    "kind": "Library",
+    "name": "CyDoc 0.1.0",
+    "license": "MIT",
+    "url": "https://github.com/MrMybal/CyDoc",
+    "notes": "Local documentation reader; full license in LICENCES/CyDoc-MIT.txt. Build dependencies are not required for reading."
   }
 ]

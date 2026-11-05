@@ -1,0 +1,838 @@
+{
+  "schemaVersion": 1,
+  "legacyPaths": {
+    "LISEZ-MOI.md": "guide-lisez-moi",
+    "README.md": "guide-readme",
+    "app/Docs/Architecture.md": "guide-app-docs-architecture",
+    "app/Docs/AutomaticInputs.md": "guide-app-docs-automaticinputs",
+    "app/Docs/CreatingYourFirstCyTool.md": "guide-app-docs-creatingyourfirstcytool",
+    "app/Docs/CyUIMigration.md": "guide-app-docs-cyuimigration",
+    "app/Docs/Dependencies.md": "guide-app-docs-dependencies",
+    "app/Docs/Downloads.md": "guide-app-docs-downloads",
+    "app/Docs/ErrorModel.md": "guide-app-docs-errormodel",
+    "app/Docs/Events.md": "guide-app-docs-events",
+    "app/Docs/FullOperationAccess.md": "guide-app-docs-fulloperationaccess",
+    "app/Docs/GenerationConfigurations.md": "guide-app-docs-generationconfigurations",
+    "app/Docs/ImplementationStatus.md": "guide-app-docs-implementationstatus",
+    "app/Docs/Index.md": "guide-app-docs-index",
+    "app/Docs/Jobs.md": "guide-app-docs-jobs",
+    "app/Docs/Licensing.md": "guide-app-docs-licensing",
+    "app/Docs/Localization.md": "guide-app-docs-localization",
+    "app/Docs/MCP.md": "guide-app-docs-mcp",
+    "app/Docs/MeshViewer.md": "guide-app-docs-meshviewer",
+    "app/Docs/Models.md": "guide-app-docs-models",
+    "app/Docs/MultiClient.md": "guide-app-docs-multiclient",
+    "app/Docs/Operations.md": "guide-app-docs-operations",
+    "app/Docs/Outputs.md": "guide-app-docs-outputs",
+    "app/Docs/Overview.md": "guide-app-docs-overview",
+    "app/Docs/Parameters.md": "guide-app-docs-parameters",
+    "app/Docs/Platforms.md": "guide-app-docs-platforms",
+    "app/Docs/Protocol.md": "guide-app-docs-protocol",
+    "app/Docs/Resources.md": "guide-app-docs-resources",
+    "app/Docs/Scheduler.md": "guide-app-docs-scheduler",
+    "app/Docs/SharedInstallation.md": "guide-app-docs-sharedinstallation",
+    "app/Docs/StandaloneDelivery.md": "guide-app-docs-standalonedelivery",
+    "app/Docs/StandaloneDiagnosticsAndModels.md": "guide-app-docs-standalonediagnosticsandmodels",
+    "app/Docs/TaskFiles.md": "guide-app-docs-taskfiles",
+    "app/Docs/ThirdPartyNotices.md": "guide-app-docs-thirdpartynotices",
+    "app/Docs/ToolFinalization.md": "guide-app-docs-toolfinalization",
+    "app/Docs/ToolManifest.md": "guide-app-docs-toolmanifest",
+    "app/Docs/Transports.md": "guide-app-docs-transports",
+    "app/Docs/UnrealIntegration.md": "guide-app-docs-unrealintegration",
+    "app/Docs/Validation.md": "guide-app-docs-validation",
+    "app/Docs/Versioning.md": "guide-app-docs-versioning",
+    "app/Docs/Workers.md": "guide-app-docs-workers",
+    "app/Docs/Workflow.md": "guide-app-docs-workflow",
+    "app/README.md": "guide-app-readme",
+    "app/documentation/README.md": "guide-app-documentation-readme",
+    "app/documentation/VALIDATION.md": "guide-app-documentation-validation",
+    "app/Docs/UpdateExistingProducts.md": "guide-app-docs-updateexistingproducts"
+  },
+  "pages": {
+    "guide-app-docs-architecture": {
+      "headings": [
+        "cytools-meshstudio-architecture",
+        "what-it-absorbs",
+        "deduplication",
+        "runtime-structure",
+        "operations",
+        "models-catalogue-install-plan-licensed-files",
+        "updates-three-streams-one-swap",
+        "interface-tests",
+        "the-parameter-editor",
+        "verification-rules"
+      ],
+      "locale": "en"
+    },
+    "guide-app-docs-automaticinputs": {
+      "headings": [
+        "entrees-locales-automatiques",
+        "duree-de-vie",
+        "task-owned-files-sdk-0-9-0"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-creatingyourfirstcytool": {
+      "headings": [
+        "creer-son-premier-cytool",
+        "ajouter-une-operation",
+        "lancer-en-mcp",
+        "livrer"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-cyuimigration": {
+      "headings": [
+        "modular-cyui-integration",
+        "selected-modules-and-replacements",
+        "reproducible-source-and-delivery",
+        "host-responsibilities-and-retained-adaptations",
+        "verification"
+      ],
+      "locale": "en"
+    },
+    "guide-app-docs-dependencies": {
+      "headings": [
+        "dependances"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-downloads": {
+      "headings": [
+        "telechargements"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-errormodel": {
+      "headings": [
+        "erreurs"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-events": {
+      "headings": [
+        "evenements-et-logs"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-fulloperationaccess": {
+      "headings": [
+        "capacites-completes-et-orchestration",
+        "obligation-pour-la-creation-ou-la-finalisation-d-un-tool",
+        "client-ia-orchestrateur",
+        "composition-des-taches",
+        "portee-de-la-livraison-0-7-0",
+        "task-owned-files-sdk-0-9-0"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-generationconfigurations": {
+      "headings": [
+        "sauvegarder-et-recharger-une-configuration-de-generation",
+        "format-portable-versionne",
+        "reutilisation-par-une-ia",
+        "integration-et-tests"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-implementationstatus": {
+      "headings": [
+        "etat-de-l-implementation-0-10-1",
+        "limites-explicites",
+        "installation-partagee-0-4-0",
+        "statut-et-groupes-d-exclusivite-0-10-0"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-index": {
+      "headings": [
+        "documentation-cytoolscore",
+        "pour-creer-un-tool",
+        "standard-et-architecture",
+        "execution",
+        "validation-et-limites"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-jobs": {
+      "headings": [
+        "jobs"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-licensing": {
+      "headings": [
+        "licence-et-redistribution",
+        "depots-sources"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-localization": {
+      "headings": [
+        "interface-multilingue-options-et-licences",
+        "comportement-attendu",
+        "integration-fournie-par-cytools-new-desktop",
+        "licences-dans-options",
+        "validation"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-mcp": {
+      "headings": [
+        "adaptateur-mcp"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-meshviewer": {
+      "headings": [
+        "visualisation-3d-obligatoire-pour-les-tools-de-maillage",
+        "interaction",
+        "scene-et-materiaux",
+        "integration-fournie",
+        "verification-avant-livraison"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-models": {
+      "headings": [
+        "backends-et-modeles"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-multiclient": {
+      "headings": [
+        "plusieurs-clients-sur-un-meme-tool"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-operations": {
+      "headings": [
+        "operations"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-outputs": {
+      "headings": [
+        "sorties"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-overview": {
+      "headings": [
+        "vue-d-ensemble"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-parameters": {
+      "headings": [
+        "parametres-et-generation-d-ui"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-platforms": {
+      "headings": [
+        "plateformes"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-protocol": {
+      "headings": [
+        "cytools-protocol-1-0",
+        "temporary-tasks-sdk-0-9-0",
+        "statut-et-attente-de-concurrence-sdk-0-10-0"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-resources": {
+      "headings": [
+        "ressources"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-scheduler": {
+      "headings": [
+        "scheduler-local",
+        "groupes-d-exclusivite-par-operation-sdk-0-10-0"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-sharedinstallation": {
+      "headings": [
+        "stockage-des-installations-et-telechargements",
+        "options-communes",
+        "ce-que-le-sdk-implemente",
+        "integration-obligatoire",
+        "acces-aux-modeles-et-premier-lancement",
+        "verifications"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-standalonedelivery": {
+      "headings": [
+        "livraison-obligatoire-d-un-cytool-autonome",
+        "1-dossier-utilisateur-propre",
+        "2-une-vraie-interface-dear-imgui",
+        "3-installer-un-modele-depuis-l-interface",
+        "4-github-application-moteur-et-poids-sont-distincts",
+        "5-lanceurs-et-distribution",
+        "6-verifications-de-livraison",
+        "journaux-et-modeles"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-standalonediagnosticsandmodels": {
+      "headings": [
+        "journaux-modeles-personnalises-lora-et-peripheriques",
+        "journal-consultable-et-copiable",
+        "resolution-video-et-peripherique",
+        "bibliotheque-locale-et-lora",
+        "validation"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-taskfiles": {
+      "headings": [
+        "task-files-sdk-0-9-0",
+        "tool-implementation-mandatory",
+        "ai-mcp-use",
+        "standalone-and-compatibility",
+        "verification-required-before-delivery"
+      ],
+      "locale": "en"
+    },
+    "guide-app-docs-thirdpartynotices": {
+      "headings": [
+        "third-party-notices",
+        "upstream-sources-and-native-programs",
+        "model-weights",
+        "runtime-of-the-windows-binary-release",
+        "sdk-and-python-packages",
+        "interface-library"
+      ],
+      "locale": "en"
+    },
+    "guide-app-docs-toolfinalization": {
+      "headings": [
+        "tool-delivery-checklist"
+      ],
+      "locale": "en"
+    },
+    "guide-app-docs-toolmanifest": {
+      "headings": [
+        "manifest-du-tool"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-transports": {
+      "headings": [
+        "transports"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-unrealintegration": {
+      "headings": [
+        "unreal-integration"
+      ],
+      "locale": "en"
+    },
+    "guide-app-docs-updateexistingproducts": {
+      "headings": [
+        "mettre-a-jour-les-logiciels-et-plugins-qui-utilisent-les-sdk-cy",
+        "1-sauvegarder-avant-toute-modification",
+        "2-identifier-l-integration-et-les-versions-reellement-utilisees",
+        "3-mettre-a-jour-le-core-dans-le-logiciel",
+        "4-livrer-les-licences-et-sources-dans-licences",
+        "5-adapter-cyuemcpsdk-a-chaque-plugin-unreal",
+        "6-verifier-la-livraison-reelle",
+        "7-livrer-la-migration"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-validation": {
+      "headings": [
+        "validation"
+      ],
+      "locale": "en"
+    },
+    "guide-app-docs-versioning": {
+      "headings": [
+        "versions-et-compatibilite",
+        "sdk-0-10-0",
+        "sdk-0-10-1"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-workers": {
+      "headings": [
+        "workers-et-liberation",
+        "statut-des-adaptateurs-personnalises"
+      ],
+      "locale": "fr"
+    },
+    "guide-app-docs-workflow": {
+      "headings": [
+        "workflows",
+        "what-localmesh-did-and-what-it-cost-to-learn",
+        "the-shared-front-end",
+        "feeding-a-step-from-another",
+        "what-a-folder-means-input-mode",
+        "when-a-step-fails-continue-on-error",
+        "the-workflows-shipped-in-data-workflows",
+        "resident-sessions",
+        "resources"
+      ],
+      "locale": "en"
+    },
+    "guide-app-documentation-readme": {
+      "headings": [
+        "local-documentation-cydoc"
+      ],
+      "locale": "en"
+    },
+    "guide-app-documentation-validation": {
+      "headings": [
+        "cydoc-migration-validation",
+        "scope",
+        "checks-executed-on-windows",
+        "limits",
+        "regenerate-and-verify"
+      ],
+      "locale": "en"
+    },
+    "guide-app-readme": {
+      "headings": [
+        "cytools-meshstudio-developer-notes",
+        "layout",
+        "release-archives",
+        "after-changing-anything",
+        "command-line-and-mcp",
+        "rules-kept-here",
+        "application-icon",
+        "modular-cyui"
+      ],
+      "locale": "en"
+    },
+    "guide-lisez-moi": {
+      "headings": [
+        "cytools-meshstudio",
+        "demarrer",
+        "les-pages",
+        "ce-qui-a-ete-reellement-execute-ici",
+        "localmesh-une-image-vers-un-modele-de-production",
+        "les-autres-workflows-fournis",
+        "ce-qui-manque-encore-et-pourquoi",
+        "ligne-de-commande-et-mcp",
+        "organisation",
+        "tests",
+        "licence",
+        "documentation-locale"
+      ],
+      "locale": "fr"
+    },
+    "guide-readme": {
+      "headings": [
+        "cytools-meshstudio",
+        "screenshots",
+        "what-this-repository-contains-and-what-it-does-not",
+        "binary-release-windows-x64",
+        "from-a-clone",
+        "updates",
+        "0-1-2-the-interface",
+        "updating-from-0-1-0-and-going-back",
+        "tests",
+        "licence",
+        "modular-cyui",
+        "local-documentation"
+      ],
+      "locale": "en"
+    },
+    "licenses": {
+      "headings": [],
+      "locale": "en"
+    },
+    "mesh-preview": {
+      "headings": [],
+      "locale": "fr"
+    },
+    "migration-notes": {
+      "headings": [
+        "scope",
+        "modules",
+        "source-documentation",
+        "gaps"
+      ],
+      "locale": "en"
+    },
+    "operation-activate-update": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-analyze-views": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-check-update": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-complete-subject": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-construct-proxy": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-diagnose": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-image-to-mesh-hi3dgen": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-image-to-mesh-spar3d": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-image-to-mesh-triposr": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-import-model-file": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-install-engine": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-install-model": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-list-models": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-list-workflows": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-mesh-convert": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-mesh-edit": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-mesh-inspect": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-mesh-to-rig": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-photos-to-mesh": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-prepare-subject": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-refine-mesh": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-remesh-auto": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-remesh-field": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-rollback-update": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-run-workflow": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-save-workflow": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-segment-object": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-stage-update": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-texture-mesh": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-texture-pbr": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-update-status": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-uv-repack": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-uv-unwrap": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-video-inspect": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-video-to-motion": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-views-auto-complete": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-views-generate": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-views-mirror": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-views-turntable": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operation-views-validate": {
+      "headings": [
+        "contract",
+        "usage"
+      ],
+      "locale": "fr"
+    },
+    "operations": {
+      "headings": [
+        "operations"
+      ],
+      "locale": "fr"
+    },
+    "overview": {
+      "headings": [
+        "getting-started",
+        "contextual-help",
+        "guides",
+        "languages-and-limits"
+      ],
+      "locale": "fr"
+    },
+    "reference-licences-autoremesher-mit-txt": {
+      "headings": [],
+      "locale": "en"
+    },
+    "reference-licences-cydoc-mit-txt": {
+      "headings": [],
+      "locale": "en"
+    },
+    "reference-licences-cytoolscore-mit-txt": {
+      "headings": [],
+      "locale": "en"
+    },
+    "reference-licences-cyui-mit-txt": {
+      "headings": [],
+      "locale": "en"
+    },
+    "reference-licences-pip-mit-txt": {
+      "headings": [],
+      "locale": "en"
+    },
+    "reference-licences-python-3-12-psf-txt": {
+      "headings": [],
+      "locale": "en"
+    },
+    "reference-licences-qt-lgpl-3-0-txt": {
+      "headings": [],
+      "locale": "en"
+    },
+    "reference-licences-quadwild-bimdf-gpl-3-0-txt": {
+      "headings": [],
+      "locale": "en"
+    },
+    "reference-licences-sources-txt": {
+      "headings": [],
+      "locale": "en"
+    },
+    "reference-licences-uv-apache-2-0-txt": {
+      "headings": [],
+      "locale": "en"
+    },
+    "reference-licences-uv-mit-txt": {
+      "headings": [],
+      "locale": "en"
+    },
+    "reference-license": {
+      "headings": [],
+      "locale": "en"
+    },
+    "python-create-runtime-create-runtime": {
+      "headings": [
+        "signature",
+        "source"
+      ],
+      "locale": "fr"
+    },
+    "source-sources-tool-py": {
+      "headings": [
+        "symbols",
+        "dependencies",
+        "source"
+      ],
+      "locale": "fr"
+    },
+    "translation-report": {
+      "headings": [
+        "missing",
+        "outdated",
+        "untracked",
+        "tracking"
+      ],
+      "locale": "fr"
+    }
+  },
+  "modules": [
+    "image",
+    "mesh"
+  ]
+}
