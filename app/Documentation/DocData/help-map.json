@@ -1,0 +1,538 @@
+{
+  "schemaVersion": 2,
+  "legacyPaths": {
+    "LISEZ-MOI.md": "guide-lisez-moi",
+    "README.md": "guide-readme",
+    "app/Docs/Architecture.md": "guide-app-docs-architecture",
+    "app/Docs/AutomaticInputs.md": "guide-app-docs-automaticinputs",
+    "app/Docs/CreatingYourFirstCyTool.md": "guide-app-docs-creatingyourfirstcytool",
+    "app/Docs/CyUIMigration.md": "guide-app-docs-cyuimigration",
+    "app/Docs/Dependencies.md": "guide-app-docs-dependencies",
+    "app/Docs/Downloads.md": "guide-app-docs-downloads",
+    "app/Docs/ErrorModel.md": "guide-app-docs-errormodel",
+    "app/Docs/Events.md": "guide-app-docs-events",
+    "app/Docs/FullOperationAccess.md": "guide-app-docs-fulloperationaccess",
+    "app/Docs/GenerationConfigurations.md": "guide-app-docs-generationconfigurations",
+    "app/Docs/ImplementationStatus.md": "guide-app-docs-implementationstatus",
+    "app/Docs/Index.md": "guide-app-docs-index",
+    "app/Docs/Jobs.md": "guide-app-docs-jobs",
+    "app/Docs/Licensing.md": "guide-app-docs-licensing",
+    "app/Docs/Localization.md": "guide-app-docs-localization",
+    "app/Docs/MCP.md": "guide-app-docs-mcp",
+    "app/Docs/MeshViewer.md": "guide-app-docs-meshviewer",
+    "app/Docs/Models.md": "guide-app-docs-models",
+    "app/Docs/MultiClient.md": "guide-app-docs-multiclient",
+    "app/Docs/Operations.md": "guide-app-docs-operations",
+    "app/Docs/Outputs.md": "guide-app-docs-outputs",
+    "app/Docs/Overview.md": "guide-app-docs-overview",
+    "app/Docs/Parameters.md": "guide-app-docs-parameters",
+    "app/Docs/Platforms.md": "guide-app-docs-platforms",
+    "app/Docs/Protocol.md": "guide-app-docs-protocol",
+    "app/Docs/Resources.md": "guide-app-docs-resources",
+    "app/Docs/Scheduler.md": "guide-app-docs-scheduler",
+    "app/Docs/SharedInstallation.md": "guide-app-docs-sharedinstallation",
+    "app/Docs/StandaloneDelivery.md": "guide-app-docs-standalonedelivery",
+    "app/Docs/StandaloneDiagnosticsAndModels.md": "guide-app-docs-standalonediagnosticsandmodels",
+    "app/Docs/TaskFiles.md": "guide-app-docs-taskfiles",
+    "app/Docs/ThirdPartyNotices.md": "guide-app-docs-thirdpartynotices",
+    "app/Docs/ToolFinalization.md": "guide-app-docs-toolfinalization",
+    "app/Docs/ToolManifest.md": "guide-app-docs-toolmanifest",
+    "app/Docs/Transports.md": "guide-app-docs-transports",
+    "app/Docs/UnrealIntegration.md": "guide-app-docs-unrealintegration",
+    "app/Docs/UpdateExistingProducts.md": "guide-app-docs-updateexistingproducts",
+    "app/Docs/Validation.md": "guide-app-docs-validation",
+    "app/Docs/Versioning.md": "guide-app-docs-versioning",
+    "app/Docs/Workers.md": "guide-app-docs-workers",
+    "app/Docs/Workflow.md": "guide-app-docs-workflow",
+    "app/README.md": "guide-app-readme",
+    "app/documentation/PUBLISHING.md": "guide-app-documentation-publishing",
+    "app/documentation/README.md": "guide-app-documentation-readme",
+    "app/documentation/VALIDATION.md": "guide-app-documentation-validation"
+  },
+  "aliases": {
+    "guide-app-docs-architecture": "overview",
+    "guide-app-docs-automaticinputs": "overview",
+    "guide-app-docs-creatingyourfirstcytool": "overview",
+    "guide-app-docs-cyuimigration": "overview",
+    "guide-app-docs-dependencies": "overview",
+    "guide-app-docs-downloads": "overview",
+    "guide-app-docs-errormodel": "overview",
+    "guide-app-docs-events": "overview",
+    "guide-app-docs-fulloperationaccess": "overview",
+    "guide-app-docs-generationconfigurations": "overview",
+    "guide-app-docs-implementationstatus": "overview",
+    "guide-app-docs-index": "overview",
+    "guide-app-docs-jobs": "overview",
+    "guide-app-docs-licensing": "overview",
+    "guide-app-docs-localization": "overview",
+    "guide-app-docs-mcp": "overview",
+    "guide-app-docs-meshviewer": "overview",
+    "guide-app-docs-models": "overview",
+    "guide-app-docs-multiclient": "overview",
+    "guide-app-docs-operations": "overview",
+    "guide-app-docs-outputs": "overview",
+    "guide-app-docs-overview": "overview",
+    "guide-app-docs-parameters": "overview",
+    "guide-app-docs-platforms": "overview",
+    "guide-app-docs-protocol": "overview",
+    "guide-app-docs-resources": "overview",
+    "guide-app-docs-scheduler": "overview",
+    "guide-app-docs-sharedinstallation": "overview",
+    "guide-app-docs-standalonedelivery": "overview",
+    "guide-app-docs-standalonediagnosticsandmodels": "overview",
+    "guide-app-docs-taskfiles": "overview",
+    "guide-app-docs-thirdpartynotices": "overview",
+    "guide-app-docs-toolfinalization": "overview",
+    "guide-app-docs-toolmanifest": "overview",
+    "guide-app-docs-transports": "overview",
+    "guide-app-docs-unrealintegration": "overview",
+    "guide-app-docs-updateexistingproducts": "overview",
+    "guide-app-docs-validation": "overview",
+    "guide-app-docs-versioning": "overview",
+    "guide-app-docs-workers": "overview",
+    "guide-app-readme": "operations",
+    "guide-app-documentation-publishing": "overview",
+    "guide-app-documentation-readme": "overview",
+    "guide-app-documentation-validation": "overview",
+    "home": "overview",
+    "readme": "guide-readme",
+    "help": "overview",
+    "user-guide": "guide-lisez-moi",
+    "api": "operations",
+    "migration-notes": "overview",
+    "reference-licences-autoremesher-mit-txt": "overview",
+    "reference-licences-cydoc-mit-txt": "overview",
+    "reference-licences-cytoolscore-mit-txt": "overview",
+    "reference-licences-cyui-mit-txt": "overview",
+    "reference-licences-pip-mit-txt": "overview",
+    "reference-licences-python-3-12-psf-txt": "overview",
+    "reference-licences-qt-lgpl-3-0-txt": "overview",
+    "reference-licences-quadwild-bimdf-gpl-3-0-txt": "overview",
+    "reference-licences-sources-txt": "overview",
+    "reference-licences-uv-apache-2-0-txt": "overview",
+    "reference-licences-uv-mit-txt": "overview",
+    "reference-license": "overview",
+    "source-sources-tool-py": "operations",
+    "translation-report": "overview"
+  },
+  "pages": {
+    "guide-app-docs-workflow": {
+      "headings": [
+        "workflows",
+        "the-shared-front-end",
+        "feeding-a-step-from-another",
+        "what-a-folder-means-input-mode",
+        "when-a-step-fails-continue-on-error",
+        "the-workflows-shipped-in-data-workflows",
+        "resources"
+      ],
+      "locale": "fr"
+    },
+    "guide-lisez-moi": {
+      "headings": [
+        "cytools-meshstudio",
+        "demarrer",
+        "les-pages",
+        "localmesh-une-image-vers-un-modele-de-production",
+        "les-autres-workflows-fournis"
+      ],
+      "locale": "fr"
+    },
+    "guide-readme": {
+      "headings": [
+        "workflow",
+        "requirements"
+      ],
+      "locale": "fr"
+    },
+    "installation": {
+      "headings": [
+        "start",
+        "models",
+        "storage"
+      ],
+      "locale": "fr"
+    },
+    "licenses": {
+      "headings": [
+        "application",
+        "models"
+      ],
+      "locale": "fr"
+    },
+    "mesh-preview": {
+      "headings": [
+        "navigate"
+      ],
+      "locale": "fr"
+    },
+    "operation-activate-update": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-analyze-views": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-check-update": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-complete-subject": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-construct-proxy": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-diagnose": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-image-to-mesh-hi3dgen": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-image-to-mesh-spar3d": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-image-to-mesh-triposr": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-import-model-file": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-install-engine": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-install-model": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-list-models": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-list-workflows": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-mesh-convert": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-mesh-edit": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-mesh-inspect": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-mesh-to-rig": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-photos-to-mesh": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-prepare-subject": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-refine-mesh": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-remesh-auto": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-remesh-field": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-rollback-update": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-run-workflow": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-save-workflow": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-segment-object": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-stage-update": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-texture-mesh": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-texture-pbr": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-update-status": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-uv-repack": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-uv-unwrap": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-video-inspect": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-video-to-motion": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-views-auto-complete": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-views-generate": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-views-mirror": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-views-turntable": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operation-views-validate": {
+      "headings": [
+        "contract",
+        "returns",
+        "behaviour"
+      ],
+      "locale": "fr"
+    },
+    "operations": {
+      "headings": [
+        "cli",
+        "mcp",
+        "task-files",
+        "operations"
+      ],
+      "locale": "fr"
+    },
+    "overview": {
+      "headings": [
+        "getting-started",
+        "topics"
+      ],
+      "locale": "fr"
+    },
+    "screenshots": {
+      "headings": [],
+      "locale": "fr"
+    },
+    "settings": {
+      "headings": [
+        "appearance",
+        "configurations",
+        "help"
+      ],
+      "locale": "fr"
+    },
+    "troubleshooting": {
+      "headings": [
+        "installation",
+        "jobs",
+        "outputs"
+      ],
+      "locale": "fr"
+    },
+    "python-create-runtime-create-runtime": {
+      "headings": [
+        "signature",
+        "returns"
+      ],
+      "locale": "fr"
+    }
+  },
+  "modules": [
+    "gallery",
+    "image",
+    "mesh"
+  ]
+}
