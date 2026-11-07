@@ -1,6 +1,6 @@
 # CyTools_MeshStudio
 
-[Documentation](https://mrmybal.github.io/CyTools_MeshStudio/#/en/overview) · [Français](https://mrmybal.github.io/CyTools_MeshStudio/#/fr/overview)
+[Documentation](https://mrmybal.github.io/CyTools_MeshStudio/#/en/overview) · [Website](https://mrmybal.github.io/CyTools_MeshStudio/) · [Français](https://mrmybal.github.io/CyTools_MeshStudio/#/fr/overview)
 
 <p align="center">
   <img src="app/assets/branding/logo.png" alt="CyTools MeshStudio logo" width="160">

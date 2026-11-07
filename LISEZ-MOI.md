@@ -1,6 +1,6 @@
 # CyTools_MeshStudio
 
-[Documentation](https://mrmybal.github.io/CyTools_MeshStudio/#/fr/overview) · [English](https://mrmybal.github.io/CyTools_MeshStudio/#/en/overview)
+[Documentation](https://mrmybal.github.io/CyTools_MeshStudio/#/fr/overview) · [Site web](https://mrmybal.github.io/CyTools_MeshStudio/?lang=fr) · [English](https://mrmybal.github.io/CyTools_MeshStudio/#/en/overview)
 
 Un seul outil pour les maillages : les opérations spécialisées (reconstruction, vues,
 remaillage, UV, PBR, rig, mouvement, édition) et les workflows qui les enchaînent.
