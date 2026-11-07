@@ -1,0 +1,187 @@
+{
+  "accent": "#f6a55e",
+  "category": {
+    "en": "3D / reconstruction & mesh processing",
+    "fr": "3D / reconstruction et traitement de maillages"
+  },
+  "intro": {
+    "en": "From references to a working mesh.",
+    "fr": "Des références au maillage."
+  },
+  "description": {
+    "en": "Reconstruct, inspect and process meshes in one desktop workspace. Choose a compatible engine, prepare the views and continue with topology, UVs or materials.",
+    "fr": "Reconstruisez, inspectez et traitez les maillages dans une même application. Choisissez un moteur compatible, préparez les vues et poursuivez avec la topologie, les UV ou les matériaux."
+  },
+  "audience": {
+    "en": "For 3D artists and technical creators who need visual inspection and composable mesh operations.",
+    "fr": "Pour les artistes 3D et les créateurs techniques qui veulent inspecter les résultats et combiner les opérations de maillage."
+  },
+  "tags": [
+    {
+      "en": "Image → 3D",
+      "fr": "Image → 3D"
+    },
+    {
+      "en": "Remesh",
+      "fr": "Remeshing"
+    },
+    {
+      "en": "UV / PBR",
+      "fr": "UV / PBR"
+    },
+    {
+      "en": "Workflows",
+      "fr": "Workflows"
+    }
+  ],
+  "hero": "viewer",
+  "heroCaption": {
+    "en": "Interactive viewer · procedural demonstration mesh, not an AI reconstruction.",
+    "fr": "Visualiseur interactif · maillage procédural de démonstration, pas une reconstruction IA."
+  },
+  "sections": [
+    {
+      "id": "reconstruction",
+      "label": {
+        "en": "01 / Reconstruction",
+        "fr": "01 / Reconstruction"
+      },
+      "title": {
+        "en": "Choose the engine for the input.",
+        "fr": "Choisissez le moteur adapté à l’entrée."
+      },
+      "body": {
+        "en": "Image reconstruction paths include TripoSR, SPAR3D and LocalMesh / TRELLIS.2. Each engine has its own installation, parameters and model access. Prepare or validate views before running a larger workflow.",
+        "fr": "Les parcours de reconstruction incluent TripoSR, SPAR3D et LocalMesh / TRELLIS.2. Chaque moteur possède son installation, ses paramètres et ses conditions d’accès. Préparez ou validez les vues avant un workflow plus complet."
+      },
+      "points": [
+        {
+          "en": "Image, view preparation and multi-view operations",
+          "fr": "Image, préparation de vues et opérations multivues"
+        },
+        {
+          "en": "Native operation forms and saved workflow recipes",
+          "fr": "Formulaires d’opérations et recettes enregistrées"
+        },
+        {
+          "en": "Backend-specific CPU/GPU requirements",
+          "fr": "Exigences CPU/GPU propres à chaque moteur"
+        }
+      ],
+      "image": "reconstruction",
+      "caption": {
+        "en": "Reconstruction workspace · operation parameters and engine selection.",
+        "fr": "Espace de reconstruction · paramètres de l’opération et choix du moteur."
+      },
+      "doc": "guide-lisez-moi"
+    },
+    {
+      "id": "viewer",
+      "label": {
+        "en": "02 / Inspect the result",
+        "fr": "02 / Inspecter le résultat"
+      },
+      "title": {
+        "en": "Move around the mesh. Look closer.",
+        "fr": "Tournez autour du maillage. Regardez de près."
+      },
+      "body": {
+        "en": "Inspect results in an embedded 3D viewport. Orbit or move the camera freely, zoom into the surface and change scene and lighting presets before judging the output.",
+        "fr": "Inspectez les résultats dans le viewport 3D intégré. Passez de l’orbite à la caméra libre, rapprochez-vous de la surface et changez la scène ou l’éclairage pour examiner le résultat."
+      },
+      "points": [
+        {
+          "en": "Mouse and keyboard navigation",
+          "fr": "Navigation à la souris et au clavier"
+        },
+        {
+          "en": "Orbit and free-camera modes",
+          "fr": "Modes orbital et caméra libre"
+        },
+        {
+          "en": "Studio lighting and scene presets",
+          "fr": "Éclairage studio et scènes prédéfinies"
+        }
+      ],
+      "image": "viewer",
+      "caption": {
+        "en": "The copper knot is a procedural viewer example.",
+        "fr": "Le nœud cuivré est un exemple procédural pour le visualiseur."
+      },
+      "doc": "guide-lisez-moi"
+    },
+    {
+      "id": "materials",
+      "label": {
+        "en": "03 / Topology & materials",
+        "fr": "03 / Topologie et matériaux"
+      },
+      "title": {
+        "en": "Continue beyond reconstruction.",
+        "fr": "Poursuivez après la reconstruction."
+      },
+      "body": {
+        "en": "Run remeshing, UV and PBR operations with their actual settings. Baking exposes resolution, channels and export controls. Compatible rigging and motion tools are separate backends with separate prerequisites.",
+        "fr": "Lancez le remeshing, les UV et le PBR avec leurs réglages réels. Le baking expose résolution, canaux et export. Les outils de rigging et de mouvement utilisent des moteurs et prérequis distincts."
+      },
+      "points": [
+        {
+          "en": "Quad remeshing and mesh inspection",
+          "fr": "Remeshing en quads et inspection des maillages"
+        },
+        {
+          "en": "UV unwrap and repack operations",
+          "fr": "Dépliage et réorganisation des UV"
+        },
+        {
+          "en": "Material channels and GLB output settings",
+          "fr": "Canaux de matériaux et réglages de sortie GLB"
+        }
+      ],
+      "image": "pbr",
+      "caption": {
+        "en": "PBR form · texture size, UV handling and material channels.",
+        "fr": "Formulaire PBR · taille des textures, gestion des UV et canaux de matériaux."
+      },
+      "doc": "guide-lisez-moi"
+    }
+  ],
+  "limits": {
+    "en": "Experimental, tested on Windows with NVIDIA hardware. Linux is unvalidated. Not every installed backend has been run end to end: Hi3DGen GPU inference, some LocalMesh+ paths and high-resolution refinement remain unvalidated. WHAM needs separately licensed SMPL files. Model licences and access vary.",
+    "fr": "Expérimental, testé sous Windows avec du matériel NVIDIA. Linux n’est pas validé. Tous les moteurs installés n’ont pas été exécutés de bout en bout : l’inférence GPU Hi3DGen, certains parcours LocalMesh+ et le raffinement haute résolution restent à valider. WHAM nécessite les fichiers SMPL sous licence distincte. Les licences et accès varient selon le modèle."
+  },
+  "shortName": "MeshStudio",
+  "repository": "CyTools_MeshStudio",
+  "private": false,
+  "licence": "GPL-3.0-only",
+  "logo": "assets/showcase/logo.png",
+  "images": {
+    "viewer": {
+      "file": "assets/showcase/viewer.webp",
+      "width": 1280,
+      "height": 840,
+      "caption": {
+        "en": "Interactive viewer · procedural demonstration mesh, not an AI reconstruction.",
+        "fr": "Visualiseur interactif · maillage procédural de démonstration, pas une reconstruction IA."
+      }
+    },
+    "reconstruction": {
+      "file": "assets/showcase/reconstruction.webp",
+      "width": 1280,
+      "height": 840,
+      "caption": {
+        "en": "Reconstruction workspace · operation parameters and engine selection.",
+        "fr": "Espace de reconstruction · paramètres de l’opération et choix du moteur."
+      }
+    },
+    "pbr": {
+      "file": "assets/showcase/pbr.webp",
+      "width": 1280,
+      "height": 840,
+      "caption": {
+        "en": "PBR form · texture size, UV handling and material channels.",
+        "fr": "Formulaire PBR · taille des textures, gestion des UV et canaux de matériaux."
+      }
+    }
+  }
+}

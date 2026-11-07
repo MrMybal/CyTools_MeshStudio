@@ -1,0 +1,20 @@
+[
+  {
+    "file": "assets/showcase/viewer.webp",
+    "origin": "Repository screenshot: docs/screenshots/meshstudio-3d-viewer.png",
+    "originalSha256": "563c895499be0d0c1b844987fdbb30f3554a5678367716ea02d4b966a1e872c5",
+    "transform": "Full frame, converted to WebP; metadata omitted. No compositing or generative editing."
+  },
+  {
+    "file": "assets/showcase/reconstruction.webp",
+    "origin": "Repository screenshot: docs/screenshots/meshstudio-reconstruction.png",
+    "originalSha256": "0c4ecb24faa0f3de8e037f5599872c7b064ec66b201b10402b65541f495b657d",
+    "transform": "Full frame, converted to WebP; metadata omitted. No compositing or generative editing."
+  },
+  {
+    "file": "assets/showcase/pbr.webp",
+    "origin": "Repository screenshot: docs/screenshots/meshstudio-pbr.png",
+    "originalSha256": "ed2700247dd4d3621712fc44218ee02e776e78935d95ebb54e4616d7ee92dc24",
+    "transform": "Full frame, converted to WebP; metadata omitted. No compositing or generative editing."
+  }
+]
