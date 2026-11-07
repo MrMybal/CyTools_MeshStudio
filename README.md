@@ -1,215 +1,151 @@
-# CyTools_MeshStudio
+<table width="100%">
+  <tr>
+    <td width="300" align="left" valign="top">
+      <a href="https://mrmybal.github.io/CyTools_MeshStudio/">Website</a><br>
+      <a href="https://mrmybal.github.io/CyTools_MeshStudio/Documentation.html#/en/overview">Documentation</a><br>
+      <a href="https://github.com/MrMybal/CyTools_MeshStudio">GitHub</a><br><br>
+      <sub>README</sub><br>
+      <a href="README.md">English</a> · <a href="README.fr.md">Français</a>
+    </td>
+    <td width="400" align="center" valign="middle">
+      <a href="https://mrmybal.github.io/CyTools_MeshStudio/"><img src="app/assets/branding/logo.png" alt="CyTools MeshStudio logo" width="128"></a>
+    </td>
+    <td width="300" align="right" valign="top">
+      <p><sub>Application license</sub><br><a href="LICENSE"><strong>GPL-3.0-only</strong></a></p>
+      <p><sub>Application version</sub><br><a href="VERSION.md"><strong>0.1.4</strong></a><br><strong>EXPERIMENTAL</strong></p>
+      <p><a href="https://github.com/MrMybal/CyTools_MeshStudio/releases/download/v0.1.4/CyTools_MeshStudio-0.1.4-windows-x64.zip"><strong>Download</strong></a><br><sub>Windows x64 · portable</sub></p>
+    </td>
+  </tr>
+</table>
 
-[Documentation](https://mrmybal.github.io/CyTools_MeshStudio/#/en/overview) · [Website](https://mrmybal.github.io/CyTools_MeshStudio/) · [Français](https://mrmybal.github.io/CyTools_MeshStudio/#/fr/overview)
+<h1 align="center">CyTools MeshStudio</h1>
 
-<p align="center">
-  <img src="app/assets/branding/logo.png" alt="CyTools MeshStudio logo" width="160">
-</p>
+Maintained by **Cyberalien**.
 
-Maintenance: **Cyberalien**.
 
-One desktop Tool for meshes: reconstruction from pictures (LocalMesh / TRELLIS.2, Hi3DGen,
-TripoSR, SPAR3D), generated and prepared views, quad remeshing (AutoRemesher, QuadWild),
-UV unwrapping, PBR texturing, mesh editing and inspection, rigging (UniRig), motion from
-video (WHAM), and workflows that chain all of it. It runs as a Dear ImGui application, as
-a command line, and as an MCP server, on the same CyToolsCore runtime.
+Reconstruct, inspect and process meshes in one desktop workspace. Choose a compatible engine, prepare the views and continue with topology, UVs or materials. For 3D artists and technical creators who need visual inspection and composable mesh operations.
 
-The user guide, in French, is [LISEZ-MOI.md](LISEZ-MOI.md). The developer notes are in
-[app/README.md](app/README.md), the design in [app/Docs/Architecture.md](app/Docs/Architecture.md)
-and [app/Docs/Workflow.md](app/Docs/Workflow.md).
+> **EXPERIMENTAL · 0.1.4**
+>
+> Published Windows build for evaluation; some engine paths remain unvalidated. Read the [version notes and known limitations](VERSION.md).
 
-Only Windows 10 with an NVIDIA card has been executed. The Linux launcher exists and has
-never been run.
+[![Interactive viewer · procedural demonstration mesh, not an AI reconstruction.](website/assets/showcase/viewer.webp)](website/assets/showcase/viewer.webp)
 
-## Screenshots
+*Interactive viewer · procedural demonstration mesh, not an AI reconstruction.*
 
-The standalone interface in English (version 0.1.3). Click an image to view it at full size.
 
-**Interactive 3D viewer** — orbit and free-camera navigation, scene presets and studio
-lighting. The mesh shown here is a procedural demonstration object, not an AI reconstruction.
+## The application
 
-![MeshStudio 3D viewport showing a copper knot on a plinth under studio lighting](docs/screenshots/meshstudio-3d-viewer.png)
+### Reconstruction
 
-**Reconstruction workspace** — browse the mesh operations and configure image inputs,
-quality, seed and GPU selection. Engines and model weights are installed separately.
+Image reconstruction paths include TripoSR, SPAR3D and LocalMesh / TRELLIS.2. Each engine has its own installation, parameters and model access. Prepare or validate views before running a larger workflow.
 
-![MeshStudio reconstruction workspace with the LocalMesh operation and its parameters](docs/screenshots/meshstudio-reconstruction.png)
+[![Reconstruction workspace · operation parameters and engine selection.](website/assets/showcase/reconstruction.webp)](website/assets/showcase/reconstruction.webp)
 
-**PBR baking** — configure texture resolution, UV handling, metallic and roughness
-channels, alpha and GLB export.
+*Reconstruction workspace · operation parameters and engine selection.*
 
-![MeshStudio PBR baking form with texture resolution and material channel settings](docs/screenshots/meshstudio-pbr.png)
 
-## What this repository contains, and what it does not
+### Inspect the result
 
-The repository carries the application (`app/`), the shipped workflows and the small test
-fixtures (`data/workflows/`, `data/inputs/`), the user guide, the Linux launcher and the
-licence texts (`LICENSE`, `LICENCES/`).
+Inspect results in an embedded 3D viewport. Orbit or move the camera freely, zoom into the surface and change scene and lighting presets before judging the output.
 
-It does **not** carry:
+### Topology & materials
 
-- **model weights** (`data/models/`, about 61 GiB): installed from the Installation tab or
-  with `install_model`, from the plans in `app/models/install.json`. Several are under
-  non-commercial licences, and some ask for a personal acceptance on their page; the
-  application says which, and never asks for credentials.
-- **`runtime/`**: the private Python of the application, one environment per engine, the
-  pinned upstream checkouts, the native programs, staged updates and backups. All of it is
-  rebuilt with the steps below.
-- **jobs, logs, settings, test reports** (`data/jobs/`, `data/logs/`, `data/settings/`,
-  `data/reports/`): produced on the machine. The CLI token lives in `data/settings/`.
-- **the Windows launcher** `CyTools_MeshStudio.exe`: compiled from `app/launcher.cpp` and
-  attached to each release.
+Run remeshing, UV and PBR operations with their actual settings. Baking exposes resolution, channels and export controls. Compatible rigging and motion tools are separate backends with separate prerequisites.
 
-## Binary release (Windows x64)
+[![PBR form · texture size, UV handling and material channels.](website/assets/showcase/pbr.webp)](website/assets/showcase/pbr.webp)
 
-Each GitHub release carries `CyTools_MeshStudio-<version>-windows-x64.zip`: unzip it into a
-folder with a short path (QuadWild fails in paths longer than about 240 characters, and the
-Tool says so instead of running it) and double-click `CyTools_MeshStudio.exe`. It holds the application, an embeddable CPython 3.12
-with the application's packages, `uv`, and the two native programs of the geometry engine, so
-nothing has to be installed first (Windows 10 or later, x64). The engines and the weights are
-not in it: the Installation tab builds each engine environment and downloads the weights, tens
-of gigabytes in all, from PyPI, GitHub and Hugging Face. What the archive is made of — each
-part with its URL and SHA-256 — is in `runtime/RELEASE.json` inside it; the archives are built
-by `app/scripts/build_release.py` from the tagged commit.
+*PBR form · texture size, UV handling and material channels.*
 
-The lighter `CyTools_MeshStudio-<version>-app.zip` holds the `app/` folder and the guides of
-the commit, without `data/`: what an installed Tool downloads from its Updates tab, which
-replaces its `app/` folder and nothing else.
 
-## From a clone
+## Features
 
-Windows, PowerShell, from the folder of the clone. Step 1 was executed on the development
-machine in a fresh environment (the SDK from its repository, then this Tool's own tests with
-that environment); steps 2 to 5 are the commands that were run here, not yet replayed from a
-fresh clone on another machine.
+- **Reconstruction:** TripoSR, SPAR3D, LocalMesh/TRELLIS.2 and additional declared backends, each with its own model and validation limits.
+- **Geometry:** AutoRemesher/QuadWild paths, mesh inspection/editing/conversion and UV unwrap/repack operations.
+- **Materials and views:** PBR baking, texture controls, view preparation and multi-view validation.
+- **Result inspection:** embedded 3D viewer with orbit/free camera, close inspection, scene presets and studio lighting.
+- **Composable workflows:** saved operation chains and CLI/MCP access. Optional rigging, motion and refinement backends require their own prerequisites; not every path is validated end to end.
 
-1. The application environment — CPython 3.12. `app/requirements.txt` installs the
-   [CyToolsCore](https://github.com/MrMybal/CyToolsCore) SDK 0.10.1 (MIT) from the archive of
-   a pinned commit of its repository; neither `git` nor a published wheel is needed:
+**Desktop and automation:** English is the default interface language; French is selectable in Options. Save/load generation configurations, follow copyable application logs and use the declared operations through the CLI or MCP. The [manual](https://mrmybal.github.io/CyTools_MeshStudio/Documentation.html#/en/overview) describes the real parameters and output contracts.
+
+---
+
+## Installation
+
+The published application build is **Windows x64**. The portable ZIP includes its private Python runtime and base UI/media dependencies. Models and optional heavy engines are separate downloads.
+
+1. [Download CyTools MeshStudio 0.1.4](https://github.com/MrMybal/CyTools_MeshStudio/releases/download/v0.1.4/CyTools_MeshStudio-0.1.4-windows-x64.zip).
+2. Extract the complete ZIP into a writable folder. Keep `app/` and `runtime/` beside the launcher.
+3. Open **CyTools_MeshStudio.exe**. Use the installation/model workspace for the components you need; review each component licence and any provider access conditions before download.
+
+No machine Python is needed just to open the portable application. Source setup and some optional engine installers require additional tools such as Git. Keep the full release folder; the standalone `.exe` or an `app` update ZIP alone is not a complete installation.
+
+Experimental, tested on Windows with NVIDIA hardware. Linux is unvalidated. Not every installed backend has been run end to end: Hi3DGen GPU inference, some LocalMesh+ paths and high-resolution refinement remain unvalidated. WHAM needs separately licensed SMPL files. Model licences and access vary.
+
+### Updates and data
+
+For an existing compatible installation, use its Updates page and the matching application update package. Keep `data/`, installed engines and models. An update for another runtime ABI must not be forced. If the required runtime changes, use the complete portable release in a separate folder and follow the migration instructions.
+
+## Source, build and required libraries
+
+<details>
+<summary>Windows source setup and optional build tools</summary>
+
+
+Use Python **3.12** for the base source environment. Git is needed for cloning and pinned Git requirements. Building the launcher needs the MSVC x64 Build Tools; use a developer command prompt.
 
 ```powershell
+git clone https://github.com/MrMybal/CyTools_MeshStudio.git
+cd CyTools_MeshStudio
 py -3.12 -m venv runtime\python
 runtime\python\Scripts\python.exe -m pip install -r app\requirements.txt
-```
-
-2. The launcher, with the MSVC compiler (a "x64 Native Tools" prompt):
-
-```powershell
 powershell -File app\build_launcher.ps1
+.\CyTools_MeshStudio.exe
 ```
 
-3. The engines, one private environment each under `runtime\engines`, with their pinned
-   upstream sources (`app/engines.json`). The interpreters come from `runtime\interpreters`,
-   the `py` launcher, or `uv python install`:
+The exact base requirements are in [app/requirements.txt](app/requirements.txt). Engines use their own environments and model catalogues; installing the base environment does not install them. Follow the [developer setup](app/README.md) for the detailed build and optional components.
 
-```powershell
-runtime\python\Scripts\python.exe app\setup_engine.py geometry
-```
+A source build also needs the geometry engine and its AutoRemesher/QuadWild native executables; these are already included in the portable archive. The Installation page sets up other backends separately. Engine environments are tied to their installation path.
 
-   then `torch-cu124`, `trellis`, `diffusion`, `wonder3d`, `syncdreamer`, `wham`, `hi3dgen`.
-   The Installation tab of the application does the same.
+</details>
 
-4. The two native programs of the geometry engine are not downloaded by `setup_engine.py`
-   yet. Unzip them so that these files exist:
+---
 
-   - `runtime\natives\autoremesher-1.2.0\autoremesher.exe` from
-     [autoremesher-1.2.0-win32-x86_64.zip](https://github.com/huxingyi/autoremesher/releases/download/1.2.0/autoremesher-1.2.0-win32-x86_64.zip)
-   - `runtime\natives\quadwild-bimdf-v0.0.2\quadwild.exe` from
-     [windows-binaries.zip](https://github.com/cgg-bern/quadwild-bimdf/releases/download/v0.0.2/windows-binaries.zip)
+## License
 
-5. The weights: Installation tab, or for one model:
+**CyTools MeshStudio is licensed under [GPL-3.0-only](LICENSE).** CyToolsCore, CyUI and CyDoc remain MIT components; their licences do not change the application licence. Optional engines, plugins and model weights retain their own terms.
 
-```powershell
-runtime\python\Scripts\python.exe app\tool.py invoke install_model --params "{\"model\":\"trellis2-4b\"}" --timeout 7200
-```
+### Main components and third-party libraries
 
-Then double-click `CyTools_MeshStudio.exe`, or run `runtime\python\Scripts\python.exe app\desktop.py`.
+| Library · source | License · terms | Use / scope |
+| --- | --- | --- |
+| [CyToolsCore 0.10.1](https://github.com/MrMybal/CyToolsCore) | [MIT](LICENCES/CyToolsCore-MIT.txt) | SDK/runtime: jobs, sessions, resources, CLI and MCP. |
+| [CyUI 1.2.0](https://github.com/MrMybal/CyUI) | [MIT](LICENCES/CyUI-MIT.txt) | Selected bundled Python UI modules. |
+| [CyDoc 0.1.0](https://github.com/MrMybal/CyDoc) | [MIT](LICENCES/CyDoc-MIT.txt) | Bundled offline reader; Node/npm are authoring/build tools only. |
+| [Dear ImGui / imgui-bundle](https://github.com/pthom/imgui_bundle) | [MIT + component notices](https://github.com/pthom/imgui_bundle/blob/main/LICENSE) | Desktop renderer and its bundled native components. |
+| [CPython 3.12](https://www.python.org/) | [PSF + component notices](LICENCES/Python-3.12-PSF.txt) | Private runtime included in the Windows portable archive. |
+| [ModernGL / trimesh](app/requirements.txt) | [MIT](LICENCES/SOURCES.txt) | Base mesh handling and OpenGL preview. |
+| [AutoRemesher 1.2.0](https://github.com/huxingyi/autoremesher) | [MIT](LICENCES/AutoRemesher-MIT.txt) | Native geometry program in the Windows portable build. |
+| [QuadWild Bi-MDF](https://github.com/cgg-bern/quadwild-bimdf) | [GPL-3.0](LICENCES/QuadWild-BiMDF-GPL-3.0.txt) | Native quad-remeshing program; bundled Qt retains LGPL terms. |
+| [Qt](https://www.qt.io/) | [LGPL-3.0](LICENCES/Qt-LGPL-3.0.txt) | Component of the native geometry distribution. |
+| [uv](https://github.com/astral-sh/uv) | [MIT OR Apache-2.0](LICENCES/uv-MIT.txt) | Bundled environment/setup utility; the alternative Apache notice is also retained. |
+| [Reconstruction / rigging / motion engines](app/engines.json) | [Engine and model-specific terms](app/licenses.json) | Downloaded separately; Stability, non-commercial and SMPL restrictions may apply. |
 
-## Updates
+This table indexes the main components; it does not replace their complete transitive notices. Retain [LICENCES/](LICENCES/), [app/licenses.json](app/licenses.json), the licences beside installed packages and the notices in each optional engine/model. CUDA libraries, when installed, also retain NVIDIA’s terms.
 
-The Updates tab reads the releases of this repository — `MrMybal/CyTools_MeshStudio`, declared
-in the manifest and changeable in the tab — stages one, activates it at the next start and can
-roll it back; `data/` is never replaced.
+## References and links
 
-## 0.1.2: the interface
+- [Documentation](https://mrmybal.github.io/CyTools_MeshStudio/Documentation.html#/en/overview)
+- [Website](https://mrmybal.github.io/CyTools_MeshStudio/)
+- [Source repository](https://github.com/MrMybal/CyTools_MeshStudio) · [Releases and checksums](https://github.com/MrMybal/CyTools_MeshStudio/releases)
+- [Issue tracker](https://github.com/MrMybal/CyTools_MeshStudio/issues) · [Version notes](VERSION.md)
+- [Developer setup](app/README.md)
 
-0.1.2 redraws the desktop interface with CyUI, Cyberalien's Dear ImGui library: a sidebar
-replaces the tabs, the tool and workflow lists have a search field, forms are property tables
-with one primary action, and Options offer five themes and two densities. The operations, the
-manifest schema, the CLI, MCP and `data/` are unchanged, and so is the SDK (CyToolsCore 0.10.1):
-an installation in 0.1.1 updates from the Updates page with nothing else to install. A former
-theme preference is mapped to the nearest new theme.
+<details>
+<summary><strong>AI Usage</strong></summary>
 
-## Updating from 0.1.0, and going back
+- [Start here: project agent guide](app/AGENTS.md) — product rules and important files.
+- [Operations and AI integration](app/Documentation/DocAI.md) — actual tool contracts and task usage.
+- [Build this application](app/README.md) — source setup and application-specific commands.
 
-0.1.1 moves the SDK from CyToolsCore 0.9.0 to 0.10.1, now under the MIT licence, and adds
-the `LICENCES` folder. The operations, the manifest schema, the protocol and `data/` are
-unchanged, and 0.1.1 runs on either SDK.
-
-- **A fresh installation**: the 0.1.1 binary archive carries the SDK 0.10.1 and `LICENCES`.
-- **An existing binary installation**: the Updates tab replaces `app/` only, and the Tool
-  keeps running on the SDK it was shipped with. To move its SDK too, install the wheel the
-  update brings, from the folder of the Tool:
-  `runtime\python\python.exe -m pip install --no-index --find-links app\wheels "cytools-core==0.10.1"`.
-  The embedded Python cannot build a package from source, which is why the wheel is shipped
-  and why `pip install -r app\requirements.txt` is for clones only. The `LICENCES` folder
-  comes with the full archive; an update brings the SDK's own notice as
-  `app/LICENSE-CyToolsCore.txt`. Engine environments are not relocatable: keep the folder
-  rather than moving `runtime/engines` to a new one.
-- **A clone**: `git pull`, then `runtime\python\Scripts\python.exe -m pip install -r app\requirements.txt`.
-- **Going back**: the Updates tab rolls `app/` back to the copy it kept under
-  `runtime/backups`; 0.1.0 runs on the SDK 0.10.1 too, so the SDK can stay. A clone goes back
-  with `git checkout v0.1.0` and the same `pip install -r`. Copies received under the earlier
-  licence keep their terms.
-
-## Tests
-
-```powershell
-runtime\python\Scripts\python.exe app\test_tool.py
-runtime\python\Scripts\python.exe app\tests\test_workflow_inputs.py
-runtime\python\Scripts\python.exe app\tests\test_updates.py
-runtime\python\Scripts\python.exe app\tests\validate_forms.py
-runtime\python\Scripts\python.exe app\desktop.py --ui-test-interactions
-runtime\python\Scripts\python.exe app\desktop.py --ui-test-interactions --ui-test-language=fr
-runtime\engines\trellis\Scripts\python.exe app\tests\test_quadtex.py
-```
-
-Never run two of them at the same time: one runtime owns `data/` at a time.
-
-## Licence
-
-Copyright (C) 2026 Cyberalien.
-
-CyTools_MeshStudio is distributed under the **GNU General Public License, version 3 only**
-(`GPL-3.0-only`); the full text is in [LICENSE](LICENSE). It is built on the
-[CyToolsCore](https://github.com/MrMybal/CyToolsCore) SDK 0.10.1, which is under the MIT
-licence, and its interface is drawn with CyUI, Cyberalien's Dear ImGui library, also under
-the MIT licence; neither changes the licence of this program.
-
-The [LICENCES](LICENCES) folder holds the full licence texts of what is shipped — the SDK
-and CyUI and, for the Windows binary archive, Python, pip, uv, AutoRemesher and QuadWild — and
-[LICENCES/SOURCES.txt](LICENCES/SOURCES.txt) gives the source of each.
-
-You may redistribute and modify this program under the terms of its licence. It comes
-without any warranty, including the implied warranties of merchantability and fitness for a
-particular purpose.
-
-The engines, upstream sources, native programs and model weights are fetched at
-installation, under their own licences — several of them non-commercial. They are listed in
-[app/Docs/ThirdPartyNotices.md](app/Docs/ThirdPartyNotices.md), generated from
-`app/engines.json` and `app/models/catalog.json`.
-
-## Modular CyUI
-
-The standalone interface uses the pinned, selected CyUI 1.2 modules. See
-[the migration and validation notes](app/Docs/CyUIMigration.md) for replacements, retained host
-adaptations, source hashes and reproducible refresh instructions.
-
-CyUI: MIT. Full license: LICENCES/CyUI-MIT.txt.
-Upstream license: https://github.com/MrMybal/CyUI/blob/main/LICENSE
-Repository: https://github.com/MrMybal/CyUI (currently private; no upstream access required to run this application).
-
-
-## Local documentation
-
-Open **Options → Open local manual (F1)** or press **F1** in the application. The complete offline reader is shipped in `app/Documentation/Documentation.html`. [Regenerate the manual](app/.CyDocBuild/README.md).
+</details>

@@ -59,3 +59,6 @@ Thumbs.db
 /app/.CyDocBuild/cydoc.active.json
 /app/.CyDocExport/
 /app/.CyDocExport.previous/
+
+# Local README convention preview
+/artifacts/readme-preview/
