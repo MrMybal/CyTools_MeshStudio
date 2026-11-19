@@ -181,7 +181,7 @@ def embed_python(stage, archive, wheel, extras):
         shutil.rmtree(cache, ignore_errors=True)
     # The packages import, and the SDK inside the archive is the MIT one: changing a licence
     # file does not turn an older wheel into the new package, so the installed metadata is read.
-    check = ('import cytools_core, imgui_bundle, moderngl, trimesh, numpy, PIL, mcp, gdown; '
+    check = ('import cytools_core, imgui_bundle, moderngl, trimesh, numpy, PIL, gdown; '
              'from importlib.metadata import metadata; m = metadata("cytools-core"); '
              'print(m["Version"] + "|" + str(m.get("License-Expression")))')
     answer = subprocess.run([str(python), '-c', check], capture_output=True, text=True,

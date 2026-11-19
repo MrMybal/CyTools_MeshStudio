@@ -75,6 +75,8 @@ def create_runtime(data_dir, **options):
 
     from cytools_core.shared_installation import register_operations
     register_operations(runtime, paths.ROOT)
+    from cytools_core.communication import register_operations as register_communication
+    register_communication(runtime)
     return runtime
 
 

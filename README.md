@@ -12,8 +12,8 @@
     </td>
     <td width="300" align="right" valign="top">
       <p><sub>Application license</sub><br><a href="LICENSE"><strong>GPL-3.0-only</strong></a></p>
-      <p><sub>Application version</sub><br><a href="VERSION.md"><strong>0.1.4</strong></a><br><strong>EXPERIMENTAL</strong></p>
-      <p><a href="https://github.com/MrMybal/CyTools_MeshStudio/releases/download/v0.1.4/CyTools_MeshStudio-0.1.4-windows-x64.zip"><strong>Download</strong></a><br><sub>Windows x64 · portable</sub></p>
+      <p><sub>Application version</sub><br><a href="VERSION.md"><strong>0.1.5</strong></a><br><strong>EXPERIMENTAL</strong></p>
+      <p><a href="https://github.com/MrMybal/CyTools_MeshStudio/releases/download/v0.1.5/CyTools_MeshStudio-0.1.5-windows-x64.zip"><strong>Download</strong></a><br><sub>Windows x64 · portable</sub></p>
     </td>
   </tr>
 </table>
@@ -25,7 +25,7 @@ Maintained by **Cyberalien**.
 
 Reconstruct, inspect and process meshes in one desktop workspace. Choose a compatible engine, prepare the views and continue with topology, UVs or materials. For 3D artists and technical creators who need visual inspection and composable mesh operations.
 
-> **EXPERIMENTAL · 0.1.4**
+> **EXPERIMENTAL · 0.1.5**
 >
 > Published Windows build for evaluation; some engine paths remain unvalidated. Read the [version notes and known limitations](VERSION.md).
 
@@ -74,7 +74,7 @@ Run remeshing, UV and PBR operations with their actual settings. Baking exposes 
 
 The published application build is **Windows x64**. The portable ZIP includes its private Python runtime and base UI/media dependencies. Models and optional heavy engines are separate downloads.
 
-1. [Download CyTools MeshStudio 0.1.4](https://github.com/MrMybal/CyTools_MeshStudio/releases/download/v0.1.4/CyTools_MeshStudio-0.1.4-windows-x64.zip).
+1. [Download CyTools MeshStudio 0.1.5](https://github.com/MrMybal/CyTools_MeshStudio/releases/download/v0.1.5/CyTools_MeshStudio-0.1.5-windows-x64.zip).
 2. Extract the complete ZIP into a writable folder. Keep `app/` and `runtime/` beside the launcher.
 3. Open **CyTools_MeshStudio.exe**. Use the installation/model workspace for the components you need; review each component licence and any provider access conditions before download.
 
@@ -119,7 +119,8 @@ A source build also needs the geometry engine and its AutoRemesher/QuadWild nati
 
 | Library · source | License · terms | Use / scope |
 | --- | --- | --- |
-| [CyToolsCore 0.10.1](https://github.com/MrMybal/CyToolsCore) | [MIT](LICENCES/CyToolsCore-MIT.txt) | SDK/runtime: jobs, sessions, resources, CLI and MCP. |
+| [CyToolsCore 0.11.0](https://github.com/MrMybal/CyToolsCore) | [MIT](LICENCES/CyToolsCore-MIT.txt) | SDK/runtime: jobs, sessions, resources, CLI and MCP. |
+| [CyMCPSDK 0.7.1](https://github.com/MrMybal/CyMCPSDK) | [MIT](LICENCES/CyMCPSDK-MIT.txt) | Native CLI, JSONL, HTTP and MCP. |
 | [CyUI 1.2.0](https://github.com/MrMybal/CyUI) | [MIT](LICENCES/CyUI-MIT.txt) | Selected bundled Python UI modules. |
 | [CyDoc 0.1.0](https://github.com/MrMybal/CyDoc) | [MIT](LICENCES/CyDoc-MIT.txt) | Bundled offline reader; Node/npm are authoring/build tools only. |
 | [Dear ImGui / imgui-bundle](https://github.com/pthom/imgui_bundle) | [MIT + component notices](https://github.com/pthom/imgui_bundle/blob/main/LICENSE) | Desktop renderer and its bundled native components. |
@@ -149,3 +150,10 @@ This table indexes the main components; it does not replace their complete trans
 - [Build this application](app/README.md) — source setup and application-specific commands.
 
 </details>
+
+
+## Native AI communication
+
+CyToolsCore **0.11.0** uses **CyMCPSDK 0.7.1** for native CLI, JSONL, HTTP and MCP. Discover all effective options with `ai_communication_status` (`includeOperations: true`). Export wanted task results before cleanup. This first migration requires the full Windows package; application-only updates are for installations that already have the native runtime.
+
+Source-build dependency: `cytools-core @ https://github.com/MrMybal/CyToolsCore/releases/download/v0.11.0/cytools_core-0.11.0-py3-none-win_amd64.whl`. See [developer instructions](app/README.md) for native builds.
