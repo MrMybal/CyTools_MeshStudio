@@ -9,7 +9,7 @@ What the repository carries and how to rebuild `runtime/` from a clone is in `..
 `data/reports/` is not versioned. The licences of everything fetched at installation are in
 `Docs/ThirdPartyNotices.md` (`scripts/build_notices.py`).
 
-Built on the [CyToolsCore](https://github.com/MrMybal/CyToolsCore) SDK 0.10.1 (MIT),
+Built on the [CyToolsCore](https://github.com/MrMybal/CyToolsCore) SDK 0.12.0 (MIT),
 installed by `requirements.txt` from a pinned commit of its repository; its licence text is
 `../LICENCES/CyToolsCore-MIT.txt` and the scaffold's notice `LICENSE-CyToolsCore.txt`. The application process only validates, schedules and
 reports: every model and every native program runs in a worker started with the interpreter of
@@ -111,7 +111,7 @@ adaptations, source hashes and reproducible refresh instructions.
 Windows x64 source installation uses the pinned native platform wheel:
 
 ```powershell
-python -m pip install "cytools-core @ https://github.com/MrMybal/CyToolsCore/releases/download/v0.11.0/cytools_core-0.11.0-py3-none-win_amd64.whl"
+python -m pip install "cytools-core==0.12.0" --find-links app/packages
 ```
 
 The same wheel and SHA-256 are included in `app/packages/native-core.json`.

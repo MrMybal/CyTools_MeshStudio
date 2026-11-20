@@ -127,12 +127,13 @@ def build_launcher():
 
 def sdk_requirement(stage):
     """The cytools-core line of the staged requirements: (extras, url of the pinned source)."""
-    for line in (stage / 'app' / 'requirements.txt').read_text('utf-8').splitlines():
-        if line.strip().lower().startswith('cytools-core'):
-            spec, _, url = line.partition('@')
-            extras = spec[spec.index('['):].strip() if '[' in spec else ''
-            return extras, url.strip()
-    raise SystemExit('app/requirements.txt names no cytools-core requirement.')
+    lock = json.loads((APP / 'packages/native-core.json').read_text('utf-8'))
+    wheel = APP / 'packages' / lock['wheel']
+    import hashlib
+    if hashlib.sha256(wheel.read_bytes()).hexdigest() != lock['sha256']:
+        raise RuntimeError('Bundled Core wheel digest mismatch')
+    return '', wheel.resolve().as_uri()
+
 
 
 def build_sdk_wheel(stage):
